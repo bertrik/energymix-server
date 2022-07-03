@@ -1,0 +1,45 @@
+plugins {
+  id 'com.github.spotbugs' version '5.0.9'
+  id 'com.github.ben-manes.versions' version '0.42.0'
+}
+
+def isNonStable = { String version ->
+    def stableKeyword = ['RELEASE', 'FINAL', 'GA'].any { it -> version.toUpperCase().contains(it) }
+    def regex = /^[0-9,.v-]+(-r)?$/
+    return !stableKeyword && !(version ==~ regex)
+}
+
+// Define all library dependencies in one file for clarity
+apply from:'dependencies.gradle'
+
+subprojects {
+    apply plugin: "java"
+    apply plugin: "eclipse"
+    apply plugin: "com.github.spotbugs"
+    apply plugin: 'com.github.ben-manes.versions'
+    
+    targetCompatibility = 1.8
+    sourceCompatibility = 1.8
+
+    repositories {
+        mavenCentral()
+    }
+
+    spotbugsMain { reports { html { enabled = true } } }
+
+    // Reject all non stable versions in dependency check
+    tasks.named("dependencyUpdates").configure {
+        rejectVersionIf {
+            isNonStable(it.candidate.version)
+        }
+    }
+
+    // Standard libraries added to all projects
+    dependencies {
+        testImplementation libraries.junit
+        testImplementation libraries.mockito
+
+        implementation libraries.slf4j
+    }
+}
+

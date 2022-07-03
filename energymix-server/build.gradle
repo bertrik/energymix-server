@@ -1,0 +1,32 @@
+apply plugin: "application"
+
+mainClassName = 'nl.bertriksikken.energymix.app.EnergyMixApp'
+
+dependencies {
+    implementation libraries.guava
+    implementation libraries.retrofit
+    implementation libraries.jackson
+
+    // REST server
+//    implementation libraries.jersey_server
+
+    implementation libraries.dropwizard
+}
+
+// fix scripts executable bit and line endings
+import org.apache.tools.ant.filters.FixCrLfFilter
+
+distributions {
+    main {
+        contents {
+            filesMatching("**/*.sh") {
+                mode = 0755
+                filter(FixCrLfFilter,
+                    eol: FixCrLfFilter.CrLf.newInstance('lf'),
+                    tab: FixCrLfFilter.AddAsisRemove.newInstance('asis'),
+                    eof: FixCrLfFilter.AddAsisRemove.newInstance('remove'),
+                    fixlast: true)
+            }
+        } 
+    }
+}
