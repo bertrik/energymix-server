@@ -3,10 +3,13 @@ package nl.bertriksikken.berthub;
 import java.time.Duration;
 import java.util.Locale;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonAutoDetect(getterVisibility = Visibility.NONE)
 public final class BerthubFetcherConfig {
 
     @JsonProperty("url")
