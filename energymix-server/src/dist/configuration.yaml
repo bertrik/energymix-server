@@ -1,0 +1,23 @@
+---
+berthub:
+  url: "https://berthub.eu"
+  timeout: 30
+logging: !<default>
+  level: "INFO"
+  loggers: {}
+  appenders:
+  - type: console
+    threshold: "ALL"
+    logFormat: null
+    layout: null
+    timeZone: "UTC"
+    queueSize: 256
+    discardingThreshold: -1
+    messageRate: null
+    includeCallerData: false
+    filterFactories: []
+    target: "STDOUT"
+server: !<default>
+  applicationConnectors:
+  - type: http
+    port: 9001
