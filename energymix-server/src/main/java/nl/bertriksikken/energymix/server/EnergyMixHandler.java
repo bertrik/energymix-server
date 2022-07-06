@@ -80,17 +80,13 @@ public final class EnergyMixHandler {
         
         long total = (long) latest.getTotal();
         EnergyMix mix = new EnergyMix(latest.time.getEpochSecond(), total);
-        mix.addComponent("solar", percent(latest.solar, total), "#FFFF00");
-        mix.addComponent("wind", percent(latest.wind, total), "#0000FF");
-        mix.addComponent("fossil", percent(latest.fossil, total), "#FF0000");
-        mix.addComponent("nuclear", percent(latest.nuclear, total), "#FF00FF");
-        mix.addComponent("other", percent(latest.other, total), "#444444");
-        mix.addComponent("waste", percent(latest.waste, total), "#444444");
+        mix.addComponent("solar", latest.solar, "#FFFF00");
+        mix.addComponent("wind", latest.wind, "#0000FF");
+        mix.addComponent("fossil", latest.fossil, "#FF0000");
+        mix.addComponent("nuclear", latest.nuclear, "#FF00FF");
+        mix.addComponent("other", latest.other, "#444444");
+        mix.addComponent("waste", latest.waste, "#444444");
         return mix;
-    }
-    
-    private int percent(double value, double total) {
-        return (int)Math.round(100.0 * value / total);
     }
 
 }

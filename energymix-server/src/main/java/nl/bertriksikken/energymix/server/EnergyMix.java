@@ -25,8 +25,8 @@ public final class EnergyMix {
         this.total = total;
     }
     
-    public void addComponent(String id, int percent, String color) {
-        mix.add(new EnergyComponent(id, percent, color));
+    public void addComponent(String id, double power, String color) {
+        mix.add(new EnergyComponent(id, Math.round(power), color));
     }
     
     @Override
@@ -38,21 +38,21 @@ public final class EnergyMix {
         @JsonProperty("id")
         private final String id;
         
-        @JsonProperty("percent")
-        private final int percent;
+        @JsonProperty("power")
+        private final long power;
         
         @JsonProperty("color")
         private final String color;
         
-        private EnergyComponent(String id, int percent, String color) {
+        private EnergyComponent(String id, long megawatt, String color) {
             this.id = id;
-            this.percent = percent;
+            this.power = megawatt;
             this.color = color;
         }
         
         @Override
         public String toString() {
-            return String.format(Locale.ROOT, "{id=%s,percent=%d,color=%s}", id, percent, color);
+            return String.format(Locale.ROOT, "{id=%s,power=%d,color=%s}", id, power, color);
         }
     }
 
