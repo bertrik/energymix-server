@@ -20,6 +20,11 @@ import java.util.Map.Entry;
  */
 public final class ProductionData {
 
+    private static final DateTimeFormatter DATETIME_FORMATTER = new DateTimeFormatterBuilder()
+            .appendValue(DAY_OF_MONTH, 2).appendLiteral('.').appendValue(MONTH_OF_YEAR, 2).appendLiteral('.')
+            .appendValue(YEAR, 4, 10, SignStyle.EXCEEDS_PAD).appendLiteral(' ').appendValue(HOUR_OF_DAY, 2)
+            .appendLiteral(':').appendValue(MINUTE_OF_HOUR, 2).toFormatter().withZone(ZoneOffset.UTC);
+
     private final boolean valid;
     public final Instant time;
     public final Double biomass;
@@ -70,11 +75,7 @@ public final class ProductionData {
         if (times.length == 2) {
             // parse second part
             String endTime = times[1].trim();
-            DateTimeFormatter formatter = new DateTimeFormatterBuilder().appendValue(DAY_OF_MONTH, 2).appendLiteral('.')
-                    .appendValue(MONTH_OF_YEAR, 2).appendLiteral('.').appendValue(YEAR, 4, 10, SignStyle.EXCEEDS_PAD)
-                    .appendLiteral(' ').appendValue(HOUR_OF_DAY, 2).appendLiteral(':').appendValue(MINUTE_OF_HOUR, 2)
-                    .toFormatter().withZone(ZoneOffset.UTC);
-            return Instant.from(formatter.parse(endTime));
+            return Instant.from(DATETIME_FORMATTER.parse(endTime));
         }
         return null;
     }
@@ -99,7 +100,7 @@ public final class ProductionData {
     // if any of the elements has "-", the line is considered invalid
     private static boolean hasData(Map<String, String> data) {
         for (String cell : data.values()) {
-            if (cell.equals("-")) {
+            if (cell.equals("-") || cell.equalsIgnoreCase("N/A")) {
                 return false;
             }
         }
@@ -109,7 +110,7 @@ public final class ProductionData {
     public boolean isValid() {
         return valid;
     }
-    
+
     public double getTotal() {
         return biomass + fossil + nuclear + other + solar + waste + wind;
     }
