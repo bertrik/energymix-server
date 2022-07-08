@@ -23,6 +23,11 @@ libraries.dropwizard = [
     "io.dropwizard:dropwizard-core:${dropwizardVersion}"
 ]
 
+libraries.ratelimitj = [
+    "es.moki.ratelimitj:ratelimitj-dropwizard:0.7.0",
+    "es.moki.ratelimitj:ratelimitj-inmemory:0.7.0"
+]
+
 libraries.retrofit = [
     "com.squareup.retrofit2:retrofit:${retrofitVersion}",
     "com.squareup.retrofit2:converter-jackson:${retrofitVersion}",

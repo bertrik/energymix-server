@@ -7,7 +7,11 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 
+import es.moki.ratelimij.dropwizard.RateLimitBundle;
+import es.moki.ratelimitj.core.limiter.request.RequestRateLimiterFactory;
+import es.moki.ratelimitj.inmemory.InMemoryRateLimiterFactory;
 import io.dropwizard.Application;
+import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import nl.bertriksikken.berthub.BerthubFetcher;
 import nl.bertriksikken.energymix.server.EnergyMixHandler;
@@ -18,6 +22,12 @@ public final class EnergyMixApp extends Application<EnergyMixAppConfig> {
     private static final String CONFIG_FILE = "configuration.yaml";
 
     private EnergyMixApp() {
+    }
+    
+    @Override
+    public void initialize(Bootstrap<EnergyMixAppConfig> bootstrap) {
+        RequestRateLimiterFactory factory = new InMemoryRateLimiterFactory();
+        bootstrap.addBundle(new RateLimitBundle(factory));
     }
     
     @Override

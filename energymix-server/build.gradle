@@ -7,10 +7,8 @@ dependencies {
     implementation libraries.retrofit
     implementation libraries.jackson
 
-    // REST server
-//    implementation libraries.jersey_server
-
     implementation libraries.dropwizard
+    implementation libraries.ratelimitj
 }
 
 // fix scripts executable bit and line endings
