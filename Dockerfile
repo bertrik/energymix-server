@@ -1,4 +1,4 @@
-FROM openjdk:11.0.4-jre-slim
+FROM adoptopenjdk/openjdk14:jre-14.0.2_12-alpine
 MAINTAINER Bertrik Sikken bertrik@gmail.com
 
 ADD energymix-server/build/distributions/energymix-server.tar /opt/
