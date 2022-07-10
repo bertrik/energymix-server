@@ -3,6 +3,7 @@ package nl.bertriksikken.energymix.server;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -13,9 +14,9 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.google.common.base.Preconditions;
-import com.google.common.util.concurrent.MoreExecutors;
 
 import nl.bertriksikken.berthub.BerthubFetcher;
+import nl.bertriksikken.berthub.BerthubFetcher.DownloadResult;
 import nl.bertriksikken.berthub.ProductionData;
 import nl.bertriksikken.berthub.ProductionDataCsv;
 
@@ -38,26 +39,39 @@ public final class EnergyMixHandler {
 
     public void start() {
         LOG.info("Starting");
-        executor.scheduleAtFixedRate(this::download, 0, 10, TimeUnit.MINUTES);
+        executor.execute(this::download);
     }
     
     // runs on the executor
     private void download() {
         Instant now = Instant.now();
+        Instant next = now.plus(Duration.ofMinutes(15));
         try {
             LOG.info("Getting new data from berthub.eu");
-            String csvData = fetcher.download(now);
-            ProductionDataCsv production = ProductionDataCsv.parse(CSV_MAPPER, csvData);
+            DownloadResult result = fetcher.download(now);
+            next = result.getTime().plus(Duration.ofMinutes(16));
+            ProductionDataCsv production = ProductionDataCsv.parse(CSV_MAPPER, result.getData());
             latest = production.getLatest();
             LOG.info("Latest: {}", latest);
         } catch (IOException e) {
             LOG.warn("Fetching/decoding latest production data failed!", e);
         }
+
+        // schedule next
+        Duration delay = Duration.between(now, next).truncatedTo(ChronoUnit.SECONDS);
+        if (delay.isNegative()) {
+            // time calculation is off, retry in 5 minutes
+            LOG.warn("Time schedule calculation error");
+            delay = Duration.ofMinutes(5);
+        }
+        executor.schedule(this::download, delay.toSeconds(), TimeUnit.SECONDS);
+        LOG.info("Scheduled next download for {} (in {})", next, delay);
     }
 
-    public void stop() {
+    public void stop() throws InterruptedException {
         LOG.info("Stopping");
-        MoreExecutors.shutdownAndAwaitTermination(executor, Duration.ofSeconds(10));
+        executor.shutdownNow();
+        executor.awaitTermination(10, TimeUnit.SECONDS);
     }
 
     /**

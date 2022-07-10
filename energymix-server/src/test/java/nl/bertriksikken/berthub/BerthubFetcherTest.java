@@ -12,7 +12,7 @@ public final class BerthubFetcherTest {
         BerthubFetcherConfig config = new BerthubFetcherConfig();
         BerthubFetcher fetcher = BerthubFetcher.create(config);
         Instant now = Instant.now();
-        String csv = fetcher.download(now);
+        String csv = fetcher.download(now).getData();
         ProductionDataCsv all = ProductionDataCsv.parse(csvMapper, csv);
         ProductionData latest = all.getLatest();
         

@@ -32,7 +32,7 @@ public class EnergyMixResource implements Managed {
     }
 
     @Override
-    public void stop() {
+    public void stop() throws InterruptedException {
         handler.stop();
     }
 

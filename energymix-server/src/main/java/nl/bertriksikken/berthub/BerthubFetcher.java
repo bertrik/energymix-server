@@ -41,18 +41,27 @@ public final class BerthubFetcher {
         return new BerthubFetcher(restApi);
     }
 
-    public String download(Instant now) throws IOException {
+    public DownloadResult download(Instant now) {
         ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(now, ZoneOffset.UTC);
         String fileName = String.format(Locale.ROOT, "nlprod-%4d%02d%02d.csv", zonedDateTime.getYear(),
                 zonedDateTime.getMonth().getValue(), zonedDateTime.getDayOfMonth());
-        Response<String> response = restApi.downloadHarvested(fileName).execute();
-        if (response.isSuccessful()) {
-            healthy.set(true);
-            return response.body();
-        } else {
+        LOG.info("Download harvested file {}", fileName);
+        Response<String> response;
+        try {
+            response = restApi.downloadHarvested(fileName).execute();
+            if (response.isSuccessful()) {
+                healthy.set(true);
+                Instant lastModified = response.headers().getInstant("Last-Modified");
+                return new DownloadResult(true, response.body(), lastModified);
+            } else {
+                healthy.set(false);
+                LOG.warn("Download file {} failed!", fileName);
+                return new DownloadResult(false, response.errorBody().string(), now);
+            }
+        } catch (IOException e) {
             healthy.set(false);
-            LOG.warn("Fetching file {} failed!", fileName);
-            return "";
+            LOG.warn("Caught IOException", e);
+            return new DownloadResult(false, e.getMessage(), now);
         }
     }
     
@@ -60,4 +69,29 @@ public final class BerthubFetcher {
         return healthy.get();
     }
 
+    // result data class
+    public static final class DownloadResult {
+        private final boolean success;
+        private final String data;
+        private final Instant time;
+        
+        DownloadResult(boolean success, String data, Instant time) {
+            this.success = success;
+            this.data = data;
+            this.time = time;
+        }
+
+        public boolean isSuccess() {
+            return success;
+        }
+
+        public String getData() {
+            return data;
+        }
+
+        public Instant getTime() {
+            return time;
+        }
+    }
+    
 }
