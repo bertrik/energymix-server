@@ -23,7 +23,6 @@ public final class RunEntsoeFetcher {
 
     private static final Logger LOG = LoggerFactory.getLogger(RunEntsoeFetcher.class);
     private static final EArea AREA = EArea.NETHERLANDS;
-    private static final XmlMapper MAPPER = new XmlMapper();
 
     public static void main(String[] args) throws IOException {
         LOG.info("Start fetching data");
@@ -31,7 +30,9 @@ public final class RunEntsoeFetcher {
         YAMLMapper yamlMapper = new YAMLMapper();
         yamlMapper.findAndRegisterModules();
         EntsoeFetcherConfig config = yamlMapper.readValue(new File("entsoe.yaml"), EntsoeFetcherConfig.class);
-        EntsoeFetcher fetcher = EntsoeFetcher.create(config, MAPPER);
+        
+        XmlMapper xmlMapper = new XmlMapper();
+        EntsoeFetcher fetcher = EntsoeFetcher.create(config, xmlMapper);
 
         RunEntsoeFetcher test = new RunEntsoeFetcher();
         test.fetchActualGeneration(fetcher, "A75_actualgeneration.yaml");
