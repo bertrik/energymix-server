@@ -16,7 +16,8 @@ libraries.jackson = [
     "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}",
     "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:${jacksonVersion}",
     "com.fasterxml.jackson.dataformat:jackson-dataformat-csv:${jacksonVersion}",
-    "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${jacksonVersion}"
+    "com.fasterxml.jackson.dataformat:jackson-dataformat-xml:${jacksonVersion}",
+    "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${jacksonVersion}",
 ]
 
 libraries.dropwizard = [
