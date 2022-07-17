@@ -46,7 +46,7 @@ public class EnergyMixResource implements Managed {
     @Path("/latest")
     @Produces(MediaType.APPLICATION_JSON)
     @CacheControl(maxAge = 15, maxAgeUnit = TimeUnit.MINUTES)
-    @RateLimited(keys = KeyPart.ANY, rates = { @Rate(duration = 1, timeUnit = TimeUnit.MINUTES, limit = 1) })
+    @RateLimited(keys = KeyPart.ANY, rates = { @Rate(duration = 1, timeUnit = TimeUnit.MINUTES, limit = 2) })
     public EnergyMix getLatest() {
         return handler.getLatest();
     }
