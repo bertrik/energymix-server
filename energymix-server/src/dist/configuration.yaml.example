@@ -1,4 +1,8 @@
 ---
+entsoe:
+  url: "https://transparency.entsoe.eu"
+  timeout: 30
+  apiKey: "your-key-here"
 berthub:
   url: "https://berthub.eu"
   timeout: 30
