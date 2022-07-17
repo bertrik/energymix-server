@@ -48,6 +48,10 @@ public final class ProductionData {
         this.wind = wind;
     }
 
+    public ProductionData withSolar(Double newSolar) {
+        return new ProductionData(valid, time, biomass, fossil, nuclear, other, newSolar, waste, wind);
+    }
+
     // parses one line
     public static ProductionData parse(Map<String, String> data) {
         Instant time = parseMtu(data);

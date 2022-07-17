@@ -1,7 +1,10 @@
 package nl.bertriksikken.energymix.entsoe;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
+import java.nio.charset.Charset;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -11,13 +14,13 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
+import com.google.common.base.Charsets;
 
 import nl.bertriksikken.entsoe.EArea;
 import nl.bertriksikken.entsoe.EDocumentType;
 import nl.bertriksikken.entsoe.EProcessType;
 import nl.bertriksikken.entsoe.EPsrType;
 import nl.bertriksikken.entsoe.EntsoeRequest;
-import nl.bertriksikken.entsoe.EntsoeResponse;
 
 public final class RunEntsoeFetcher {
 
@@ -26,17 +29,17 @@ public final class RunEntsoeFetcher {
 
     public static void main(String[] args) throws IOException {
         LOG.info("Start fetching data");
-        
+
         YAMLMapper yamlMapper = new YAMLMapper();
         yamlMapper.findAndRegisterModules();
         EntsoeFetcherConfig config = yamlMapper.readValue(new File("entsoe.yaml"), EntsoeFetcherConfig.class);
-        
+
         XmlMapper xmlMapper = new XmlMapper();
         EntsoeFetcher fetcher = EntsoeFetcher.create(config, xmlMapper);
 
         RunEntsoeFetcher test = new RunEntsoeFetcher();
-        test.fetchActualGeneration(fetcher, "A75_actualgeneration.yaml");
-        test.fetchSolarForecast(fetcher, "A69_solar_wind_forecast.yaml");
+        test.fetchActualGeneration(fetcher, "A75_actualgeneration.xml");
+        test.fetchSolarForecast(fetcher, "A69_solar_wind_forecast.xml");
 
         LOG.info("Done fetching data");
     }
@@ -53,12 +56,13 @@ public final class RunEntsoeFetcher {
         Instant periodStart = now.truncatedTo(ChronoUnit.DAYS);
         Instant periodEnd = periodStart.plus(Duration.ofDays(1));
 
-        EntsoeRequest request = new EntsoeRequest(EDocumentType.WIND_SOLAR_FORECAST, EProcessType.DAY_AHEAD, AREA,
-                periodStart, periodEnd);
+        EntsoeRequest request = new EntsoeRequest(EDocumentType.WIND_SOLAR_FORECAST, EProcessType.DAY_AHEAD, AREA);
+        request.setPeriod(periodStart, periodEnd);
         request.setProductionType(EPsrType.SOLAR);
-        EntsoeResponse response = fetcher.getDocument(request);
-        YAMLMapper mapper = new YAMLMapper();
-        mapper.writeValue(new File(fileName), response);
+        String xml = fetcher.getRawDocument(request.getParams());
+        try (Writer writer = new FileWriter(new File(fileName), Charsets.UTF_8)) {
+            writer.write(xml);
+        }
     }
 
     private void fetchActualGeneration(EntsoeFetcher fetcher, String fileName) throws IOException {
@@ -66,11 +70,13 @@ public final class RunEntsoeFetcher {
         Instant periodStart = now.truncatedTo(ChronoUnit.DAYS);
         Instant periodEnd = periodStart.plus(Duration.ofDays(1));
 
-        EntsoeRequest request = new EntsoeRequest(EDocumentType.ACTUAL_GENERATION_PER_TYPE, EProcessType.REALISED, AREA,
-                periodStart, periodEnd);
-        EntsoeResponse response = fetcher.getDocument(request);
-        YAMLMapper mapper = new YAMLMapper();
-        mapper.writeValue(new File(fileName), response);
+        EntsoeRequest request = new EntsoeRequest(EDocumentType.ACTUAL_GENERATION_PER_TYPE, EProcessType.REALISED,
+                AREA);
+        request.setPeriod(periodStart, periodEnd);
+        String xml = fetcher.getRawDocument(request.getParams());
+        try (Writer writer = new FileWriter(new File(fileName), Charsets.UTF_8)) {
+            writer.write(xml);
+        }
     }
 
 }

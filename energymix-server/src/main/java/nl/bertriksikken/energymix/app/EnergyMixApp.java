@@ -5,6 +5,7 @@ import java.io.File;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 
 import es.moki.ratelimij.dropwizard.RateLimitBundle;
@@ -14,6 +15,7 @@ import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import nl.bertriksikken.berthub.BerthubFetcher;
+import nl.bertriksikken.energymix.entsoe.EntsoeFetcher;
 import nl.bertriksikken.energymix.server.EnergyMixHandler;
 
 public final class EnergyMixApp extends Application<EnergyMixAppConfig> {
@@ -23,20 +25,22 @@ public final class EnergyMixApp extends Application<EnergyMixAppConfig> {
 
     private EnergyMixApp() {
     }
-    
+
     @Override
     public void initialize(Bootstrap<EnergyMixAppConfig> bootstrap) {
         RequestRateLimiterFactory factory = new InMemoryRateLimiterFactory();
         bootstrap.addBundle(new RateLimitBundle(factory));
     }
-    
+
     @Override
     public void run(EnergyMixAppConfig configuration, Environment environment) throws Exception {
-        BerthubFetcher fetcher = BerthubFetcher.create(configuration.berthubConfig);
-        EnergyMixHandler handler = new EnergyMixHandler(fetcher);
+        BerthubFetcher berthubFetcher = BerthubFetcher.create(configuration.berthubConfig);
+        XmlMapper xmlMapper = new XmlMapper();
+        EntsoeFetcher entsoeFetcher = EntsoeFetcher.create(configuration.entsoeConfig, xmlMapper);
+        EnergyMixHandler handler = new EnergyMixHandler(berthubFetcher, entsoeFetcher);
         EnergyMixResource resource = new EnergyMixResource(handler);
-        
-        BerthubFetcherHealthCheck fetcherHealthCheck = new BerthubFetcherHealthCheck(fetcher);
+
+        BerthubFetcherHealthCheck fetcherHealthCheck = new BerthubFetcherHealthCheck(berthubFetcher);
         environment.healthChecks().register("fetcher", fetcherHealthCheck);
         environment.jersey().register(resource);
         environment.lifecycle().manage(resource);
@@ -50,9 +54,9 @@ public final class EnergyMixApp extends Application<EnergyMixAppConfig> {
             EnergyMixAppConfig config = new EnergyMixAppConfig();
             mapper.writeValue(configFile, config);
         }
-        
+
         EnergyMixApp app = new EnergyMixApp();
         app.run("server", CONFIG_FILE);
     }
-    
+
 }

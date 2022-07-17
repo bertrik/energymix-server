@@ -15,17 +15,19 @@ public final class EntsoeRequest {
 
     private final Map<String, String> params = new HashMap<>();
 
-    public EntsoeRequest(EDocumentType documentType, EProcessType processType, EArea inDomain, Instant periodStart,
-            Instant periodEnd) {
+    public EntsoeRequest(EDocumentType documentType, EProcessType processType, EArea inDomain) {
         params.put("documentType", documentType.getCode());
         params.put("processType", processType.getCode());
         params.put("in_Domain", inDomain.getCode());
-        params.put("periodStart", FORMATTER.format(periodStart));
-        params.put("periodEnd", FORMATTER.format(periodEnd));
     }
 
     public void setProductionType(EPsrType psrType) {
         params.put("psrType", psrType.getCode());
+    }
+
+    public void setPeriod(Instant periodStart, Instant periodEnd) {
+        params.put("periodStart", FORMATTER.format(periodStart));
+        params.put("periodEnd", FORMATTER.format(periodEnd));
     }
 
     public Map<String, String> getParams() {

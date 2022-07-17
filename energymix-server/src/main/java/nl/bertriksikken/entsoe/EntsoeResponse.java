@@ -1,5 +1,7 @@
 package nl.bertriksikken.entsoe;
 
+import java.time.Instant;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -19,7 +21,7 @@ public final class EntsoeResponse {
 
     @JsonProperty(value = "TimeSeries")
     @JacksonXmlElementWrapper(useWrapping = false)
-    private List<TimeSeries> timeSeries = new ArrayList<>();
+    public List<TimeSeries> timeSeries = new ArrayList<>();
 
     @Override
     public String toString() {
@@ -77,10 +79,18 @@ public final class EntsoeResponse {
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static final class TimeInterval {
         @JsonProperty("start")
-        public String start = "";
+        private String start = "";
 
         @JsonProperty("end")
-        public String end = "";
+        private String end = "";
+
+        public Instant getStart() {
+            return DateTimeFormatter.ISO_DATE_TIME.parse(start, Instant::from);
+        }
+
+        public Instant getEnd() {
+            return DateTimeFormatter.ISO_DATE_TIME.parse(end, Instant::from);
+        }
 
         @Override
         public String toString() {

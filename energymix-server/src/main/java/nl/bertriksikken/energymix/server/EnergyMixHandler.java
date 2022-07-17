@@ -19,32 +19,45 @@ import nl.bertriksikken.berthub.BerthubFetcher;
 import nl.bertriksikken.berthub.BerthubFetcher.DownloadResult;
 import nl.bertriksikken.berthub.ProductionData;
 import nl.bertriksikken.berthub.ProductionDataCsv;
+import nl.bertriksikken.energymix.entsoe.EntsoeFetcher;
+import nl.bertriksikken.entsoe.EArea;
+import nl.bertriksikken.entsoe.EDocumentType;
+import nl.bertriksikken.entsoe.EProcessType;
+import nl.bertriksikken.entsoe.EPsrType;
+import nl.bertriksikken.entsoe.EntsoeParser;
+import nl.bertriksikken.entsoe.EntsoeRequest;
+import nl.bertriksikken.entsoe.EntsoeResponse;
 
 /**
- * Main process, downloads a new CSV from berthub.eu and serves an EnergyMix JSON message.
+ * Main process, downloads a new CSV from berthub.eu and serves an EnergyMix
+ * JSON message.
  */
 public final class EnergyMixHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(EnergyMixHandler.class);
     private static final CsvMapper CSV_MAPPER = new CsvMapper();
-    
+
     private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-    
+
     private final BerthubFetcher fetcher;
+    private final EntsoeFetcher entsoeFetcher;
     private ProductionData latest = null;
-    
-    public EnergyMixHandler(BerthubFetcher fetcher) {
+
+    public EnergyMixHandler(BerthubFetcher fetcher, EntsoeFetcher entsoeFetcher) {
         this.fetcher = Preconditions.checkNotNull(fetcher);
+        this.entsoeFetcher = Preconditions.checkNotNull(entsoeFetcher);
     }
 
     public void start() {
         LOG.info("Starting");
         executor.execute(this::download);
     }
-    
+
     // runs on the executor
     private void download() {
         Instant now = Instant.now();
+
+        // get data from berthub
         Instant next = now.plus(Duration.ofMinutes(15));
         try {
             LOG.info("Getting new data from berthub.eu");
@@ -52,10 +65,18 @@ public final class EnergyMixHandler {
             next = result.getTime().plus(Duration.ofMinutes(16));
             ProductionDataCsv production = ProductionDataCsv.parse(CSV_MAPPER, result.getData());
             latest = production.getLatest();
-            LOG.info("Latest: {}", latest);
         } catch (IOException e) {
             LOG.warn("Fetching/decoding latest production data failed!", e);
         }
+
+        // get solar forecast from entso-e
+        try {
+            Double solar = fetchSolarForecast(now);
+            latest = latest.withSolar(solar);
+        } catch (IOException e) {
+            LOG.warn("Failed to fetch solar forecast!");
+        }
+        LOG.info("Latest: {}", latest);
 
         // schedule next
         Duration delay = Duration.between(now, next).truncatedTo(ChronoUnit.SECONDS);
@@ -66,6 +87,17 @@ public final class EnergyMixHandler {
         }
         executor.schedule(this::download, delay.toSeconds(), TimeUnit.SECONDS);
         LOG.info("Scheduled next download for {} (in {})", next, delay);
+    }
+
+    private Double fetchSolarForecast(Instant now) throws IOException {
+        Instant periodStart = now.truncatedTo(ChronoUnit.DAYS);
+        Instant periodEnd = periodStart.plus(Duration.ofDays(1));
+        EntsoeRequest request = new EntsoeRequest(EDocumentType.WIND_SOLAR_FORECAST, EProcessType.DAY_AHEAD,
+                EArea.NETHERLANDS);
+        request.setPeriod(periodStart, periodEnd);
+        EntsoeResponse document = entsoeFetcher.getDocument(request);
+        EntsoeParser parser = new EntsoeParser(document);
+        return parser.findPoint(now, EPsrType.SOLAR);
     }
 
     public void stop() throws InterruptedException {
@@ -91,7 +123,7 @@ public final class EnergyMixHandler {
         if (latest == null) {
             return new EnergyMix(0, 0);
         }
-        
+
         long total = (long) latest.getTotal();
         EnergyMix mix = new EnergyMix(latest.time.getEpochSecond(), total);
         mix.addComponent("solar", latest.solar, "#FFFF00");

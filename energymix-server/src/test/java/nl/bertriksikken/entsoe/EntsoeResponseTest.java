@@ -16,5 +16,5 @@ public final class EntsoeResponseTest {
         EntsoeResponse document = mapper.readValue(is, EntsoeResponse.class);
         System.out.println(document);
     }
-    
+
 }
