@@ -60,7 +60,7 @@ public final class EnergyMixHandler {
         // get data from berthub
         Instant next = now.plus(Duration.ofMinutes(15));
         try {
-            LOG.info("Getting new data from berthub.eu");
+            LOG.info("Fetching new data from berthub.eu");
             DownloadResult result = fetcher.download(now);
             next = result.getTime().plus(Duration.ofMinutes(16));
             ProductionDataCsv production = ProductionDataCsv.parse(CSV_MAPPER, result.getData());
@@ -71,8 +71,11 @@ public final class EnergyMixHandler {
 
         // get solar forecast from entso-e
         try {
+            LOG.info("Fetching solar/wind forecast from entso-e");
             Double solar = fetchSolarForecast(now);
-            latest = latest.withSolar(solar);
+            if (Double.isFinite(solar)) {
+                latest = latest.withSolar(solar);
+            }
         } catch (IOException e) {
             LOG.warn("Failed to fetch solar forecast!");
         }
