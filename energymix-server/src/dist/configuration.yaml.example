@@ -10,16 +10,11 @@ logging: !<default>
   level: "INFO"
   loggers: {}
   appenders:
+  - type: file
+    currentLogFilename: energymix-server.log
+    archivedLogFilenamePattern: energymix-server.log.%d
+    archivedFileCount: 10
   - type: console
-    threshold: "ALL"
-    logFormat: null
-    layout: null
-    timeZone: "UTC"
-    queueSize: 256
-    discardingThreshold: -1
-    messageRate: null
-    includeCallerData: false
-    filterFactories: []
     target: "STDOUT"
 server: !<default>
   applicationConnectors:
