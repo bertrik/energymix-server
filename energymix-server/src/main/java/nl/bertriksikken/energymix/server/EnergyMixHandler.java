@@ -132,7 +132,7 @@ public final class EnergyMixHandler {
         mix.addComponent("solar", latest.solar, "#FFFF00");
         mix.addComponent("wind", latest.wind, "#0000FF");
         mix.addComponent("fossil", latest.fossil, "#FF0000");
-        mix.addComponent("nuclear", latest.nuclear, "#FF00FF");
+        mix.addComponent("nuclear", latest.nuclear, "#00FF00");
         mix.addComponent("other", latest.other, "#444444");
         mix.addComponent("waste", latest.waste, "#444444");
         return mix;
