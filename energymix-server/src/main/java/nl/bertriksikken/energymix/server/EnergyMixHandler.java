@@ -50,7 +50,7 @@ public final class EnergyMixHandler {
 
     public void start() {
         LOG.info("Starting");
-        executor.execute(this::download);
+        executor.execute(new CatchingRunnable(this::download));
     }
 
     // runs on the executor
@@ -77,7 +77,7 @@ public final class EnergyMixHandler {
                 latest = latest.withSolar(solar);
             }
         } catch (IOException e) {
-            LOG.warn("Failed to fetch solar forecast!");
+            LOG.warn("Failed to fetch solar forecast: {}", e.getMessage());
         }
         LOG.info("Latest: {}", latest);
 
@@ -88,7 +88,7 @@ public final class EnergyMixHandler {
             LOG.warn("Time schedule calculation error");
             delay = Duration.ofMinutes(5);
         }
-        executor.schedule(this::download, delay.toSeconds(), TimeUnit.SECONDS);
+        executor.schedule(new CatchingRunnable(this::download), delay.toSeconds(), TimeUnit.SECONDS);
         LOG.info("Scheduled next download for {} (in {})", next, delay);
     }
 
@@ -114,15 +114,16 @@ public final class EnergyMixHandler {
      */
     public EnergyMix getLatest() {
         try {
-            return executor.submit(this::convertLatest).get();
+            // run on executor to avoid race condition with update
+            return executor.submit(this::getEnergyMix).get();
         } catch (InterruptedException | ExecutionException e) {
-            LOG.warn("Caught exception handling request", e);
+            LOG.error("Caught exception handling request", e);
             return null;
         }
     }
 
     // runs on the executor
-    private EnergyMix convertLatest() {
+    private EnergyMix getEnergyMix() {
         if (latest == null) {
             return new EnergyMix(0, 0);
         }

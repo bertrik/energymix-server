@@ -11,10 +11,12 @@ logging: !<default>
   loggers: {}
   appenders:
   - type: file
+    logFormat: "%d{yyyy-MM-dd} | %d{HH:mm:ss.SSS} | %-15.15thread | %5p | %-25.25logger{25} | %m%n"
     currentLogFilename: energymix-server.log
     archivedLogFilenamePattern: energymix-server.log.%d
     archivedFileCount: 10
   - type: console
+    logFormat: "%d{yyyy-MM-dd} | %d{HH:mm:ss.SSS} | %-15.15thread | %5p | %-25.25logger{25} | %m%n"
     target: "STDOUT"
 server: !<default>
   applicationConnectors:
