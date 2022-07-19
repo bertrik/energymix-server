@@ -33,6 +33,10 @@ public final class EntsoeResponse {
         @JsonProperty("mRID")
         public String mrid = "";
 
+        // this will be non-empty for generation
+        @JsonProperty("inBiddingZone_Domain.mRID")
+        public String inBiddingZoneDomainMrid = "";
+
         @JsonProperty("MktPSRType")
         public MktPSRType psrType = new MktPSRType();
 
@@ -40,9 +44,14 @@ public final class EntsoeResponse {
         @JacksonXmlElementWrapper(useWrapping = false)
         public List<Period> period = new ArrayList<>();
 
+        public boolean isGeneration() {
+            return !inBiddingZoneDomainMrid.isEmpty();
+        }
+
         @Override
         public String toString() {
-            return String.format(Locale.ROOT, "{mRID=%s,MktPSRType=%s,Period=%s}", mrid, psrType, period);
+            return String.format(Locale.ROOT, "{mRID=%s,MktPSRType=%s,inBiddingZone_Domain=%s, Period=%s}", mrid,
+                    psrType, inBiddingZoneDomainMrid, period);
         }
     }
 
