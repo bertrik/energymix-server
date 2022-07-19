@@ -49,11 +49,11 @@ public final class EntsoeResponse {
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static final class MktPSRType {
         @JsonProperty("psrType")
-        public String psrType = "";
+        public EPsrType psrType = EPsrType.UNKNOWN;
 
         @Override
         public String toString() {
-            return psrType;
+            return psrType.toString();
         }
     }
 

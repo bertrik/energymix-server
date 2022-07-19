@@ -20,7 +20,7 @@ public final class EntsoeParser {
 
     public Double findPoint(Instant now, EPsrType psrType) {
         for (TimeSeries timeSeries : document.timeSeries) {
-            if (psrType.getCode().equals(timeSeries.psrType.psrType)) {
+            if (timeSeries.psrType.psrType == psrType) {
                 for (Period period : timeSeries.period) {
                     Duration resolution = Duration.parse(period.resolution);
                     TimeInterval interval = period.timeInterval;
