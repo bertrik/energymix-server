@@ -38,6 +38,10 @@ public class ProductionDataCsv {
         return Iterables.getLast(productionData, null);
     }
     
+    public boolean hasData() {
+        return !productionData.isEmpty();
+    }
+    
     @Override
     public String toString() {
         return String.format(Locale.ROOT, "%s", productionData);

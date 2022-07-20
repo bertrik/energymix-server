@@ -64,7 +64,9 @@ public final class EnergyMixHandler {
             DownloadResult result = fetcher.download(now);
             next = result.getTime().plus(Duration.ofMinutes(16));
             ProductionDataCsv production = ProductionDataCsv.parse(CSV_MAPPER, result.getData());
-            latest = production.getLatest();
+            if (production.hasData()) {
+                latest = production.getLatest();
+            }
         } catch (IOException e) {
             LOG.warn("Fetching/decoding latest production data failed!", e);
         }
