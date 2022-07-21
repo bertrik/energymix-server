@@ -18,5 +18,5 @@ public final class EPsrTypeTest {
             Assert.assertNull(codes.put(psrType.getCode(), psrType));
         }
     }
-    
+
 }

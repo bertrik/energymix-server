@@ -8,7 +8,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 public enum EPsrType {
 
     UNKNOWN(""), //
-    
+
     MIXED("A03"), //
     GENERATION("A04"), //
     LOAD("A05"), //
@@ -49,10 +49,10 @@ public enum EPsrType {
     String getCode() {
         return code;
     }
-    
+
     @JsonCreator
     public static EPsrType create(String code) {
         return Stream.of(values()).filter(t -> t.code.equals(code)).findFirst().orElse(EPsrType.UNKNOWN);
     }
-    
+
 }

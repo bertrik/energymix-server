@@ -9,5 +9,5 @@ public final class EntsoeFetcherException extends IOException {
     public EntsoeFetcherException(String string) {
         super(string);
     }
-    
+
 }

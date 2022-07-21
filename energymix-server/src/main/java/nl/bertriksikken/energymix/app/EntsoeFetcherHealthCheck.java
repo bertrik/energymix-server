@@ -3,13 +3,13 @@ package nl.bertriksikken.energymix.app;
 import com.codahale.metrics.health.HealthCheck;
 import com.google.common.base.Preconditions;
 
-import nl.bertriksikken.berthub.BerthubFetcher;
+import nl.bertriksikken.energymix.entsoe.EntsoeFetcher;
 
-public class BerthubFetcherHealthCheck extends HealthCheck {
-    
-    private final BerthubFetcher fetcher;
+public class EntsoeFetcherHealthCheck extends HealthCheck {
 
-    BerthubFetcherHealthCheck(BerthubFetcher fetcher) {
+    private final EntsoeFetcher fetcher;
+
+    EntsoeFetcherHealthCheck(EntsoeFetcher fetcher) {
         this.fetcher = Preconditions.checkNotNull(fetcher);
     }
 
@@ -20,6 +20,5 @@ public class BerthubFetcherHealthCheck extends HealthCheck {
         }
         return Result.healthy();
     }
-    
 
 }

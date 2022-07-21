@@ -3,6 +3,9 @@ package nl.bertriksikken.energymix.server;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
@@ -12,19 +15,15 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.google.common.base.Preconditions;
 
-import nl.bertriksikken.berthub.BerthubFetcher;
-import nl.bertriksikken.berthub.BerthubFetcher.DownloadResult;
-import nl.bertriksikken.berthub.ProductionData;
-import nl.bertriksikken.berthub.ProductionDataCsv;
 import nl.bertriksikken.energymix.entsoe.EntsoeFetcher;
 import nl.bertriksikken.entsoe.EArea;
 import nl.bertriksikken.entsoe.EDocumentType;
 import nl.bertriksikken.entsoe.EProcessType;
 import nl.bertriksikken.entsoe.EPsrType;
 import nl.bertriksikken.entsoe.EntsoeParser;
+import nl.bertriksikken.entsoe.EntsoeParser.Result;
 import nl.bertriksikken.entsoe.EntsoeRequest;
 import nl.bertriksikken.entsoe.EntsoeResponse;
 
@@ -35,74 +34,85 @@ import nl.bertriksikken.entsoe.EntsoeResponse;
 public final class EnergyMixHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(EnergyMixHandler.class);
-    private static final CsvMapper CSV_MAPPER = new CsvMapper();
 
     private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
-    private final BerthubFetcher fetcher;
     private final EntsoeFetcher entsoeFetcher;
-    private ProductionData latest = null;
+    private EnergyMix energyMix;
 
-    public EnergyMixHandler(BerthubFetcher fetcher, EntsoeFetcher entsoeFetcher) {
-        this.fetcher = Preconditions.checkNotNull(fetcher);
+    public EnergyMixHandler(EntsoeFetcher entsoeFetcher) {
         this.entsoeFetcher = Preconditions.checkNotNull(entsoeFetcher);
     }
 
     public void start() {
         LOG.info("Starting");
-        executor.execute(new CatchingRunnable(this::download));
+        // schedule immediately
+        executor.execute(new CatchingRunnable(this::downloadFromEntsoe));
     }
 
     // runs on the executor
-    private void download() {
+    private void downloadFromEntsoe() {
         Instant now = Instant.now();
+        LOG.info("downloadFromEntsoe, now = {}", now);
 
-        // get data from berthub
-        Instant next = now.plus(Duration.ofMinutes(15));
-        try {
-            LOG.info("Fetching new data from berthub.eu");
-            DownloadResult result = fetcher.download(now);
-            next = result.getTime().plus(Duration.ofMinutes(16));
-            ProductionDataCsv production = ProductionDataCsv.parse(CSV_MAPPER, result.getData());
-            if (production.hasData()) {
-                latest = production.getLatest();
-            }
-        } catch (IOException e) {
-            LOG.warn("Fetching/decoding latest production data failed!", e);
-        }
-
-        // get solar forecast from entso-e
-        try {
-            LOG.info("Fetching solar/wind forecast from entso-e");
-            Double solar = fetchSolarForecast(now);
-            if (Double.isFinite(solar)) {
-                latest = latest.withSolar(solar);
-            }
-        } catch (IOException e) {
-            LOG.warn("Failed to fetch solar forecast: {}", e.getMessage());
-        }
-        LOG.info("Latest: {}", latest);
-
-        // schedule next
-        Duration delay = Duration.between(now, next).truncatedTo(ChronoUnit.SECONDS);
-        if (delay.isNegative()) {
-            // time calculation is off, retry in 5 minutes
-            LOG.warn("Time schedule calculation error");
-            delay = Duration.ofMinutes(5);
-        }
-        executor.schedule(new CatchingRunnable(this::download), delay.toSeconds(), TimeUnit.SECONDS);
-        LOG.info("Scheduled next download for {} (in {})", next, delay);
-    }
-
-    private Double fetchSolarForecast(Instant now) throws IOException {
         Instant periodStart = now.truncatedTo(ChronoUnit.DAYS);
         Instant periodEnd = periodStart.plus(Duration.ofDays(1));
-        EntsoeRequest request = new EntsoeRequest(EDocumentType.WIND_SOLAR_FORECAST, EProcessType.DAY_AHEAD,
-                EArea.NETHERLANDS);
-        request.setPeriod(periodStart, periodEnd);
-        EntsoeResponse document = entsoeFetcher.getDocument(request);
-        EntsoeParser parser = new EntsoeParser(document);
-        return parser.findPoint(now, EPsrType.SOLAR);
+        try {
+            // get actual generation by type
+            EntsoeRequest actualGenerationRequest = new EntsoeRequest(EDocumentType.ACTUAL_GENERATION_PER_TYPE,
+                    EProcessType.REALISED, EArea.NETHERLANDS);
+            actualGenerationRequest.setPeriod(periodStart, periodEnd);
+            EntsoeResponse actualGenerationResponse = entsoeFetcher.getDocument(actualGenerationRequest);
+            EntsoeParser actualGenerationParser = new EntsoeParser(actualGenerationResponse);
+            Result fossil = sumGeneration(actualGenerationParser, EPsrType.FOSSIL_HARD_COAL, EPsrType.FOSSIL_GAS);
+            Result nuclear = sumGeneration(actualGenerationParser, EPsrType.NUCLEAR);
+            Result wind = sumGeneration(actualGenerationParser, EPsrType.WIND_ONSHORE, EPsrType.WIND_OFFSHORE);
+            Result other = sumGeneration(actualGenerationParser, EPsrType.RENEWABLE_OTHER, EPsrType.OTHER);
+            Result waste = sumGeneration(actualGenerationParser, EPsrType.WASTE);
+
+            // get solar prediction
+            EntsoeRequest windSolarForecastRequest = new EntsoeRequest(EDocumentType.WIND_SOLAR_FORECAST,
+                    EProcessType.DAY_AHEAD, EArea.NETHERLANDS);
+            windSolarForecastRequest.setPeriod(periodStart, periodEnd);
+            EntsoeResponse solarForecastResponse = entsoeFetcher.getDocument(windSolarForecastRequest);
+            EntsoeParser solarWindParser = new EntsoeParser(solarForecastResponse);
+            Result solar = solarWindParser.findByTime(fossil.time, EPsrType.SOLAR);
+
+            // build energy mix structure
+            energyMix = new EnergyMix(fossil.time.getEpochSecond());
+            energyMix.addComponent("solar", solar.value, "#FFFF00");
+            energyMix.addComponent("wind", wind.value, "#0000FF");
+            energyMix.addComponent("fossil", fossil.value, "#FF0000");
+            energyMix.addComponent("nuclear", nuclear.value, "#00FF00");
+            energyMix.addComponent("other", other.value, "#444444");
+            energyMix.addComponent("waste", waste.value, "#444444");
+            LOG.info("Energy mix is now: {}", energyMix);
+
+            // schedule next
+            LocalDateTime dateTime = LocalDateTime.now(ZoneOffset.UTC);
+            int minuteOffset = 15 * (dateTime.get(ChronoField.MINUTE_OF_DAY) / 15) + 21;
+            LocalDateTime next = dateTime.truncatedTo(ChronoUnit.DAYS).plusMinutes(minuteOffset);
+            Duration delay = Duration.between(dateTime, next);
+            LOG.info("Next download at {}, after {} delay", next, delay);
+            executor.schedule(new CatchingRunnable(this::downloadFromEntsoe), delay.getSeconds(), TimeUnit.SECONDS);
+        } catch (IOException e) {
+            LOG.warn("Caught IOException", e);
+        }
+    }
+
+    private Result sumGeneration(EntsoeParser parser, EPsrType... types) {
+        Instant time = Instant.now().minus(Duration.ofDays(1));
+        double value = 0.0;
+        for (EPsrType type : types) {
+            Result result = parser.findMostRecentGeneration(type);
+            if (result.time.isAfter(time)) {
+                time = result.time;
+            }
+            if (Double.isFinite(result.value)) {
+                value += result.value;
+            }
+        }
+        return new Result(time, value);
     }
 
     public void stop() throws InterruptedException {
@@ -117,28 +127,11 @@ public final class EnergyMixHandler {
     public EnergyMix getLatest() {
         try {
             // run on executor to avoid race condition with update
-            return executor.submit(this::getEnergyMix).get();
+            return executor.submit(() -> energyMix).get();
         } catch (InterruptedException | ExecutionException e) {
             LOG.error("Caught exception handling request", e);
             return null;
         }
-    }
-
-    // runs on the executor
-    private EnergyMix getEnergyMix() {
-        if (latest == null) {
-            return new EnergyMix(0, 0);
-        }
-
-        long total = (long) latest.getTotal();
-        EnergyMix mix = new EnergyMix(latest.time.getEpochSecond(), total);
-        mix.addComponent("solar", latest.solar, "#FFFF00");
-        mix.addComponent("wind", latest.wind, "#0000FF");
-        mix.addComponent("fossil", latest.fossil, "#FF0000");
-        mix.addComponent("nuclear", latest.nuclear, "#00FF00");
-        mix.addComponent("other", latest.other, "#444444");
-        mix.addComponent("waste", latest.waste, "#444444");
-        return mix;
     }
 
 }

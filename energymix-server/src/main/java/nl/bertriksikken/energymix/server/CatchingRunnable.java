@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Preconditions;
 
 public final class CatchingRunnable implements Runnable {
-    
+
     private final Logger LOG = LoggerFactory.getLogger(CatchingRunnable.class);
 
     private final Runnable runnable;
@@ -14,7 +14,7 @@ public final class CatchingRunnable implements Runnable {
     public CatchingRunnable(Runnable runnable) {
         this.runnable = Preconditions.checkNotNull(runnable);
     }
-    
+
     @Override
     public void run() {
         try {

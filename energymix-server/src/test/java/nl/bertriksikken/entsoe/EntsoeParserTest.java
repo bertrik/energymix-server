@@ -9,6 +9,8 @@ import org.junit.Test;
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 
+import nl.bertriksikken.entsoe.EntsoeParser.Result;
+
 public final class EntsoeParserTest {
 
     @Test
@@ -20,7 +22,20 @@ public final class EntsoeParserTest {
         // extract and verify
         Instant now = Instant.parse("2022-07-17T12:34:00Z");
         EntsoeParser parser = new EntsoeParser(document);
-        Double value = parser.findPoint(now, EPsrType.SOLAR);
-        Assert.assertEquals(6248.0, value, 0.1);
+        Result result = parser.findByTime(now, EPsrType.SOLAR);
+        Assert.assertEquals(6248.0, result.value, 0.1);
     }
+
+    @Test
+    public void findMostRecentGeneration() throws IOException {
+        InputStream is = this.getClass().getClassLoader().getResourceAsStream("A75_actualgeneration.xml");
+        XmlMapper mapper = new XmlMapper();
+        EntsoeResponse document = mapper.readValue(is, EntsoeResponse.class);
+
+        // extract and verify
+        EntsoeParser parser = new EntsoeParser(document);
+        Result result = parser.findMostRecentGeneration(EPsrType.FOSSIL_HARD_COAL);
+        Assert.assertEquals(3136, result.value, 0.1);
+    }
+
 }

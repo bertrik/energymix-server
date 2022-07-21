@@ -3,6 +3,7 @@ package nl.bertriksikken.energymix.entsoe;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +27,8 @@ public final class EntsoeFetcher {
     private final EntsoeFetcherConfig config;
     private final XmlMapper mapper;
 
+    private final AtomicBoolean isHealthy = new AtomicBoolean(false);
+
     EntsoeFetcher(IEntsoeRestApi restApi, EntsoeFetcherConfig config, XmlMapper mapper) {
         this.restApi = Preconditions.checkNotNull(restApi);
         this.config = Preconditions.checkNotNull(config);
@@ -47,8 +50,10 @@ public final class EntsoeFetcher {
 
         Response<String> response = restApi.getDocument(params).execute();
         if (response.isSuccessful()) {
+            isHealthy.set(true);
             return response.body();
         } else {
+            isHealthy.set(false);
             LOG.warn("Got error: {}", response.errorBody().string());
             throw new EntsoeFetcherException(response.errorBody().string());
         }
@@ -57,9 +62,13 @@ public final class EntsoeFetcher {
     public EntsoeResponse getDocument(EntsoeRequest request) throws IOException {
         // get raw document
         String xml = getRawDocument(request.getParams());
-        
+
         // parse as response
         return mapper.readValue(xml, EntsoeResponse.class);
+    }
+
+    public boolean isHealthy() {
+        return isHealthy.get();
     }
 
 }

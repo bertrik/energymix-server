@@ -14,7 +14,6 @@ import es.moki.ratelimitj.inmemory.InMemoryRateLimiterFactory;
 import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
-import nl.bertriksikken.berthub.BerthubFetcher;
 import nl.bertriksikken.energymix.entsoe.EntsoeFetcher;
 import nl.bertriksikken.energymix.server.EnergyMixHandler;
 
@@ -34,13 +33,12 @@ public final class EnergyMixApp extends Application<EnergyMixAppConfig> {
 
     @Override
     public void run(EnergyMixAppConfig configuration, Environment environment) throws Exception {
-        BerthubFetcher berthubFetcher = BerthubFetcher.create(configuration.berthubConfig);
         XmlMapper xmlMapper = new XmlMapper();
         EntsoeFetcher entsoeFetcher = EntsoeFetcher.create(configuration.entsoeConfig, xmlMapper);
-        EnergyMixHandler handler = new EnergyMixHandler(berthubFetcher, entsoeFetcher);
+        EnergyMixHandler handler = new EnergyMixHandler(entsoeFetcher);
         EnergyMixResource resource = new EnergyMixResource(handler);
 
-        BerthubFetcherHealthCheck fetcherHealthCheck = new BerthubFetcherHealthCheck(berthubFetcher);
+        EntsoeFetcherHealthCheck fetcherHealthCheck = new EntsoeFetcherHealthCheck(entsoeFetcher);
         environment.healthChecks().register("fetcher", fetcherHealthCheck);
         environment.jersey().register(resource);
         environment.lifecycle().manage(resource);
