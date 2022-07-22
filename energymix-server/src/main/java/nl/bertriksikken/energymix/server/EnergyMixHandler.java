@@ -3,9 +3,6 @@ package nl.bertriksikken.energymix.server;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
@@ -34,6 +31,7 @@ import nl.bertriksikken.entsoe.EntsoeResponse;
 public final class EnergyMixHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(EnergyMixHandler.class);
+    private static final Duration ENTSO_INTERVAL = Duration.ofMinutes(15);
 
     private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
@@ -53,12 +51,11 @@ public final class EnergyMixHandler {
     // runs on the executor
     private void downloadFromEntsoe() {
         Instant now = Instant.now();
-        LOG.info("downloadFromEntsoe, now = {}", now);
-
         Instant periodStart = now.truncatedTo(ChronoUnit.DAYS);
         Instant periodEnd = periodStart.plus(Duration.ofDays(1));
         try {
             // get actual generation by type
+            LOG.info("Downloading actual generation per type");
             EntsoeRequest actualGenerationRequest = new EntsoeRequest(EDocumentType.ACTUAL_GENERATION_PER_TYPE,
                     EProcessType.REALISED, EArea.NETHERLANDS);
             actualGenerationRequest.setPeriod(periodStart, periodEnd);
@@ -70,7 +67,8 @@ public final class EnergyMixHandler {
             Result other = sumGeneration(actualGenerationParser, EPsrType.RENEWABLE_OTHER, EPsrType.OTHER);
             Result waste = sumGeneration(actualGenerationParser, EPsrType.WASTE);
 
-            // get solar prediction
+            // get solar/wind prediction
+            LOG.info("Downloading wind/solar forecast");
             EntsoeRequest windSolarForecastRequest = new EntsoeRequest(EDocumentType.WIND_SOLAR_FORECAST,
                     EProcessType.DAY_AHEAD, EArea.NETHERLANDS);
             windSolarForecastRequest.setPeriod(periodStart, periodEnd);
@@ -87,17 +85,19 @@ public final class EnergyMixHandler {
             energyMix.addComponent("other", other.value, "#444444");
             energyMix.addComponent("waste", waste.value, "#444444");
             LOG.info("Energy mix is now: {}", energyMix);
-
-            // schedule next
-            LocalDateTime dateTime = LocalDateTime.now(ZoneOffset.UTC);
-            int minuteOffset = 15 * (dateTime.get(ChronoField.MINUTE_OF_DAY) / 15) + 21;
-            LocalDateTime next = dateTime.truncatedTo(ChronoUnit.DAYS).plusMinutes(minuteOffset);
-            Duration delay = Duration.between(dateTime, next);
-            LOG.info("Next download at {}, after {} delay", next, delay);
-            executor.schedule(new CatchingRunnable(this::downloadFromEntsoe), delay.getSeconds(), TimeUnit.SECONDS);
         } catch (IOException e) {
             LOG.warn("Caught IOException", e);
         }
+
+        // schedule next download, with optimum determined at 6 minutes after the hour
+        Instant next = now.truncatedTo(ChronoUnit.HOURS).plus(Duration.ofMinutes(6));
+        Duration delay = Duration.between(Instant.now(), next).truncatedTo(ChronoUnit.SECONDS);
+        while (delay.isNegative()) {
+            delay = delay.plus(ENTSO_INTERVAL);
+            next = next.plus(ENTSO_INTERVAL);
+        }
+        LOG.info("Schedule next download after {}, at {}", delay, next);
+        executor.schedule(new CatchingRunnable(this::downloadFromEntsoe), delay.getSeconds(), TimeUnit.SECONDS);
     }
 
     private Result sumGeneration(EntsoeParser parser, EPsrType... types) {
