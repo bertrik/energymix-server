@@ -69,7 +69,7 @@ public final class EntsoeParser {
 
         @Override
         public String toString() {
-            return String.format(Locale.ROOT, "{%5.0f@%s}", value, time);
+            return String.format(Locale.ROOT, "%.0f @ %s", value, time);
         }
     }
 }

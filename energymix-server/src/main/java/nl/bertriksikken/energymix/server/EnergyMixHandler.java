@@ -66,6 +66,7 @@ public final class EnergyMixHandler {
             Result wind = sumGeneration(actualGenerationParser, EPsrType.WIND_ONSHORE, EPsrType.WIND_OFFSHORE);
             Result other = sumGeneration(actualGenerationParser, EPsrType.RENEWABLE_OTHER, EPsrType.OTHER);
             Result waste = sumGeneration(actualGenerationParser, EPsrType.WASTE);
+            LOG.info("Fossil result: {}, age {}", fossil, Duration.between(fossil.time, now));
 
             // get solar/wind prediction
             LOG.info("Downloading wind/solar forecast");
@@ -75,6 +76,7 @@ public final class EnergyMixHandler {
             EntsoeResponse solarForecastResponse = entsoeFetcher.getDocument(windSolarForecastRequest);
             EntsoeParser solarWindParser = new EntsoeParser(solarForecastResponse);
             Result solar = solarWindParser.findByTime(fossil.time, EPsrType.SOLAR);
+            LOG.info("Solar result: {}", solar);
 
             // build energy mix structure
             energyMix = new EnergyMix(fossil.time.getEpochSecond());
