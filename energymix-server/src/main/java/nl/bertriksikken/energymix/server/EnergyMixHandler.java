@@ -88,8 +88,8 @@ public final class EnergyMixHandler {
             energyMix.addComponent("wind", wind.value, "#0000FF");
             energyMix.addComponent("fossil", fossil.value, "#FF0000");
             energyMix.addComponent("nuclear", nuclear.value, "#00FF00");
-            energyMix.addComponent("other", other.value, "#444444");
             energyMix.addComponent("waste", waste.value, "#444444");
+            energyMix.addComponent("other", other.value, "#444444");
             LOG.info("Energy mix is now: {}", energyMix);
         } catch (IOException e) {
             LOG.warn("Caught IOException", e);
