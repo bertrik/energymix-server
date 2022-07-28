@@ -19,6 +19,22 @@ public final class EntsoeParser {
         this.document = Preconditions.checkNotNull(document);
     }
 
+    public Result findDayAheadPrice(Instant time) {
+        for (TimeSeries timeSeries : document.timeSeries) {
+            for (Period period : timeSeries.period) {
+                Duration resolution = Duration.parse(period.resolution);
+                for (Point point : period.points) {
+                    Instant blockEnd = period.timeInterval.getStart().plus(resolution.multipliedBy(point.position));
+                    Instant blockStart = blockEnd.minus(resolution);
+                    if (isBetween(time, blockStart, blockEnd)) {
+                        return new Result(blockEnd, point.priceAmount);
+                    }
+                }
+            }
+        }
+        return new Result(Instant.now(), Double.NaN);
+    }
+
     public Result findByTime(Instant time, EPsrType psrType) {
         for (TimeSeries timeSeries : document.timeSeries) {
             if (timeSeries.psrType.psrType == psrType) {

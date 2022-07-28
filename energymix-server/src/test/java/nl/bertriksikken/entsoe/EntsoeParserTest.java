@@ -38,4 +38,17 @@ public final class EntsoeParserTest {
         Assert.assertEquals(3136, result.value, 0.1);
     }
 
+    @Test
+    public void findDayAheadPrice() throws IOException {
+        InputStream is = this.getClass().getClassLoader().getResourceAsStream("A44_day_ahead_prices.xml");
+        XmlMapper mapper = new XmlMapper();
+        EntsoeResponse document = mapper.readValue(is, EntsoeResponse.class);
+
+        // extract and verify
+        Instant now = Instant.parse("2022-07-28T22:05:00Z");
+        EntsoeParser parser = new EntsoeParser(document);
+        Result result = parser.findDayAheadPrice(now);
+        Assert.assertEquals(345.06, result.value, 0.01);
+    }
+
 }
