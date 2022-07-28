@@ -56,31 +56,33 @@ public final class EnergyMixHandler {
         try {
             // get actual generation by type
             LOG.info("Downloading actual generation per type");
-            EntsoeRequest actualGenerationRequest = new EntsoeRequest(EDocumentType.ACTUAL_GENERATION_PER_TYPE,
-                    EProcessType.REALISED, EArea.NETHERLANDS);
+            EntsoeRequest actualGenerationRequest = new EntsoeRequest(EDocumentType.ACTUAL_GENERATION_PER_TYPE);
+            actualGenerationRequest.setProcessType(EProcessType.REALISED);
+            actualGenerationRequest.setInDomain(EArea.NETHERLANDS);
             actualGenerationRequest.setPeriod(periodStart, periodEnd);
             EntsoeResponse actualGenerationResponse = entsoeFetcher.getDocument(actualGenerationRequest);
             EntsoeParser actualGenerationParser = new EntsoeParser(actualGenerationResponse);
             Result fossil = sumGeneration(actualGenerationParser, EPsrType.FOSSIL_HARD_COAL, EPsrType.FOSSIL_GAS);
             Result nuclear = sumGeneration(actualGenerationParser, EPsrType.NUCLEAR);
-            Result wind = sumGeneration(actualGenerationParser, EPsrType.WIND_ONSHORE, EPsrType.WIND_OFFSHORE);
-            Result other = sumGeneration(actualGenerationParser, EPsrType.RENEWABLE_OTHER, EPsrType.OTHER);
+            Result wind = sumGeneration(actualGenerationParser, EPsrType.WIND_OFFSHORE, EPsrType.WIND_ONSHORE);
+            Result other = sumGeneration(actualGenerationParser, EPsrType.OTHER_RENEWABLE, EPsrType.OTHER);
             Result waste = sumGeneration(actualGenerationParser, EPsrType.WASTE);
             LOG.info("Fossil generation: {}, age {}", fossil, Duration.between(fossil.time, now));
 
             // get solar/wind forecast
             LOG.info("Downloading wind/solar forecast");
-            EntsoeRequest windSolarForecastRequest = new EntsoeRequest(EDocumentType.WIND_SOLAR_FORECAST,
-                    EProcessType.DAY_AHEAD, EArea.NETHERLANDS);
+            EntsoeRequest windSolarForecastRequest = new EntsoeRequest(EDocumentType.WIND_SOLAR_FORECAST);
+            windSolarForecastRequest.setProcessType(EProcessType.DAY_AHEAD);
+            windSolarForecastRequest.setInDomain(EArea.NETHERLANDS);
             windSolarForecastRequest.setPeriod(periodStart, periodEnd);
             EntsoeResponse solarForecastResponse = entsoeFetcher.getDocument(windSolarForecastRequest);
             EntsoeParser solarWindParser = new EntsoeParser(solarForecastResponse);
             Result solar = solarWindParser.findByTime(fossil.time, EPsrType.SOLAR);
-            Result windForecastOnshore = solarWindParser.findByTime(fossil.time, EPsrType.WIND_ONSHORE);
             Result windForecastOffshore = solarWindParser.findByTime(fossil.time, EPsrType.WIND_OFFSHORE);
+            Result windForecastOnshore = solarWindParser.findByTime(fossil.time, EPsrType.WIND_ONSHORE);
             LOG.info("Solar forecast: {}", solar);
-            LOG.info("Wind forecast: {} (on-shore) + {} (off-shore) = {} (total)", windForecastOnshore.value,
-                    windForecastOffshore.value, windForecastOnshore.value + windForecastOffshore.value);
+            LOG.info("Wind forecast: {} (off-shore) + {} (on-shore) = {} (total)", windForecastOffshore.value,
+                    windForecastOnshore.value, windForecastOffshore.value + windForecastOnshore.value);
 
             // build energy mix structure
             energyMix = new EnergyMix(fossil.time.getEpochSecond());

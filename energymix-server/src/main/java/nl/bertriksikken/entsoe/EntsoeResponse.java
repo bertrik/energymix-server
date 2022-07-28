@@ -114,10 +114,13 @@ public final class EntsoeResponse {
 
         @JsonProperty("quantity")
         public int quantity = 0;
+        
+        @JsonProperty("price.amount")
+        public double priceAmount = Double.NaN;
 
         @Override
         public String toString() {
-            return String.format(Locale.ROOT, "%d:%d", position, quantity);
+            return String.format(Locale.ROOT, "%d:{%d,%.1f}", position, quantity, priceAmount);
         }
 
     }

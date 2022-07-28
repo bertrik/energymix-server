@@ -27,11 +27,11 @@ public enum EPsrType {
     HYDRO_RESERVOIR("B12"), //
     MARINE("B13"), //
     NUCLEAR("B14"), //
-    RENEWABLE_OTHER("B15"), //
+    OTHER_RENEWABLE("B15"), //
     SOLAR("B16"), //
     WASTE("B17"), //
-    WIND_ONSHORE("B18"), //
-    WIND_OFFSHORE("B19"), //
+    WIND_OFFSHORE("B18"), //
+    WIND_ONSHORE("B19"), //
     OTHER("B20"), //
 
     AC_LINK("B21"), //

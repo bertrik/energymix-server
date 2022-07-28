@@ -39,6 +39,7 @@ public final class RunEntsoeFetcher {
         RunEntsoeFetcher test = new RunEntsoeFetcher();
         test.fetchActualGeneration(fetcher, "A75_actualgeneration.xml");
         test.fetchSolarForecast(fetcher, "A69_solar_wind_forecast.xml");
+        test.fetchDayAheadPrices(fetcher, "A44_day_ahead_prices.xml");
 
         LOG.info("Done fetching data");
     }
@@ -55,7 +56,9 @@ public final class RunEntsoeFetcher {
         Instant periodStart = now.truncatedTo(ChronoUnit.DAYS);
         Instant periodEnd = periodStart.plus(Duration.ofDays(1));
 
-        EntsoeRequest request = new EntsoeRequest(EDocumentType.WIND_SOLAR_FORECAST, EProcessType.DAY_AHEAD, AREA);
+        EntsoeRequest request = new EntsoeRequest(EDocumentType.WIND_SOLAR_FORECAST);
+        request.setProcessType(EProcessType.DAY_AHEAD);
+        request.setInDomain(AREA);
         request.setPeriod(periodStart, periodEnd);
         request.setProductionType(EPsrType.SOLAR);
         String xml = fetcher.getRawDocument(request.getParams());
@@ -69,8 +72,9 @@ public final class RunEntsoeFetcher {
         Instant periodStart = now.truncatedTo(ChronoUnit.DAYS);
         Instant periodEnd = periodStart.plus(Duration.ofDays(1));
 
-        EntsoeRequest request = new EntsoeRequest(EDocumentType.ACTUAL_GENERATION_PER_TYPE, EProcessType.REALISED,
-                AREA);
+        EntsoeRequest request = new EntsoeRequest(EDocumentType.ACTUAL_GENERATION_PER_TYPE);
+        request.setProcessType(EProcessType.REALISED);
+        request.setInDomain(AREA);
         request.setPeriod(periodStart, periodEnd);
         String xml = fetcher.getRawDocument(request.getParams());
         try (Writer writer = new FileWriter(new File(fileName), Charsets.UTF_8)) {
@@ -78,4 +82,19 @@ public final class RunEntsoeFetcher {
         }
     }
 
+    private void fetchDayAheadPrices(EntsoeFetcher fetcher, String fileName) throws IOException {
+        Instant now = Instant.now();
+        Instant periodStart = now.truncatedTo(ChronoUnit.DAYS);
+        Instant periodEnd = periodStart.plus(Duration.ofDays(1));
+
+        EntsoeRequest request = new EntsoeRequest(EDocumentType.DAY_AHEAD_PRICES);
+        EArea area = EArea.NETHERLANDS;
+        request.setInDomain(area);
+        request.setOutDomain(area);
+        request.setPeriod(periodStart, periodEnd);
+        String xml = fetcher.getRawDocument(request.getParams());
+        try (Writer writer = new FileWriter(new File(fileName), Charsets.UTF_8)) {
+            writer.write(xml);
+        }
+    }
 }
