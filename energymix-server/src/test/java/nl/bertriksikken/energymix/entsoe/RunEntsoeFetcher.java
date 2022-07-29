@@ -87,7 +87,7 @@ public final class RunEntsoeFetcher {
         Instant periodStart = now.truncatedTo(ChronoUnit.DAYS);
         Instant periodEnd = periodStart.plus(Duration.ofDays(1));
 
-        EntsoeRequest request = new EntsoeRequest(EDocumentType.DAY_AHEAD_PRICES);
+        EntsoeRequest request = new EntsoeRequest(EDocumentType.PRICE_DOCUMENT);
         EArea area = EArea.NETHERLANDS;
         request.setInDomain(area);
         request.setOutDomain(area);
