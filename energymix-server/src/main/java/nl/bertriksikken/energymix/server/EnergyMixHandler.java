@@ -3,6 +3,8 @@ package nl.bertriksikken.energymix.server;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
@@ -34,12 +36,14 @@ public final class EnergyMixHandler {
     private static final Duration ENTSO_INTERVAL = Duration.ofMinutes(15);
 
     private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-
     private final EntsoeFetcher entsoeFetcher;
+    private final ZoneId zoneId;
+
     private EnergyMix energyMix;
 
-    public EnergyMixHandler(EntsoeFetcher entsoeFetcher) {
+    public EnergyMixHandler(EntsoeFetcher entsoeFetcher, ZoneId zoneId) {
         this.entsoeFetcher = Preconditions.checkNotNull(entsoeFetcher);
+        this.zoneId = Preconditions.checkNotNull(zoneId);
     }
 
     public void start() {
@@ -50,8 +54,8 @@ public final class EnergyMixHandler {
 
     // runs on the executor
     private void downloadFromEntsoe() {
-        Instant now = Instant.now();
-        Instant periodStart = now.truncatedTo(ChronoUnit.DAYS);
+        ZonedDateTime now = ZonedDateTime.now(zoneId);
+        Instant periodStart = now.truncatedTo(ChronoUnit.DAYS).toInstant();
         Instant periodEnd = periodStart.plus(Duration.ofDays(1));
         try {
             // get actual generation by type
@@ -98,7 +102,7 @@ public final class EnergyMixHandler {
         }
 
         // schedule next download, with optimum determined at 6 minutes after the hour
-        Instant next = now.truncatedTo(ChronoUnit.HOURS).plus(Duration.ofMinutes(6));
+        Instant next = now.truncatedTo(ChronoUnit.HOURS).plus(Duration.ofMinutes(6)).toInstant();
         Duration delay = Duration.between(Instant.now(), next).truncatedTo(ChronoUnit.SECONDS);
         while (delay.isNegative()) {
             delay = delay.plus(ENTSO_INTERVAL);

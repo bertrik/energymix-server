@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.io.Writer;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 
 import org.slf4j.Logger;
@@ -25,6 +27,7 @@ public final class RunEntsoeFetcher {
 
     private static final Logger LOG = LoggerFactory.getLogger(RunEntsoeFetcher.class);
     private static final EArea AREA = EArea.NETHERLANDS;
+    private static final ZoneId ZONE_ID = ZoneId.of("Europe/Amsterdam");
 
     public static void main(String[] args) throws IOException {
         LOG.info("Start fetching data");
@@ -52,8 +55,8 @@ public final class RunEntsoeFetcher {
      * &dateTime.timezone_input=CET+(UTC+1)+/+CEST+(UTC+2)
      */
     private void fetchSolarForecast(EntsoeFetcher fetcher, String fileName) throws IOException {
-        Instant now = Instant.now();
-        Instant periodStart = now.truncatedTo(ChronoUnit.DAYS);
+        ZonedDateTime now = ZonedDateTime.now(ZONE_ID);
+        Instant periodStart = now.truncatedTo(ChronoUnit.DAYS).toInstant();
         Instant periodEnd = periodStart.plus(Duration.ofDays(1));
 
         EntsoeRequest request = new EntsoeRequest(EDocumentType.WIND_SOLAR_FORECAST);
@@ -68,8 +71,8 @@ public final class RunEntsoeFetcher {
     }
 
     private void fetchActualGeneration(EntsoeFetcher fetcher, String fileName) throws IOException {
-        Instant now = Instant.now();
-        Instant periodStart = now.truncatedTo(ChronoUnit.DAYS);
+        ZonedDateTime now = ZonedDateTime.now(ZONE_ID);
+        Instant periodStart = now.truncatedTo(ChronoUnit.DAYS).toInstant();
         Instant periodEnd = periodStart.plus(Duration.ofDays(1));
 
         EntsoeRequest request = new EntsoeRequest(EDocumentType.ACTUAL_GENERATION_PER_TYPE);
@@ -83,8 +86,8 @@ public final class RunEntsoeFetcher {
     }
 
     private void fetchDayAheadPrices(EntsoeFetcher fetcher, String fileName) throws IOException {
-        Instant now = Instant.now();
-        Instant periodStart = now.truncatedTo(ChronoUnit.DAYS);
+        ZonedDateTime now = ZonedDateTime.now(ZONE_ID);
+        Instant periodStart = now.truncatedTo(ChronoUnit.DAYS).toInstant();
         Instant periodEnd = periodStart.plus(Duration.ofDays(1));
 
         EntsoeRequest request = new EntsoeRequest(EDocumentType.PRICE_DOCUMENT);

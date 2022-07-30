@@ -1,6 +1,7 @@
 package nl.bertriksikken.energymix.entsoe;
 
 import java.time.Duration;
+import java.time.ZoneId;
 import java.util.Locale;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
@@ -21,11 +22,15 @@ public class EntsoeFetcherConfig {
     @JsonProperty("apiKey")
     private final String apiKey;
 
+    @JsonProperty("timeZone")
+    private final String timeZone;
+
     // no-arg jackson constructor
     public EntsoeFetcherConfig() {
         this.url = "https://transparency.entsoe.eu";
         this.timeoutSec = 30;
         this.apiKey = "your-secret-key";
+        this.timeZone = "Europe/Amsterdam";
     }
 
     public String getUrl() {
@@ -38,6 +43,10 @@ public class EntsoeFetcherConfig {
 
     public String getApiKey() {
         return apiKey;
+    }
+
+    public ZoneId getTimeZone() {
+        return ZoneId.of(timeZone);
     }
 
     @Override

@@ -15,6 +15,7 @@ import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import nl.bertriksikken.energymix.entsoe.EntsoeFetcher;
+import nl.bertriksikken.energymix.entsoe.EntsoeFetcherConfig;
 import nl.bertriksikken.energymix.server.EnergyMixHandler;
 
 public final class EnergyMixApp extends Application<EnergyMixAppConfig> {
@@ -34,8 +35,9 @@ public final class EnergyMixApp extends Application<EnergyMixAppConfig> {
     @Override
     public void run(EnergyMixAppConfig configuration, Environment environment) throws Exception {
         XmlMapper xmlMapper = new XmlMapper();
-        EntsoeFetcher entsoeFetcher = EntsoeFetcher.create(configuration.entsoeConfig, xmlMapper);
-        EnergyMixHandler handler = new EnergyMixHandler(entsoeFetcher);
+        EntsoeFetcherConfig fetcherConfig = configuration.entsoeConfig;
+        EntsoeFetcher entsoeFetcher = EntsoeFetcher.create(fetcherConfig, xmlMapper);
+        EnergyMixHandler handler = new EnergyMixHandler(entsoeFetcher, fetcherConfig.getTimeZone());
         EnergyMixResource resource = new EnergyMixResource(handler);
 
         EntsoeFetcherHealthCheck fetcherHealthCheck = new EntsoeFetcherHealthCheck(entsoeFetcher);
