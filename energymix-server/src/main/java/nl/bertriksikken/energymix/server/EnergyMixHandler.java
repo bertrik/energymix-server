@@ -3,7 +3,6 @@ package nl.bertriksikken.energymix.server;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.concurrent.ExecutionException;
@@ -17,7 +16,6 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Preconditions;
 
 import nl.bertriksikken.energymix.entsoe.EntsoeFetcher;
-import nl.bertriksikken.entsoe.EArea;
 import nl.bertriksikken.entsoe.EDocumentType;
 import nl.bertriksikken.entsoe.EProcessType;
 import nl.bertriksikken.entsoe.EPsrType;
@@ -37,13 +35,13 @@ public final class EnergyMixHandler {
 
     private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
     private final EntsoeFetcher entsoeFetcher;
-    private final ZoneId zoneId;
+    private final EnergyMixConfig config;
 
     private EnergyMix energyMix;
 
-    public EnergyMixHandler(EntsoeFetcher entsoeFetcher, ZoneId zoneId) {
+    public EnergyMixHandler(EntsoeFetcher entsoeFetcher, EnergyMixConfig config) {
         this.entsoeFetcher = Preconditions.checkNotNull(entsoeFetcher);
-        this.zoneId = Preconditions.checkNotNull(zoneId);
+        this.config = Preconditions.checkNotNull(config);
     }
 
     public void start() {
@@ -54,7 +52,7 @@ public final class EnergyMixHandler {
 
     // runs on the executor
     private void downloadFromEntsoe() {
-        ZonedDateTime now = ZonedDateTime.now(zoneId);
+        ZonedDateTime now = ZonedDateTime.now(config.getTimeZone());
         Instant periodStart = now.truncatedTo(ChronoUnit.DAYS).toInstant();
         Instant periodEnd = periodStart.plus(Duration.ofDays(1));
         try {
@@ -62,7 +60,7 @@ public final class EnergyMixHandler {
             LOG.info("Downloading actual generation per type");
             EntsoeRequest actualGenerationRequest = new EntsoeRequest(EDocumentType.ACTUAL_GENERATION_PER_TYPE);
             actualGenerationRequest.setProcessType(EProcessType.REALISED);
-            actualGenerationRequest.setInDomain(EArea.NETHERLANDS);
+            actualGenerationRequest.setInDomain(config.getArea());
             actualGenerationRequest.setPeriod(periodStart, periodEnd);
             EntsoeResponse actualGenerationResponse = entsoeFetcher.getDocument(actualGenerationRequest);
             EntsoeParser actualGenerationParser = new EntsoeParser(actualGenerationResponse);
@@ -77,7 +75,7 @@ public final class EnergyMixHandler {
             LOG.info("Downloading wind/solar forecast");
             EntsoeRequest windSolarForecastRequest = new EntsoeRequest(EDocumentType.WIND_SOLAR_FORECAST);
             windSolarForecastRequest.setProcessType(EProcessType.DAY_AHEAD);
-            windSolarForecastRequest.setInDomain(EArea.NETHERLANDS);
+            windSolarForecastRequest.setInDomain(config.getArea());
             windSolarForecastRequest.setPeriod(periodStart, periodEnd);
             EntsoeResponse solarForecastResponse = entsoeFetcher.getDocument(windSolarForecastRequest);
             EntsoeParser solarWindParser = new EntsoeParser(solarForecastResponse);

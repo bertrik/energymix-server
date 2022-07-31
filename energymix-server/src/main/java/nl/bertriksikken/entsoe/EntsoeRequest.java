@@ -27,12 +27,12 @@ public final class EntsoeRequest {
         params.put("psrType", psrType.getCode());
     }
 
-    public void setInDomain(EArea area) {
-        params.put("in_Domain", area.getCode());
+    public void setInDomain(String area) {
+        params.put("in_Domain", area);
     }
     
-    public void setOutDomain(EArea area) {
-        params.put("out_Domain", area.getCode());
+    public void setOutDomain(String area) {
+        params.put("out_Domain", area);
     }
     
     public void setPeriod(Instant periodStart, Instant periodEnd) {

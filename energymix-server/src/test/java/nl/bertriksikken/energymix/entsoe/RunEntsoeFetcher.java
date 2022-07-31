@@ -61,7 +61,7 @@ public final class RunEntsoeFetcher {
 
         EntsoeRequest request = new EntsoeRequest(EDocumentType.WIND_SOLAR_FORECAST);
         request.setProcessType(EProcessType.DAY_AHEAD);
-        request.setInDomain(AREA);
+        request.setInDomain(AREA.getCode());
         request.setPeriod(periodStart, periodEnd);
         request.setProductionType(EPsrType.SOLAR);
         String xml = fetcher.getRawDocument(request.getParams());
@@ -77,7 +77,7 @@ public final class RunEntsoeFetcher {
 
         EntsoeRequest request = new EntsoeRequest(EDocumentType.ACTUAL_GENERATION_PER_TYPE);
         request.setProcessType(EProcessType.REALISED);
-        request.setInDomain(AREA);
+        request.setInDomain(AREA.getCode());
         request.setPeriod(periodStart, periodEnd);
         String xml = fetcher.getRawDocument(request.getParams());
         try (Writer writer = new FileWriter(new File(fileName), Charsets.UTF_8)) {
@@ -92,8 +92,8 @@ public final class RunEntsoeFetcher {
 
         EntsoeRequest request = new EntsoeRequest(EDocumentType.PRICE_DOCUMENT);
         EArea area = EArea.NETHERLANDS;
-        request.setInDomain(area);
-        request.setOutDomain(area);
+        request.setInDomain(area.getCode());
+        request.setOutDomain(area.getCode());
         request.setPeriod(periodStart, periodEnd);
         String xml = fetcher.getRawDocument(request.getParams());
         try (Writer writer = new FileWriter(new File(fileName), Charsets.UTF_8)) {

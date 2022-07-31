@@ -1,13 +1,12 @@
 package nl.bertriksikken.energymix.entsoe;
 
 import java.time.Duration;
-import java.time.ZoneId;
 import java.util.Locale;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonAutoDetect(getterVisibility = Visibility.NONE)
@@ -19,18 +18,14 @@ public class EntsoeFetcherConfig {
     @JsonProperty("timeout")
     private final int timeoutSec;
 
-    @JsonProperty("apiKey")
+    @JsonProperty("apikey")
     private final String apiKey;
-
-    @JsonProperty("timeZone")
-    private final String timeZone;
 
     // no-arg jackson constructor
     public EntsoeFetcherConfig() {
         this.url = "https://transparency.entsoe.eu";
         this.timeoutSec = 30;
         this.apiKey = "your-secret-key";
-        this.timeZone = "Europe/Amsterdam";
     }
 
     public String getUrl() {
@@ -43,10 +38,6 @@ public class EntsoeFetcherConfig {
 
     public String getApiKey() {
         return apiKey;
-    }
-
-    public ZoneId getTimeZone() {
-        return ZoneId.of(timeZone);
     }
 
     @Override
