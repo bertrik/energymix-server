@@ -2,6 +2,8 @@ package nl.bertriksikken.entsoe;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 import com.google.common.base.Preconditions;
@@ -19,20 +21,24 @@ public final class EntsoeParser {
         this.document = Preconditions.checkNotNull(document);
     }
 
-    public Result findDayAheadPrice(Instant time) {
+    public Double findDayAheadPrice(Instant time) {
+        return parseDayAheadPrices().stream().filter(r -> r.match(time)).map(r -> r.value).findFirst()
+                .orElse(Double.NaN);
+    }
+
+    public List<Result> parseDayAheadPrices() {
+        List<Result> prices = new ArrayList<>();
         for (TimeSeries timeSeries : document.timeSeries) {
             for (Period period : timeSeries.period) {
                 Duration resolution = Duration.parse(period.resolution);
                 for (Point point : period.points) {
                     Instant blockEnd = period.timeInterval.getStart().plus(resolution.multipliedBy(point.position));
                     Instant blockStart = blockEnd.minus(resolution);
-                    if (isBetween(time, blockStart, blockEnd)) {
-                        return new Result(blockEnd, point.priceAmount);
-                    }
+                    prices.add(new Result(blockStart, blockEnd, point.priceAmount));
                 }
             }
         }
-        return new Result(Instant.now(), Double.NaN);
+        return prices;
     }
 
     public Result findByTime(Instant time, EPsrType psrType) {
@@ -43,14 +49,15 @@ public final class EntsoeParser {
                     for (Point point : period.points) {
                         Instant blockEnd = period.timeInterval.getStart().plus(resolution.multipliedBy(point.position));
                         Instant blockStart = blockEnd.minus(resolution);
-                        if (isBetween(time, blockStart, blockEnd)) {
-                            return new Result(blockEnd, point.quantity);
+                        Result result = new Result(blockStart, blockEnd, point.quantity);
+                        if (result.match(time)) {
+                            return result;
                         }
                     }
                 }
             }
         }
-        return new Result(Instant.now(), Double.NaN);
+        return new Result(time, time, Double.NaN);
     }
 
     public Result findMostRecentGeneration(EPsrType psrType) {
@@ -61,31 +68,33 @@ public final class EntsoeParser {
                     Duration resolution = Duration.parse(lastPeriod.resolution);
                     Point point = Iterables.getLast(lastPeriod.points);
                     Instant blockEnd = lastPeriod.timeInterval.getStart().plus(resolution.multipliedBy(point.position));
-                    return new Result(blockEnd, point.quantity);
+                    Instant blockStart = blockEnd.minus(resolution);
+                    return new Result(blockStart, blockEnd, point.quantity);
                 }
             }
         }
-        return new Result(Instant.now(), Double.NaN);
-    }
-
-    // from begin (exclusive) to end (inclusive)
-    private boolean isBetween(Instant time, Instant start, Instant end) {
-        return time.isAfter(start) && !time.isAfter(end);
+        return new Result(Instant.now(), Instant.now(), Double.NaN);
     }
 
     // parse result
     public static final class Result {
-        public final Instant time;
+        public final Instant timeBegin;
+        public final Instant timeEnd;
         public final double value;
 
-        public Result(Instant time, double quantity) {
-            this.time = time;
-            this.value = quantity;
+        public Result(Instant timeBegin, Instant timeEnd, double value) {
+            this.timeBegin = Preconditions.checkNotNull(timeBegin);
+            this.timeEnd = Preconditions.checkNotNull(timeEnd);
+            this.value = value;
+        }
+
+        public boolean match(Instant time) {
+            return !time.isBefore(timeBegin) && time.isBefore(timeEnd);
         }
 
         @Override
         public String toString() {
-            return String.format(Locale.ROOT, "%.0f @ %s", value, time);
+            return String.format(Locale.ROOT, "%.0f @ %s-%s", value, timeBegin, timeEnd);
         }
     }
 }

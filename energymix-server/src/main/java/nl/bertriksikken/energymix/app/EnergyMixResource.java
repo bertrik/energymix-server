@@ -14,6 +14,7 @@ import es.moki.ratelimij.dropwizard.annotation.RateLimited;
 import es.moki.ratelimij.dropwizard.filter.KeyPart;
 import io.dropwizard.jersey.caching.CacheControl;
 import io.dropwizard.lifecycle.Managed;
+import nl.bertriksikken.energymix.server.DayAheadPrices;
 import nl.bertriksikken.energymix.server.EnergyMix;
 import nl.bertriksikken.energymix.server.EnergyMixHandler;
 
@@ -49,6 +50,15 @@ public class EnergyMixResource implements Managed {
     @RateLimited(keys = KeyPart.ANY, rates = { @Rate(duration = 1, timeUnit = TimeUnit.MINUTES, limit = 2) })
     public EnergyMix getLatest() {
         return handler.getLatest();
+    }
+
+    @GET
+    @Path("/price")
+    @Produces(MediaType.APPLICATION_JSON)
+    @CacheControl(maxAge = 60, maxAgeUnit = TimeUnit.MINUTES)
+    @RateLimited(keys = KeyPart.ANY, rates = { @Rate(duration = 1, timeUnit = TimeUnit.MINUTES, limit = 2) })
+    public DayAheadPrices getPrices() {
+        return handler.getPrices();
     }
 
 }

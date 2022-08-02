@@ -5,6 +5,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -16,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Preconditions;
 
 import nl.bertriksikken.energymix.entsoe.EntsoeFetcher;
+import nl.bertriksikken.entsoe.EArea;
 import nl.bertriksikken.entsoe.EDocumentType;
 import nl.bertriksikken.entsoe.EProcessType;
 import nl.bertriksikken.entsoe.EPsrType;
@@ -38,6 +40,7 @@ public final class EnergyMixHandler {
     private final EnergyMixConfig config;
 
     private EnergyMix energyMix;
+    private EntsoeResponse dayAheadPriceDocument = new EntsoeResponse();
 
     public EnergyMixHandler(EntsoeFetcher entsoeFetcher, EnergyMixConfig config) {
         this.entsoeFetcher = Preconditions.checkNotNull(entsoeFetcher);
@@ -46,8 +49,8 @@ public final class EnergyMixHandler {
 
     public void start() {
         LOG.info("Starting");
-        // schedule immediately
         executor.execute(new CatchingRunnable(this::downloadFromEntsoe));
+        executor.execute(new CatchingRunnable(this::downloadDayAheadPrices));
     }
 
     // runs on the executor
@@ -69,7 +72,7 @@ public final class EnergyMixHandler {
             Result wind = sumGeneration(actualGenerationParser, EPsrType.WIND_OFFSHORE, EPsrType.WIND_ONSHORE);
             Result other = sumGeneration(actualGenerationParser, EPsrType.OTHER_RENEWABLE, EPsrType.OTHER);
             Result waste = sumGeneration(actualGenerationParser, EPsrType.WASTE);
-            LOG.info("Fossil generation: {}, age {}", fossil, Duration.between(fossil.time, now));
+            LOG.info("Fossil generation: {}, age {}", fossil, Duration.between(fossil.timeEnd, now));
 
             // get solar/wind forecast
             LOG.info("Downloading wind/solar forecast");
@@ -79,15 +82,15 @@ public final class EnergyMixHandler {
             windSolarForecastRequest.setPeriod(periodStart, periodEnd);
             EntsoeResponse solarForecastResponse = entsoeFetcher.getDocument(windSolarForecastRequest);
             EntsoeParser solarWindParser = new EntsoeParser(solarForecastResponse);
-            Result solar = solarWindParser.findByTime(fossil.time, EPsrType.SOLAR);
-            Result windForecastOffshore = solarWindParser.findByTime(fossil.time, EPsrType.WIND_OFFSHORE);
-            Result windForecastOnshore = solarWindParser.findByTime(fossil.time, EPsrType.WIND_ONSHORE);
+            Result solar = solarWindParser.findByTime(fossil.timeEnd, EPsrType.SOLAR);
+            Result windForecastOffshore = solarWindParser.findByTime(fossil.timeEnd, EPsrType.WIND_OFFSHORE);
+            Result windForecastOnshore = solarWindParser.findByTime(fossil.timeEnd, EPsrType.WIND_ONSHORE);
             LOG.info("Solar forecast: {}", solar);
             LOG.info("Wind forecast: {} (off-shore) + {} (on-shore) = {} (total)", windForecastOffshore.value,
                     windForecastOnshore.value, windForecastOffshore.value + windForecastOnshore.value);
 
             // build energy mix structure
-            energyMix = new EnergyMix(fossil.time.getEpochSecond());
+            energyMix = new EnergyMix(fossil.timeEnd.getEpochSecond());
             energyMix.addComponent("solar", solar.value, "#FFFF00");
             energyMix.addComponent("wind", wind.value, "#0000FF");
             energyMix.addComponent("fossil", fossil.value, "#FF0000");
@@ -115,14 +118,46 @@ public final class EnergyMixHandler {
         double value = 0.0;
         for (EPsrType type : types) {
             Result result = parser.findMostRecentGeneration(type);
-            if (result.time.isAfter(time)) {
-                time = result.time;
+            if (result.timeEnd.isAfter(time)) {
+                time = result.timeEnd;
             }
             if (Double.isFinite(result.value)) {
                 value += result.value;
             }
         }
-        return new Result(time, value);
+        return new Result(time, time, value);
+    }
+    
+    /**
+     * Downloads the day-ahead price document
+     */
+    private void downloadDayAheadPrices() {
+        ZonedDateTime now = ZonedDateTime.now(config.getTimeZone());
+        Instant periodStart = now.truncatedTo(ChronoUnit.DAYS).toInstant();
+        Instant periodEnd = periodStart.plus(Duration.ofDays(1));
+
+        try {
+            EntsoeRequest request = new EntsoeRequest(EDocumentType.PRICE_DOCUMENT);
+            EArea area = EArea.NETHERLANDS;
+            request.setInDomain(area.getCode());
+            request.setOutDomain(area.getCode());
+            request.setPeriod(periodStart, periodEnd);
+            EntsoeResponse response = entsoeFetcher.getDocument(request);
+            dayAheadPriceDocument = response;
+        } catch (IOException e) {
+            LOG.warn("Caught IOException", e);
+        }
+
+        // schedule next download
+        Instant next = now.truncatedTo(ChronoUnit.HOURS).toInstant();
+        Duration delay = Duration.between(Instant.now(), next).truncatedTo(ChronoUnit.SECONDS);
+        while (delay.isNegative()) {
+            delay = delay.plus(ENTSO_INTERVAL);
+            next = next.plus(ENTSO_INTERVAL);
+        }
+        LOG.info("Schedule next day-ahead price download after {}, at {}", delay, next);
+        executor.schedule(new CatchingRunnable(this::downloadDayAheadPrices), delay.getSeconds(), TimeUnit.SECONDS);
+
     }
 
     public void stop() throws InterruptedException {
@@ -132,12 +167,34 @@ public final class EnergyMixHandler {
     }
 
     /**
-     * @return the latest results
+     * @return a structure containing the latest recently known mix
      */
     public EnergyMix getLatest() {
         try {
             // run on executor to avoid race condition with update
             return executor.submit(() -> energyMix).get();
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error("Caught exception handling request", e);
+            return null;
+        }
+    }
+
+    /**
+     * @return a structure containing the day-ahead electricity prices
+     */
+    public DayAheadPrices getPrices() {
+        Instant now = Instant.now();
+        try {
+            // get the day-ahead price document
+            EntsoeResponse document = executor.submit(() -> dayAheadPriceDocument).get();
+            // extract data
+            EntsoeParser parser = new EntsoeParser(document);
+            List<Result> results = parser.parseDayAheadPrices();
+            double currentPrice = parser.findDayAheadPrice(now);
+            // build response structure
+            DayAheadPrices prices = new DayAheadPrices(now, currentPrice);
+            results.forEach(r -> prices.addPrice(r.timeBegin, r.value));
+            return prices;
         } catch (InterruptedException | ExecutionException e) {
             LOG.error("Caught exception handling request", e);
             return null;

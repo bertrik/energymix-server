@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Publication_MarketDocument xmlns="urn:iec62325.351:tc57wg16:451-3:publicationdocument:7:0">
-	<mRID>053e11b9df33429fb23496f39b72e143</mRID>
+	<mRID>0923d915971443a99ac905958082f02b</mRID>
 	<revisionNumber>1</revisionNumber>
 	<type>A44</type>
 	<sender_MarketParticipant.mRID codingScheme="A01">10X1001A1001A450</sender_MarketParticipant.mRID>
 	<sender_MarketParticipant.marketRole.type>A32</sender_MarketParticipant.marketRole.type>
 	<receiver_MarketParticipant.mRID codingScheme="A01">10X1001A1001A450</receiver_MarketParticipant.mRID>
 	<receiver_MarketParticipant.marketRole.type>A33</receiver_MarketParticipant.marketRole.type>
-	<createdDateTime>2022-07-28T22:28:20Z</createdDateTime>
+	<createdDateTime>2022-07-31T09:01:36Z</createdDateTime>
 	<period.timeInterval>
-		<start>2022-07-27T22:00Z</start>
-		<end>2022-07-29T22:00Z</end>
+		<start>2022-07-30T22:00Z</start>
+		<end>2022-07-31T22:00Z</end>
 	</period.timeInterval>
 	<TimeSeries>
 		<mRID>1</mRID>
@@ -22,217 +22,105 @@
 		<curveType>A01</curveType>
 			<Period>
 				<timeInterval>
-					<start>2022-07-27T22:00Z</start>
-					<end>2022-07-28T22:00Z</end>
+					<start>2022-07-30T22:00Z</start>
+					<end>2022-07-31T22:00Z</end>
 				</timeInterval>
 				<resolution>PT60M</resolution>
 					<Point>
 						<position>1</position>
-						<price.amount>437.79</price.amount>
+						<price.amount>382.79</price.amount>
 					</Point>
 					<Point>
 						<position>2</position>
-						<price.amount>400.91</price.amount>
+						<price.amount>339.88</price.amount>
 					</Point>
 					<Point>
 						<position>3</position>
-						<price.amount>399.97</price.amount>
+						<price.amount>300.10</price.amount>
 					</Point>
 					<Point>
 						<position>4</position>
-						<price.amount>397.24</price.amount>
+						<price.amount>293.05</price.amount>
 					</Point>
 					<Point>
 						<position>5</position>
-						<price.amount>399.97</price.amount>
+						<price.amount>271.30</price.amount>
 					</Point>
 					<Point>
 						<position>6</position>
-						<price.amount>400.04</price.amount>
+						<price.amount>272.98</price.amount>
 					</Point>
 					<Point>
 						<position>7</position>
-						<price.amount>489.62</price.amount>
+						<price.amount>261.03</price.amount>
 					</Point>
 					<Point>
 						<position>8</position>
-						<price.amount>420.78</price.amount>
+						<price.amount>264.80</price.amount>
 					</Point>
 					<Point>
 						<position>9</position>
-						<price.amount>399.99</price.amount>
+						<price.amount>300.01</price.amount>
 					</Point>
 					<Point>
 						<position>10</position>
-						<price.amount>447.10</price.amount>
+						<price.amount>286.37</price.amount>
 					</Point>
 					<Point>
 						<position>11</position>
-						<price.amount>405.50</price.amount>
+						<price.amount>261.10</price.amount>
 					</Point>
 					<Point>
 						<position>12</position>
-						<price.amount>363.93</price.amount>
+						<price.amount>255.76</price.amount>
 					</Point>
 					<Point>
 						<position>13</position>
-						<price.amount>340.94</price.amount>
+						<price.amount>263.08</price.amount>
 					</Point>
 					<Point>
 						<position>14</position>
-						<price.amount>287.00</price.amount>
+						<price.amount>219.08</price.amount>
 					</Point>
 					<Point>
 						<position>15</position>
-						<price.amount>337.19</price.amount>
+						<price.amount>208.74</price.amount>
 					</Point>
 					<Point>
 						<position>16</position>
-						<price.amount>353.40</price.amount>
+						<price.amount>226.08</price.amount>
 					</Point>
 					<Point>
 						<position>17</position>
-						<price.amount>417.30</price.amount>
+						<price.amount>252.07</price.amount>
 					</Point>
 					<Point>
 						<position>18</position>
-						<price.amount>489.18</price.amount>
+						<price.amount>316.01</price.amount>
 					</Point>
 					<Point>
 						<position>19</position>
-						<price.amount>517.36</price.amount>
+						<price.amount>394.79</price.amount>
 					</Point>
 					<Point>
 						<position>20</position>
-						<price.amount>557.00</price.amount>
+						<price.amount>449.55</price.amount>
 					</Point>
 					<Point>
 						<position>21</position>
-						<price.amount>550.00</price.amount>
+						<price.amount>452.95</price.amount>
 					</Point>
 					<Point>
 						<position>22</position>
-						<price.amount>518.65</price.amount>
+						<price.amount>463.49</price.amount>
 					</Point>
 					<Point>
 						<position>23</position>
-						<price.amount>497.63</price.amount>
+						<price.amount>457.76</price.amount>
 					</Point>
 					<Point>
 						<position>24</position>
-						<price.amount>382.60</price.amount>
-					</Point>
-			</Period>
-	</TimeSeries>
-	<TimeSeries>
-		<mRID>2</mRID>
-		<businessType>A62</businessType>
-		<in_Domain.mRID codingScheme="A01">10YNL----------L</in_Domain.mRID>
-		<out_Domain.mRID codingScheme="A01">10YNL----------L</out_Domain.mRID>
-		<currency_Unit.name>EUR</currency_Unit.name>
-		<price_Measure_Unit.name>MWH</price_Measure_Unit.name>
-		<curveType>A01</curveType>
-			<Period>
-				<timeInterval>
-					<start>2022-07-28T22:00Z</start>
-					<end>2022-07-29T22:00Z</end>
-				</timeInterval>
-				<resolution>PT60M</resolution>
-					<Point>
-						<position>1</position>
-						<price.amount>345.06</price.amount>
-					</Point>
-					<Point>
-						<position>2</position>
-						<price.amount>355.43</price.amount>
-					</Point>
-					<Point>
-						<position>3</position>
-						<price.amount>357.79</price.amount>
-					</Point>
-					<Point>
-						<position>4</position>
-						<price.amount>388.51</price.amount>
-					</Point>
-					<Point>
-						<position>5</position>
-						<price.amount>374.83</price.amount>
-					</Point>
-					<Point>
-						<position>6</position>
-						<price.amount>392.88</price.amount>
-					</Point>
-					<Point>
-						<position>7</position>
-						<price.amount>463.16</price.amount>
-					</Point>
-					<Point>
-						<position>8</position>
-						<price.amount>502.36</price.amount>
-					</Point>
-					<Point>
-						<position>9</position>
-						<price.amount>506.24</price.amount>
-					</Point>
-					<Point>
-						<position>10</position>
-						<price.amount>474.15</price.amount>
-					</Point>
-					<Point>
-						<position>11</position>
-						<price.amount>416.34</price.amount>
-					</Point>
-					<Point>
-						<position>12</position>
-						<price.amount>369.26</price.amount>
-					</Point>
-					<Point>
-						<position>13</position>
-						<price.amount>278.60</price.amount>
-					</Point>
-					<Point>
-						<position>14</position>
-						<price.amount>240.00</price.amount>
-					</Point>
-					<Point>
-						<position>15</position>
-						<price.amount>225.12</price.amount>
-					</Point>
-					<Point>
-						<position>16</position>
-						<price.amount>351.26</price.amount>
-					</Point>
-					<Point>
-						<position>17</position>
-						<price.amount>334.23</price.amount>
-					</Point>
-					<Point>
-						<position>18</position>
-						<price.amount>430.90</price.amount>
-					</Point>
-					<Point>
-						<position>19</position>
-						<price.amount>464.85</price.amount>
-					</Point>
-					<Point>
-						<position>20</position>
-						<price.amount>467.10</price.amount>
-					</Point>
-					<Point>
-						<position>21</position>
-						<price.amount>502.99</price.amount>
-					</Point>
-					<Point>
-						<position>22</position>
-						<price.amount>466.62</price.amount>
-					</Point>
-					<Point>
-						<position>23</position>
-						<price.amount>452.63</price.amount>
-					</Point>
-					<Point>
-						<position>24</position>
-						<price.amount>367.37</price.amount>
+						<price.amount>412.21</price.amount>
 					</Point>
 			</Period>
 	</TimeSeries>
