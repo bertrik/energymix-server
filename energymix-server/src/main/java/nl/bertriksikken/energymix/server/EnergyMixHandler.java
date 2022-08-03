@@ -56,8 +56,8 @@ public final class EnergyMixHandler {
     // runs on the executor
     private void downloadFromEntsoe() {
         ZonedDateTime now = ZonedDateTime.now(config.getTimeZone());
-        Instant periodStart = now.truncatedTo(ChronoUnit.DAYS).toInstant();
-        Instant periodEnd = periodStart.plus(Duration.ofDays(1));
+        Instant periodStart = now.minusHours(2).truncatedTo(ChronoUnit.DAYS).toInstant();
+        Instant periodEnd = now.truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant();
         try {
             // get actual generation by type
             LOG.info("Downloading actual generation per type");
@@ -118,16 +118,18 @@ public final class EnergyMixHandler {
         double value = 0.0;
         for (EPsrType type : types) {
             Result result = parser.findMostRecentGeneration(type);
-            if (result.timeEnd.isAfter(time)) {
-                time = result.timeEnd;
-            }
-            if (Double.isFinite(result.value)) {
-                value += result.value;
+            if (result != null) {
+                if (result.timeEnd.isAfter(time)) {
+                    time = result.timeEnd;
+                }
+                if (Double.isFinite(result.value)) {
+                    value += result.value;
+                }
             }
         }
         return new Result(time, time, value);
     }
-    
+
     /**
      * Downloads the day-ahead price document
      */

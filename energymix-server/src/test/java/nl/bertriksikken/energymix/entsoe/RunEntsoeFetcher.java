@@ -72,8 +72,8 @@ public final class RunEntsoeFetcher {
 
     private void fetchActualGeneration(EntsoeFetcher fetcher, String fileName) throws IOException {
         ZonedDateTime now = ZonedDateTime.now(ZONE_ID);
-        Instant periodStart = now.truncatedTo(ChronoUnit.DAYS).toInstant();
-        Instant periodEnd = periodStart.plus(Duration.ofDays(1));
+        Instant periodStart = now.minusHours(2).truncatedTo(ChronoUnit.DAYS).toInstant();
+        Instant periodEnd = now.truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant();
 
         EntsoeRequest request = new EntsoeRequest(EDocumentType.ACTUAL_GENERATION_PER_TYPE);
         request.setProcessType(EProcessType.REALISED);

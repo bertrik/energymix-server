@@ -60,20 +60,22 @@ public final class EntsoeParser {
         return new Result(time, time, Double.NaN);
     }
 
+    // find most recent generation result for specified type, null if not found
     public Result findMostRecentGeneration(EPsrType psrType) {
+        List<Result> results = new ArrayList<>();
         for (TimeSeries timeSeries : document.timeSeries) {
             if (timeSeries.isGeneration() && (timeSeries.psrType.psrType == psrType)) {
-                Period lastPeriod = Iterables.getLast(timeSeries.period, null);
-                if (lastPeriod != null) {
-                    Duration resolution = Duration.parse(lastPeriod.resolution);
-                    Point point = Iterables.getLast(lastPeriod.points);
-                    Instant blockEnd = lastPeriod.timeInterval.getStart().plus(resolution.multipliedBy(point.position));
-                    Instant blockStart = blockEnd.minus(resolution);
-                    return new Result(blockStart, blockEnd, point.quantity);
+                for (Period period : timeSeries.period) {
+                    Duration resolution = Duration.parse(period.resolution);
+                    for (Point point : period.points) {
+                        Instant blockEnd = period.timeInterval.getStart().plus(resolution.multipliedBy(point.position));
+                        Instant blockStart = blockEnd.minus(resolution);
+                        results.add(new Result(blockStart, blockEnd, point.quantity));
+                    }
                 }
             }
         }
-        return new Result(Instant.now(), Instant.now(), Double.NaN);
+        return Iterables.getLast(results, null);
     }
 
     // parse result
