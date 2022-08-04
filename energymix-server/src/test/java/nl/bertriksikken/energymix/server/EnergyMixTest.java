@@ -17,6 +17,7 @@ public final class EnergyMixTest {
         String s = mapper.writeValueAsString(mix);
         Assert.assertEquals("{\"time\":1656750073,\"total\":30,"
                 + "\"mix\":[{\"id\":\"solar\",\"power\":30,\"color\":\"#FFFF00\"}]}", s);
+        Assert.assertNotNull(mix.toString());
     }
 
 }
