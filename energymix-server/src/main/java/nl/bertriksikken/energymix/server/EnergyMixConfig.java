@@ -19,7 +19,7 @@ public final class EnergyMixConfig {
     private final String area = EArea.NETHERLANDS.getCode();
 
     @JsonProperty("timezone")
-    private final String timeZone = "Europe/Amsterdam";
+    private String timeZone = "Europe/Amsterdam";
 
     public String getArea() {
         return area;
