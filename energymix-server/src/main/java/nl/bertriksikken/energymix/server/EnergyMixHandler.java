@@ -49,12 +49,12 @@ public final class EnergyMixHandler {
 
     public void start() {
         LOG.info("Starting");
-        executor.execute(new CatchingRunnable(this::downloadFromEntsoe));
+        executor.execute(new CatchingRunnable(this::downloadActualGeneration));
         executor.execute(new CatchingRunnable(this::downloadDayAheadPrices));
     }
 
     // runs on the executor
-    private void downloadFromEntsoe() {
+    private void downloadActualGeneration() {
         ZonedDateTime now = ZonedDateTime.now(config.getTimeZone());
         Instant periodStart = now.minusHours(2).truncatedTo(ChronoUnit.DAYS).toInstant();
         Instant periodEnd = now.truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant();
@@ -104,13 +104,13 @@ public final class EnergyMixHandler {
 
         // schedule next download, with optimum determined at 6 minutes after the hour
         Instant next = now.truncatedTo(ChronoUnit.HOURS).plus(Duration.ofMinutes(6)).toInstant();
-        Duration delay = Duration.between(Instant.now(), next).truncatedTo(ChronoUnit.SECONDS);
+        Duration delay = Duration.between(Instant.now(), next);
         while (delay.isNegative()) {
             delay = delay.plus(ENTSO_INTERVAL);
             next = next.plus(ENTSO_INTERVAL);
         }
-        LOG.info("Schedule next download after {}, at {}", delay, next);
-        executor.schedule(new CatchingRunnable(this::downloadFromEntsoe), delay.getSeconds(), TimeUnit.SECONDS);
+        LOG.info("Schedule next actual generation download after {}, at {}", delay, next);
+        executor.schedule(new CatchingRunnable(this::downloadActualGeneration), delay.getSeconds(), TimeUnit.SECONDS);
     }
 
     private Result sumGeneration(EntsoeParser parser, EPsrType... types) {
@@ -139,6 +139,7 @@ public final class EnergyMixHandler {
         Instant periodEnd = periodStart.plus(Duration.ofDays(1));
 
         try {
+            LOG.info("Downloading day-ahead prices");
             EntsoeRequest request = new EntsoeRequest(EDocumentType.PRICE_DOCUMENT);
             EArea area = EArea.NETHERLANDS;
             request.setInDomain(area.getCode());
@@ -151,12 +152,8 @@ public final class EnergyMixHandler {
         }
 
         // schedule next download
-        Instant next = now.truncatedTo(ChronoUnit.HOURS).toInstant();
-        Duration delay = Duration.between(Instant.now(), next).truncatedTo(ChronoUnit.SECONDS);
-        while (delay.isNegative()) {
-            delay = delay.plus(ENTSO_INTERVAL);
-            next = next.plus(ENTSO_INTERVAL);
-        }
+        Instant next = now.truncatedTo(ChronoUnit.HOURS).toInstant().plus(Duration.ofHours(1));
+        Duration delay = Duration.between(Instant.now(), next);
         LOG.info("Schedule next day-ahead price download after {}, at {}", delay, next);
         executor.schedule(new CatchingRunnable(this::downloadDayAheadPrices), delay.getSeconds(), TimeUnit.SECONDS);
 
