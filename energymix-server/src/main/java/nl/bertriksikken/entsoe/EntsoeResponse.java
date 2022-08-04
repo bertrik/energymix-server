@@ -19,6 +19,9 @@ public final class EntsoeResponse {
     @JsonProperty("type")
     public String type = "";
 
+    @JsonProperty("createdDateTime")
+    public String createdDateTime = "";
+
     @JsonProperty(value = "TimeSeries")
     @JacksonXmlElementWrapper(useWrapping = false)
     public List<TimeSeries> timeSeries = new ArrayList<>();
@@ -114,7 +117,7 @@ public final class EntsoeResponse {
 
         @JsonProperty("quantity")
         public int quantity = 0;
-        
+
         @JsonProperty("price.amount")
         public double priceAmount = Double.NaN;
 

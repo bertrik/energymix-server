@@ -152,6 +152,7 @@ public final class EnergyMixHandler {
             request.setPeriod(periodStart, periodEnd);
             EntsoeResponse response = entsoeFetcher.getDocument(request);
             dayAheadPriceDocument = response;
+            LOG.info("Day-ahead prices created @ {}", response.createdDateTime);
 
             isHealthy.set(true);
         } catch (IOException e) {
@@ -159,12 +160,11 @@ public final class EnergyMixHandler {
             isHealthy.set(false);
         }
 
-        // schedule next download
-        Instant next = now.truncatedTo(ChronoUnit.HOURS).toInstant().plus(Duration.ofHours(1));
+        // schedule next download for the next hour
+        Instant next = now.plusMinutes(1).truncatedTo(ChronoUnit.HOURS).plusHours(1).toInstant();
         Duration delay = Duration.between(Instant.now(), next);
         LOG.info("Schedule next day-ahead price download after {}, at {}", delay, next);
         executor.schedule(new CatchingRunnable(this::downloadDayAheadPrices), delay.getSeconds(), TimeUnit.SECONDS);
-
     }
 
     public void stop() throws InterruptedException {
