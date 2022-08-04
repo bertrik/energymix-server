@@ -10,6 +10,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,6 +42,7 @@ public final class EnergyMixHandler {
 
     private EnergyMix energyMix;
     private EntsoeResponse dayAheadPriceDocument = new EntsoeResponse();
+    private final AtomicBoolean isHealthy = new AtomicBoolean(false);
 
     public EnergyMixHandler(EntsoeFetcher entsoeFetcher, EnergyMixConfig config) {
         this.entsoeFetcher = Preconditions.checkNotNull(entsoeFetcher);
@@ -98,8 +100,11 @@ public final class EnergyMixHandler {
             energyMix.addComponent("waste", waste.value, "#444444");
             energyMix.addComponent("other", other.value, "#444444");
             LOG.info("Energy mix is now: {}", energyMix);
+
+            isHealthy.set(true);
         } catch (IOException e) {
             LOG.warn("Caught IOException", e);
+            isHealthy.set(false);
         }
 
         // schedule next download, with optimum determined at 6 minutes after the hour
@@ -147,8 +152,11 @@ public final class EnergyMixHandler {
             request.setPeriod(periodStart, periodEnd);
             EntsoeResponse response = entsoeFetcher.getDocument(request);
             dayAheadPriceDocument = response;
+
+            isHealthy.set(true);
         } catch (IOException e) {
             LOG.warn("Caught IOException", e);
+            isHealthy.set(false);
         }
 
         // schedule next download
@@ -168,7 +176,7 @@ public final class EnergyMixHandler {
     /**
      * @return a structure containing the latest recently known mix
      */
-    public EnergyMix getLatest() {
+    public EnergyMix getGeneration() {
         try {
             // run on executor to avoid race condition with update
             return executor.submit(() -> energyMix).get();
@@ -198,6 +206,10 @@ public final class EnergyMixHandler {
             LOG.error("Caught exception handling request", e);
             return null;
         }
+    }
+
+    public boolean isHealthy() {
+        return isHealthy.get();
     }
 
 }

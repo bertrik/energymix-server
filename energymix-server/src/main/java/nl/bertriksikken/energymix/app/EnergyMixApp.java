@@ -36,12 +36,13 @@ public final class EnergyMixApp extends Application<EnergyMixAppConfig> {
         XmlMapper xmlMapper = new XmlMapper();
         EntsoeFetcher entsoeFetcher = EntsoeFetcher.create(configuration.entsoeFetcherConfig, xmlMapper);
         EnergyMixHandler handler = new EnergyMixHandler(entsoeFetcher, configuration.energyMixConfig);
-        EnergyMixResource resource = new EnergyMixResource(handler);
+        ElectricityResource electricityResource = new ElectricityResource(handler);
+        EnergyMixResource energyMixResource = new EnergyMixResource(electricityResource);
 
-        EntsoeFetcherHealthCheck fetcherHealthCheck = new EntsoeFetcherHealthCheck(entsoeFetcher);
-        environment.healthChecks().register("fetcher", fetcherHealthCheck);
-        environment.jersey().register(resource);
-        environment.lifecycle().manage(resource);
+        environment.healthChecks().register("electricity", new ElectricityResourceHealthCheck(handler));
+        environment.jersey().register(electricityResource);
+        environment.jersey().register(energyMixResource);
+        environment.lifecycle().manage(electricityResource);
     }
 
     public static void main(String[] args) throws Exception {

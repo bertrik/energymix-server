@@ -14,33 +14,18 @@ import es.moki.ratelimij.dropwizard.annotation.RateLimited;
 import es.moki.ratelimij.dropwizard.filter.KeyPart;
 import io.dropwizard.jersey.caching.CacheControl;
 import io.dropwizard.lifecycle.Managed;
-import nl.bertriksikken.energymix.server.DayAheadPrices;
 import nl.bertriksikken.energymix.server.EnergyMix;
-import nl.bertriksikken.energymix.server.EnergyMixHandler;
 
+/**
+ * Legacy REST endpoint for (dutch) electricity queries.
+ */
 @Path("/energy")
 public class EnergyMixResource implements Managed {
 
-    private final EnergyMixHandler handler;
+    private final ElectricityResource electricityResource;
 
-    EnergyMixResource(EnergyMixHandler handler) {
-        this.handler = Preconditions.checkNotNull(handler);
-    }
-
-    @Override
-    public void start() {
-        handler.start();
-    }
-
-    @Override
-    public void stop() throws InterruptedException {
-        handler.stop();
-    }
-
-    @GET
-    @Path("/ping")
-    public String ping() {
-        return "pong!";
+    EnergyMixResource(ElectricityResource electricityResource) {
+        this.electricityResource = Preconditions.checkNotNull(electricityResource);
     }
 
     @GET
@@ -49,16 +34,7 @@ public class EnergyMixResource implements Managed {
     @CacheControl(maxAge = 15, maxAgeUnit = TimeUnit.MINUTES)
     @RateLimited(keys = KeyPart.ANY, rates = { @Rate(duration = 1, timeUnit = TimeUnit.MINUTES, limit = 2) })
     public EnergyMix getLatest() {
-        return handler.getLatest();
-    }
-
-    @GET
-    @Path("/price")
-    @Produces(MediaType.APPLICATION_JSON)
-    @CacheControl(maxAge = 60, maxAgeUnit = TimeUnit.MINUTES)
-    @RateLimited(keys = KeyPart.ANY, rates = { @Rate(duration = 1, timeUnit = TimeUnit.MINUTES, limit = 2) })
-    public DayAheadPrices getPrices() {
-        return handler.getPrices();
+        return electricityResource.getGeneration();
     }
 
 }
