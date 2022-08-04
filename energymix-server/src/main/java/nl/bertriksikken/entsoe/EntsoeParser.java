@@ -91,6 +91,7 @@ public final class EntsoeParser {
         }
 
         public boolean match(Instant time) {
+            // begin time inclusive, end time exclusive
             return !time.isBefore(timeBegin) && time.isBefore(timeEnd);
         }
 

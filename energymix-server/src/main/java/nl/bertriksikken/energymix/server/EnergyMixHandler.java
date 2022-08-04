@@ -84,9 +84,9 @@ public final class EnergyMixHandler {
             windSolarForecastRequest.setPeriod(periodStart, periodEnd);
             EntsoeResponse solarForecastResponse = entsoeFetcher.getDocument(windSolarForecastRequest);
             EntsoeParser solarWindParser = new EntsoeParser(solarForecastResponse);
-            Result solar = solarWindParser.findByTime(fossil.timeEnd, EPsrType.SOLAR);
-            Result windForecastOffshore = solarWindParser.findByTime(fossil.timeEnd, EPsrType.WIND_OFFSHORE);
-            Result windForecastOnshore = solarWindParser.findByTime(fossil.timeEnd, EPsrType.WIND_ONSHORE);
+            Result solar = solarWindParser.findByTime(fossil.timeBegin, EPsrType.SOLAR);
+            Result windForecastOffshore = solarWindParser.findByTime(fossil.timeBegin, EPsrType.WIND_OFFSHORE);
+            Result windForecastOnshore = solarWindParser.findByTime(fossil.timeBegin, EPsrType.WIND_ONSHORE);
             LOG.info("Solar forecast: {}", solar);
             LOG.info("Wind forecast: {} (off-shore) + {} (on-shore) = {} (total)", windForecastOffshore.value,
                     windForecastOnshore.value, windForecastOffshore.value + windForecastOnshore.value);
@@ -119,20 +119,24 @@ public final class EnergyMixHandler {
     }
 
     private Result sumGeneration(EntsoeParser parser, EPsrType... types) {
-        Instant time = Instant.now().minus(Duration.ofDays(1));
+        Instant timeBegin = Instant.now().minus(Duration.ofDays(1));
+        Instant timeEnd = timeBegin;
         double value = 0.0;
         for (EPsrType type : types) {
             Result result = parser.findMostRecentGeneration(type);
             if (result != null) {
-                if (result.timeEnd.isAfter(time)) {
-                    time = result.timeEnd;
+                if (result.timeBegin.isAfter(timeBegin)) {
+                    timeBegin = result.timeBegin;
+                }
+                if (result.timeEnd.isAfter(timeEnd)) {
+                    timeEnd = result.timeEnd;
                 }
                 if (Double.isFinite(result.value)) {
                     value += result.value;
                 }
             }
         }
-        return new Result(time, time, value);
+        return new Result(timeBegin, timeEnd, value);
     }
 
     /**
