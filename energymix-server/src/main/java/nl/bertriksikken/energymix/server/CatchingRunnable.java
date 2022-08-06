@@ -1,17 +1,16 @@
 package nl.bertriksikken.energymix.server;
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
 
 public final class CatchingRunnable implements Runnable {
 
-    private final Logger LOG = LoggerFactory.getLogger(CatchingRunnable.class);
-
+    private final Logger logger;
     private final Runnable runnable;
 
-    public CatchingRunnable(Runnable runnable) {
+    public CatchingRunnable(Logger logger, Runnable runnable) {
+        this.logger = Preconditions.checkNotNull(logger);
         this.runnable = Preconditions.checkNotNull(runnable);
     }
 
@@ -20,7 +19,7 @@ public final class CatchingRunnable implements Runnable {
         try {
             runnable.run();
         } catch (Throwable e) {
-            LOG.error("Caught throwable from runnable", e);
+            logger.error("Caught throwable from runnable", e);
         }
     }
 

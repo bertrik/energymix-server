@@ -51,8 +51,8 @@ public final class EnergyMixHandler {
 
     public void start() {
         LOG.info("Starting");
-        executor.execute(new CatchingRunnable(this::downloadActualGeneration));
-        executor.execute(new CatchingRunnable(this::downloadDayAheadPrices));
+        executor.execute(new CatchingRunnable(LOG, this::downloadActualGeneration));
+        executor.execute(new CatchingRunnable(LOG, this::downloadDayAheadPrices));
     }
 
     // runs on the executor
@@ -115,7 +115,8 @@ public final class EnergyMixHandler {
             next = next.plus(ENTSO_INTERVAL);
         }
         LOG.info("Schedule next actual generation download after {}, at {}", delay, next);
-        executor.schedule(new CatchingRunnable(this::downloadActualGeneration), delay.getSeconds(), TimeUnit.SECONDS);
+        executor.schedule(new CatchingRunnable(LOG, this::downloadActualGeneration), delay.getSeconds(),
+                TimeUnit.SECONDS);
     }
 
     private Result sumGeneration(EntsoeParser parser, EPsrType... types) {
@@ -168,7 +169,8 @@ public final class EnergyMixHandler {
         Instant next = now.plusMinutes(1).truncatedTo(ChronoUnit.HOURS).plusHours(1).toInstant();
         Duration delay = Duration.between(Instant.now(), next);
         LOG.info("Schedule next day-ahead price download after {}, at {}", delay, next);
-        executor.schedule(new CatchingRunnable(this::downloadDayAheadPrices), delay.getSeconds(), TimeUnit.SECONDS);
+        executor.schedule(new CatchingRunnable(LOG, this::downloadDayAheadPrices), delay.getSeconds(),
+                TimeUnit.SECONDS);
     }
 
     public void stop() throws InterruptedException {
