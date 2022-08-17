@@ -37,7 +37,6 @@ subprojects {
     // Standard libraries added to all projects
     dependencies {
         testImplementation libraries.junit
-        testImplementation libraries.mockito
 
         implementation libraries.slf4j
     }
