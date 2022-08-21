@@ -6,6 +6,7 @@ import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -16,6 +17,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 
 import nl.bertriksikken.energymix.entsoe.EntsoeFetcher;
 import nl.bertriksikken.entsoe.EArea;
@@ -41,22 +45,38 @@ public final class EnergyMixHandler {
     private final EnergyMixConfig config;
 
     private EnergyMix energyMix;
-    private EntsoeResponse dayAheadPriceDocument = new EntsoeResponse();
+    private final LoadingCache<DocumentKey, EntsoeResponse> documentCache;
     private final AtomicBoolean isHealthy = new AtomicBoolean(false);
 
     public EnergyMixHandler(EntsoeFetcher entsoeFetcher, EnergyMixConfig config) {
         this.entsoeFetcher = Preconditions.checkNotNull(entsoeFetcher);
         this.config = Preconditions.checkNotNull(config);
+        CacheLoader<DocumentKey, EntsoeResponse> cacheLoader = new CacheLoader<>() {
+            @Override
+            public EntsoeResponse load(DocumentKey key) {
+                try {
+                    switch (key.documentType) {
+                    case PRICE_DOCUMENT:
+                        return downloadPriceDocument();
+                    default:
+                        break;
+                    }
+                } catch (IOException e) {
+                    LOG.warn("Caught IOException", e);
+                }
+                return new EntsoeResponse();
+            }
+        };
+        documentCache = CacheBuilder.newBuilder().expireAfterAccess(1, TimeUnit.DAYS).build(cacheLoader);
     }
 
     public void start() {
         LOG.info("Starting");
-        executor.execute(new CatchingRunnable(LOG, this::downloadActualGeneration));
-        executor.execute(new CatchingRunnable(LOG, this::downloadDayAheadPrices));
+        executor.execute(new CatchingRunnable(LOG, this::downloadGeneration));
     }
 
     // runs on the executor
-    private void downloadActualGeneration() {
+    private void downloadGeneration() {
         ZonedDateTime now = ZonedDateTime.now(config.getTimeZone());
         Instant periodStart = now.minusHours(2).truncatedTo(ChronoUnit.DAYS).toInstant();
         Instant periodEnd = now.truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant();
@@ -115,8 +135,7 @@ public final class EnergyMixHandler {
             next = next.plus(ENTSO_INTERVAL);
         }
         LOG.info("Schedule next actual generation download after {}, at {}", delay, next);
-        executor.schedule(new CatchingRunnable(LOG, this::downloadActualGeneration), delay.getSeconds(),
-                TimeUnit.SECONDS);
+        executor.schedule(new CatchingRunnable(LOG, this::downloadGeneration), delay.getSeconds(), TimeUnit.SECONDS);
     }
 
     private Result sumGeneration(EntsoeParser parser, EPsrType... types) {
@@ -143,34 +162,18 @@ public final class EnergyMixHandler {
     /**
      * Downloads the day-ahead price document
      */
-    private void downloadDayAheadPrices() {
+    private EntsoeResponse downloadPriceDocument() throws IOException {
+        LOG.info("Downloading day-ahead prices");
         ZonedDateTime now = ZonedDateTime.now(config.getTimeZone());
         Instant periodStart = now.truncatedTo(ChronoUnit.DAYS).toInstant();
         Instant periodEnd = periodStart.plus(Duration.ofDays(1));
 
-        try {
-            LOG.info("Downloading day-ahead prices");
-            EntsoeRequest request = new EntsoeRequest(EDocumentType.PRICE_DOCUMENT);
-            EArea area = EArea.NETHERLANDS;
-            request.setInDomain(area.getCode());
-            request.setOutDomain(area.getCode());
-            request.setPeriod(periodStart, periodEnd);
-            EntsoeResponse response = entsoeFetcher.getDocument(request);
-            dayAheadPriceDocument = response;
-            LOG.info("Day-ahead prices created @ {}", response.createdDateTime);
-
-            isHealthy.set(true);
-        } catch (IOException e) {
-            LOG.warn("Caught IOException", e);
-            isHealthy.set(false);
-        }
-
-        // schedule next download for the next hour
-        Instant next = now.plusMinutes(1).truncatedTo(ChronoUnit.HOURS).plusHours(1).toInstant();
-        Duration delay = Duration.between(Instant.now(), next);
-        LOG.info("Schedule next day-ahead price download after {}, at {}", delay, next);
-        executor.schedule(new CatchingRunnable(LOG, this::downloadDayAheadPrices), delay.getSeconds(),
-                TimeUnit.SECONDS);
+        EntsoeRequest request = new EntsoeRequest(EDocumentType.PRICE_DOCUMENT);
+        EArea area = EArea.NETHERLANDS;
+        request.setInDomain(area.getCode());
+        request.setOutDomain(area.getCode());
+        request.setPeriod(periodStart, periodEnd);
+        return entsoeFetcher.getDocument(request);
     }
 
     public void stop() throws InterruptedException {
@@ -196,19 +199,20 @@ public final class EnergyMixHandler {
      * @return a structure containing the day-ahead electricity prices
      */
     public DayAheadPrices getPrices() {
-        Instant now = Instant.now();
+        ZonedDateTime now = ZonedDateTime.now(config.getTimeZone());
         try {
             // get the day-ahead price document
-            EntsoeResponse document = executor.submit(() -> dayAheadPriceDocument).get();
+            DocumentKey key = new DocumentKey(EDocumentType.PRICE_DOCUMENT, now.getDayOfYear());
+            EntsoeResponse priceDocument = documentCache.get(key);
             // extract data
-            EntsoeParser parser = new EntsoeParser(document);
+            EntsoeParser parser = new EntsoeParser(priceDocument);
             List<Result> results = parser.parseDayAheadPrices();
-            double currentPrice = parser.findDayAheadPrice(now);
+            double currentPrice = parser.findDayAheadPrice(now.toInstant());
             // build response structure
-            DayAheadPrices prices = new DayAheadPrices(now, currentPrice);
+            DayAheadPrices prices = new DayAheadPrices(now.toInstant(), currentPrice);
             results.forEach(r -> prices.addPrice(r.timeBegin, r.value));
             return prices;
-        } catch (InterruptedException | ExecutionException e) {
+        } catch (ExecutionException e) {
             LOG.error("Caught exception handling request", e);
             return null;
         }
@@ -216,6 +220,31 @@ public final class EnergyMixHandler {
 
     public boolean isHealthy() {
         return isHealthy.get();
+    }
+
+    // document/time combination, used in the dynamic cache
+    private static final class DocumentKey {
+        private final EDocumentType documentType;
+        private final int timeKey;
+
+        private DocumentKey(EDocumentType documentType, int timeKey) {
+            this.documentType = documentType;
+            this.timeKey = timeKey;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(documentType, timeKey);
+        }
+
+        @Override
+        public boolean equals(Object object) {
+            if (object instanceof DocumentKey) {
+                DocumentKey other = (DocumentKey) object;
+                return documentType.equals(other.documentType) && timeKey == other.timeKey;
+            }
+            return false;
+        }
     }
 
 }
