@@ -22,7 +22,6 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 
 import nl.bertriksikken.energymix.entsoe.EntsoeFetcher;
-import nl.bertriksikken.entsoe.EArea;
 import nl.bertriksikken.entsoe.EDocumentType;
 import nl.bertriksikken.entsoe.EProcessType;
 import nl.bertriksikken.entsoe.EPsrType;
@@ -55,9 +54,14 @@ public final class EnergyMixHandler {
             @Override
             public EntsoeResponse load(DocumentKey key) {
                 try {
+                    ZonedDateTime now = ZonedDateTime.now(config.getTimeZone());
+                    Instant periodStart = now.truncatedTo(ChronoUnit.DAYS).toInstant();
+                    Instant periodEnd = periodStart.plus(Duration.ofDays(1));
                     switch (key.documentType) {
                     case PRICE_DOCUMENT:
-                        return downloadPriceDocument();
+                        return downloadPriceDocument(periodStart, periodEnd);
+                    case WIND_SOLAR_FORECAST:
+                        return downloadWindSolarForecast(periodStart, periodEnd);
                     default:
                         break;
                     }
@@ -97,13 +101,9 @@ public final class EnergyMixHandler {
             LOG.info("Fossil generation: {}, age {}", fossil, Duration.between(fossil.timeEnd, now));
 
             // get solar/wind forecast
-            LOG.info("Downloading wind/solar forecast");
-            EntsoeRequest windSolarForecastRequest = new EntsoeRequest(EDocumentType.WIND_SOLAR_FORECAST);
-            windSolarForecastRequest.setProcessType(EProcessType.DAY_AHEAD);
-            windSolarForecastRequest.setInDomain(config.getArea());
-            windSolarForecastRequest.setPeriod(periodStart, periodEnd);
-            EntsoeResponse solarForecastResponse = entsoeFetcher.getDocument(windSolarForecastRequest);
-            EntsoeParser solarWindParser = new EntsoeParser(solarForecastResponse);
+            EntsoeResponse solarForecast = documentCache
+                    .get(new DocumentKey(EDocumentType.WIND_SOLAR_FORECAST, now.getDayOfYear()));
+            EntsoeParser solarWindParser = new EntsoeParser(solarForecast);
             Result solar = solarWindParser.findByTime(fossil.timeBegin, EPsrType.SOLAR);
             Result windForecastOffshore = solarWindParser.findByTime(fossil.timeBegin, EPsrType.WIND_OFFSHORE);
             Result windForecastOnshore = solarWindParser.findByTime(fossil.timeBegin, EPsrType.WIND_ONSHORE);
@@ -122,8 +122,8 @@ public final class EnergyMixHandler {
             LOG.info("Energy mix is now: {}", energyMix);
 
             isHealthy.set(true);
-        } catch (IOException e) {
-            LOG.warn("Caught IOException", e);
+        } catch (IOException | ExecutionException e) {
+            LOG.warn("Caught Exception", e);
             isHealthy.set(false);
         }
 
@@ -159,19 +159,20 @@ public final class EnergyMixHandler {
         return new Result(timeBegin, timeEnd, value);
     }
 
-    /**
-     * Downloads the day-ahead price document
-     */
-    private EntsoeResponse downloadPriceDocument() throws IOException {
+    private EntsoeResponse downloadPriceDocument(Instant periodStart, Instant periodEnd) throws IOException {
         LOG.info("Downloading day-ahead prices");
-        ZonedDateTime now = ZonedDateTime.now(config.getTimeZone());
-        Instant periodStart = now.truncatedTo(ChronoUnit.DAYS).toInstant();
-        Instant periodEnd = periodStart.plus(Duration.ofDays(1));
-
         EntsoeRequest request = new EntsoeRequest(EDocumentType.PRICE_DOCUMENT);
-        EArea area = EArea.NETHERLANDS;
-        request.setInDomain(area.getCode());
-        request.setOutDomain(area.getCode());
+        request.setInDomain(config.getArea());
+        request.setOutDomain(config.getArea());
+        request.setPeriod(periodStart, periodEnd);
+        return entsoeFetcher.getDocument(request);
+    }
+
+    private EntsoeResponse downloadWindSolarForecast(Instant periodStart, Instant periodEnd) throws IOException {
+        LOG.info("Downloading wind/solar forecast");
+        EntsoeRequest request = new EntsoeRequest(EDocumentType.WIND_SOLAR_FORECAST);
+        request.setProcessType(EProcessType.DAY_AHEAD);
+        request.setInDomain(config.getArea());
         request.setPeriod(periodStart, periodEnd);
         return entsoeFetcher.getDocument(request);
     }
