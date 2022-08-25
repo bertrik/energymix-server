@@ -42,36 +42,36 @@ public final class EnergyMixHandler {
     private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
     private final EntsoeFetcher entsoeFetcher;
     private final EnergyMixConfig config;
-
-    private EnergyMix energyMix;
     private final LoadingCache<DocumentKey, EntsoeResponse> documentCache;
     private final AtomicBoolean isHealthy = new AtomicBoolean(false);
+
+    private EnergyMix energyMix;
 
     public EnergyMixHandler(EntsoeFetcher entsoeFetcher, EnergyMixConfig config) {
         this.entsoeFetcher = Preconditions.checkNotNull(entsoeFetcher);
         this.config = Preconditions.checkNotNull(config);
-        CacheLoader<DocumentKey, EntsoeResponse> cacheLoader = new CacheLoader<>() {
-            @Override
-            public EntsoeResponse load(DocumentKey key) {
-                try {
-                    ZonedDateTime now = ZonedDateTime.now(config.getTimeZone());
-                    Instant periodStart = now.truncatedTo(ChronoUnit.DAYS).toInstant();
-                    Instant periodEnd = periodStart.plus(Duration.ofDays(1));
-                    switch (key.documentType) {
-                    case PRICE_DOCUMENT:
-                        return downloadPriceDocument(periodStart, periodEnd);
-                    case WIND_SOLAR_FORECAST:
-                        return downloadWindSolarForecast(periodStart, periodEnd);
-                    default:
-                        break;
-                    }
-                } catch (IOException e) {
-                    LOG.warn("Caught IOException", e);
-                }
-                return new EntsoeResponse();
+        this.documentCache = CacheBuilder.newBuilder().expireAfterAccess(Duration.ofDays(1))
+                .build(CacheLoader.from(this::loadDocument));
+    }
+
+    // loads a document into the document cache
+    private EntsoeResponse loadDocument(DocumentKey key) {
+        try {
+            ZonedDateTime now = ZonedDateTime.now(config.getTimeZone());
+            Instant periodStart = now.truncatedTo(ChronoUnit.DAYS).toInstant();
+            Instant periodEnd = periodStart.plus(Duration.ofDays(1));
+            switch (key.documentType) {
+            case PRICE_DOCUMENT:
+                return downloadPriceDocument(periodStart, periodEnd);
+            case WIND_SOLAR_FORECAST:
+                return downloadWindSolarForecast(periodStart, periodEnd);
+            default:
+                break;
             }
-        };
-        documentCache = CacheBuilder.newBuilder().expireAfterAccess(1, TimeUnit.DAYS).build(cacheLoader);
+        } catch (IOException e) {
+            LOG.warn("Caught IOException", e);
+        }
+        return new EntsoeResponse();
     }
 
     public void start() {
