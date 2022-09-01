@@ -99,10 +99,12 @@ public final class EnergyMixHandler {
             Result other = sumGeneration(actualGenerationParser, EPsrType.OTHER_RENEWABLE, EPsrType.OTHER);
             Result waste = sumGeneration(actualGenerationParser, EPsrType.WASTE);
             LOG.info("Fossil generation: {}, age {}", fossil, Duration.between(fossil.timeEnd, now));
+            
 
             // get solar/wind forecast
+            ZonedDateTime fossilTime = ZonedDateTime.ofInstant(fossil.timeBegin, config.getTimeZone());
             EntsoeResponse solarForecast = documentCache
-                    .get(new DocumentKey(EDocumentType.WIND_SOLAR_FORECAST, now.getDayOfYear()));
+                    .get(new DocumentKey(EDocumentType.WIND_SOLAR_FORECAST, fossilTime.getDayOfYear()));
             EntsoeParser solarWindParser = new EntsoeParser(solarForecast);
             Result solar = solarWindParser.findByTime(fossil.timeBegin, EPsrType.SOLAR);
             Result windForecastOffshore = solarWindParser.findByTime(fossil.timeBegin, EPsrType.WIND_OFFSHORE);
@@ -169,7 +171,7 @@ public final class EnergyMixHandler {
     }
 
     private EntsoeResponse downloadWindSolarForecast(Instant periodStart, Instant periodEnd) throws IOException {
-        LOG.info("Downloading wind/solar forecast");
+        LOG.info("Downloading wind/solar forecast {}-{}", periodStart, periodEnd);
         EntsoeRequest request = new EntsoeRequest(EDocumentType.WIND_SOLAR_FORECAST);
         request.setProcessType(EProcessType.DAY_AHEAD);
         request.setInDomain(config.getArea());
