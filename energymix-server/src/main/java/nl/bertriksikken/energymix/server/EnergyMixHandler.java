@@ -57,8 +57,7 @@ public final class EnergyMixHandler {
     // loads a document into the document cache
     private EntsoeResponse loadDocument(DocumentKey key) {
         try {
-            ZonedDateTime now = ZonedDateTime.now(config.getTimeZone());
-            Instant periodStart = now.truncatedTo(ChronoUnit.DAYS).toInstant();
+            Instant periodStart = key.dateTime.truncatedTo(ChronoUnit.DAYS).toInstant();
             Instant periodEnd = periodStart.plus(Duration.ofDays(1));
             switch (key.documentType) {
             case PRICE_DOCUMENT:
@@ -104,7 +103,7 @@ public final class EnergyMixHandler {
             // get solar/wind forecast
             ZonedDateTime fossilTime = ZonedDateTime.ofInstant(fossil.timeBegin, config.getTimeZone());
             EntsoeResponse solarForecast = documentCache
-                    .get(new DocumentKey(EDocumentType.WIND_SOLAR_FORECAST, fossilTime.getDayOfYear()));
+                    .get(new DocumentKey(EDocumentType.WIND_SOLAR_FORECAST, fossilTime.truncatedTo(ChronoUnit.DAYS)));
             EntsoeParser solarWindParser = new EntsoeParser(solarForecast);
             Result solar = solarWindParser.findByTime(fossil.timeBegin, EPsrType.SOLAR);
             Result windForecastOffshore = solarWindParser.findByTime(fossil.timeBegin, EPsrType.WIND_OFFSHORE);
@@ -205,7 +204,7 @@ public final class EnergyMixHandler {
         ZonedDateTime now = ZonedDateTime.now(config.getTimeZone());
         try {
             // get the day-ahead price document
-            DocumentKey key = new DocumentKey(EDocumentType.PRICE_DOCUMENT, now.getDayOfYear());
+            DocumentKey key = new DocumentKey(EDocumentType.PRICE_DOCUMENT, now.truncatedTo(ChronoUnit.DAYS));
             EntsoeResponse priceDocument = documentCache.get(key);
             // extract data
             EntsoeParser parser = new EntsoeParser(priceDocument);
@@ -228,23 +227,23 @@ public final class EnergyMixHandler {
     // document/time combination, used in the dynamic cache
     private static final class DocumentKey {
         private final EDocumentType documentType;
-        private final int timeKey;
+        private final ZonedDateTime dateTime;
 
-        private DocumentKey(EDocumentType documentType, int timeKey) {
+        private DocumentKey(EDocumentType documentType, ZonedDateTime dateTime) {
             this.documentType = documentType;
-            this.timeKey = timeKey;
+            this.dateTime = dateTime;
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(documentType, timeKey);
+            return Objects.hash(documentType, dateTime);
         }
 
         @Override
         public boolean equals(Object object) {
             if (object instanceof DocumentKey) {
                 DocumentKey other = (DocumentKey) object;
-                return documentType.equals(other.documentType) && timeKey == other.timeKey;
+                return documentType.equals(other.documentType) && dateTime.equals(other.dateTime);
             }
             return false;
         }
