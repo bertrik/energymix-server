@@ -1,5 +1,5 @@
 plugins {
-  id 'com.github.spotbugs' version '5.0.9'
+  id 'com.github.spotbugs' version '5.0.12'
   id 'com.github.ben-manes.versions' version '0.42.0'
 }
 
@@ -37,8 +37,6 @@ subprojects {
     // Standard libraries added to all projects
     dependencies {
         testImplementation libraries.junit
-
-        implementation libraries.slf4j
     }
 }
 
