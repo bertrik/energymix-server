@@ -94,28 +94,32 @@ public final class EnergyMixHandler {
             EntsoeParser actualGenerationParser = new EntsoeParser(actualGenerationResponse);
             Result fossil = sumGeneration(actualGenerationParser, EPsrType.FOSSIL_HARD_COAL, EPsrType.FOSSIL_GAS);
             Result nuclear = sumGeneration(actualGenerationParser, EPsrType.NUCLEAR);
-            Result wind = sumGeneration(actualGenerationParser, EPsrType.WIND_OFFSHORE, EPsrType.WIND_ONSHORE);
+            Result windOffshoreReported = sumGeneration(actualGenerationParser, EPsrType.WIND_OFFSHORE);
+            Result windOnshoreReported = sumGeneration(actualGenerationParser, EPsrType.WIND_ONSHORE);
             Result other = sumGeneration(actualGenerationParser, EPsrType.OTHER_RENEWABLE, EPsrType.OTHER);
             Result waste = sumGeneration(actualGenerationParser, EPsrType.WASTE);
             LOG.info("Fossil generation: {}, age {}", fossil, Duration.between(fossil.timeEnd, now));
-            
 
             // get solar/wind forecast
             ZonedDateTime fossilTime = ZonedDateTime.ofInstant(fossil.timeBegin, config.getTimeZone());
-            EntsoeResponse solarForecast = documentCache
+            EntsoeResponse windSolarForecast = documentCache
                     .get(new DocumentKey(EDocumentType.WIND_SOLAR_FORECAST, fossilTime.truncatedTo(ChronoUnit.DAYS)));
-            EntsoeParser solarWindParser = new EntsoeParser(solarForecast);
-            Result solar = solarWindParser.findByTime(fossil.timeBegin, EPsrType.SOLAR);
-            Result windForecastOffshore = solarWindParser.findByTime(fossil.timeBegin, EPsrType.WIND_OFFSHORE);
-            Result windForecastOnshore = solarWindParser.findByTime(fossil.timeBegin, EPsrType.WIND_ONSHORE);
-            LOG.info("Solar forecast: {}", solar);
-            LOG.info("Wind forecast: {} (off-shore) + {} (on-shore) = {} (total)", windForecastOffshore.value,
-                    windForecastOnshore.value, windForecastOffshore.value + windForecastOnshore.value);
+            EntsoeParser windSolarParser = new EntsoeParser(windSolarForecast);
+            Result solarForecast = windSolarParser.findByTime(fossil.timeBegin, EPsrType.SOLAR);
+            Result windOffshoreForecast = windSolarParser.findByTime(fossil.timeBegin, EPsrType.WIND_OFFSHORE);
+            Result windOnshoreForecast = windSolarParser.findByTime(fossil.timeBegin, EPsrType.WIND_ONSHORE);
+            LOG.info("Wind forecast: {} (off-shore) + {} (on-shore) = {} (total)", windOffshoreForecast.value,
+                    windOnshoreForecast.value, windOffshoreForecast.value + windOnshoreForecast.value);
+            LOG.info("Wind reported: {} (off-shore) + {} (on-shore) = {} (total)", windOffshoreReported.value,
+                    windOnshoreReported.value, windOffshoreReported.value + windOnshoreReported.value);
+
+            // calculate wind
+            Double wind = windOffshoreReported.value + windOnshoreForecast.value;
 
             // build energy mix structure
             energyMix = new EnergyMix(fossil.timeEnd.getEpochSecond());
-            energyMix.addComponent("solar", solar.value, "#FFFF00");
-            energyMix.addComponent("wind", wind.value, "#0000FF");
+            energyMix.addComponent("solar", solarForecast.value, "#FFFF00");
+            energyMix.addComponent("wind", wind, "#0000FF");
             energyMix.addComponent("fossil", fossil.value, "#FF0000");
             energyMix.addComponent("nuclear", nuclear.value, "#00FF00");
             energyMix.addComponent("waste", waste.value, "#444444");
