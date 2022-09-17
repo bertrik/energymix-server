@@ -95,7 +95,7 @@ public final class EnergyMixHandler {
             Result fossil = sumGeneration(actualGenerationParser, EPsrType.FOSSIL_HARD_COAL, EPsrType.FOSSIL_GAS);
             Result nuclear = sumGeneration(actualGenerationParser, EPsrType.NUCLEAR);
             Result wind = sumGeneration(actualGenerationParser, EPsrType.WIND_OFFSHORE, EPsrType.WIND_ONSHORE);
-            Result other = sumGeneration(actualGenerationParser, EPsrType.OTHER_RENEWABLE, EPsrType.OTHER);
+            Result other = sumGeneration(actualGenerationParser, EPsrType.OTHER);
             Result waste = sumGeneration(actualGenerationParser, EPsrType.WASTE);
             LOG.info("Fossil generation: {}, age {}", fossil, Duration.between(fossil.timeEnd, now));
             
