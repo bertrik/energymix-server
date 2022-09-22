@@ -140,7 +140,7 @@ public final class EnergyMixHandler {
             next = next.plus(ENTSO_INTERVAL);
         }
         LOG.info("Schedule next actual generation download after {}, at {}", delay, next);
-        executor.schedule(new CatchingRunnable(LOG, this::downloadGeneration), delay.getSeconds(), TimeUnit.SECONDS);
+        executor.schedule(new CatchingRunnable(LOG, this::downloadGeneration), delay.toSeconds() + 1, TimeUnit.SECONDS);
     }
 
     private Result sumGeneration(EntsoeParser parser, EPsrType... types) {
