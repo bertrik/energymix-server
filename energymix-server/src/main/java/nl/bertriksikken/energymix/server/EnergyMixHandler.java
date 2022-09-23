@@ -20,6 +20,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.google.common.cache.RemovalNotification;
 
 import nl.bertriksikken.energymix.entsoe.EntsoeFetcher;
 import nl.bertriksikken.entsoe.EDocumentType;
@@ -51,7 +52,11 @@ public final class EnergyMixHandler {
         this.entsoeFetcher = Preconditions.checkNotNull(entsoeFetcher);
         this.config = Preconditions.checkNotNull(config);
         this.documentCache = CacheBuilder.newBuilder().expireAfterAccess(Duration.ofDays(1))
-                .build(CacheLoader.from(this::loadDocument));
+                .removalListener(this::onDocumentExpiry).build(CacheLoader.from(this::loadDocument));
+    }
+
+    private void onDocumentExpiry(RemovalNotification<DocumentKey, EntsoeResponse> notification) {
+        LOG.info("Document {} expired for {}", notification.getValue().type, notification.getKey().dateTime);
     }
 
     // loads a document into the document cache
