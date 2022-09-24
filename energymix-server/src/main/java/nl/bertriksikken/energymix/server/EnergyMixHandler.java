@@ -114,7 +114,8 @@ public final class EnergyMixHandler {
                     windOnshoreReported.value, windOffshoreReported.value + windOnshoreReported.value);
 
             // calculate wind
-            Double wind = windOffshoreReported.value + windOnshoreForecast.value;
+            Double windOnshore = Math.max(windOnshoreReported.value, windOnshoreForecast.value);
+            Double wind = windOffshoreReported.value + windOnshore;
 
             // build energy mix structure
             energyMix = new EnergyMix(fossil.timeEnd.getEpochSecond());
