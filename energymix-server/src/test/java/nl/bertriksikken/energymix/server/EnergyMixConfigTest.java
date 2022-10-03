@@ -11,6 +11,7 @@ public final class EnergyMixConfigTest {
 
         Assert.assertNotNull(config.getArea());
         Assert.assertNotNull(config.getTimeZone());
+        Assert.assertNotNull(config.getForecastOffset());
         Assert.assertNotNull(config.toString());
     }
 

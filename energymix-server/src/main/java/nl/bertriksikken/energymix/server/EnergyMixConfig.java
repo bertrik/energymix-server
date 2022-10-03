@@ -1,5 +1,6 @@
 package nl.bertriksikken.energymix.server;
 
+import java.time.Duration;
 import java.time.ZoneId;
 import java.util.Locale;
 
@@ -21,6 +22,9 @@ public final class EnergyMixConfig {
     @JsonProperty("timezone")
     private String timeZone = "Europe/Amsterdam";
 
+    @JsonProperty("forecastOffset")
+    private long forecastOffsetMinutes = 30;
+
     public String getArea() {
         return area;
     }
@@ -29,8 +33,12 @@ public final class EnergyMixConfig {
         return ZoneId.of(timeZone);
     }
 
+    public Duration getForecastOffset() {
+        return Duration.ofMinutes(forecastOffsetMinutes);
+    }
+
     @Override
     public String toString() {
-        return String.format(Locale.ROOT, "{%s,%s}", timeZone, area);
+        return String.format(Locale.ROOT, "{%s,%s,%d}", timeZone, area, forecastOffsetMinutes);
     }
 }

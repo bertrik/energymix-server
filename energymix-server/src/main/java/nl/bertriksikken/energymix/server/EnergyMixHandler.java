@@ -98,16 +98,18 @@ public final class EnergyMixHandler {
             Result windOnshoreReported = sumGeneration(actualGenerationParser, EPsrType.WIND_ONSHORE);
             Result other = sumGeneration(actualGenerationParser, EPsrType.OTHER);
             Result waste = sumGeneration(actualGenerationParser, EPsrType.WASTE);
+            ZonedDateTime fossilTime = ZonedDateTime.ofInstant(fossil.timeBegin, config.getTimeZone());
             LOG.info("Fossil generation: {}, age {}", fossil, Duration.between(fossil.timeEnd, now));
 
             // get solar/wind forecast
-            ZonedDateTime fossilTime = ZonedDateTime.ofInstant(fossil.timeBegin, config.getTimeZone());
+            ZonedDateTime forecastTime = fossilTime.plus(config.getForecastOffset());
             EntsoeResponse windSolarForecast = documentCache
-                    .get(new DocumentKey(EDocumentType.WIND_SOLAR_FORECAST, fossilTime.truncatedTo(ChronoUnit.DAYS)));
+                    .get(new DocumentKey(EDocumentType.WIND_SOLAR_FORECAST, forecastTime.truncatedTo(ChronoUnit.DAYS)));
             EntsoeParser windSolarParser = new EntsoeParser(windSolarForecast);
-            Result solarForecast = windSolarParser.findByTime(fossil.timeBegin, EPsrType.SOLAR);
-            Result windOffshoreForecast = windSolarParser.findByTime(fossil.timeBegin, EPsrType.WIND_OFFSHORE);
-            Result windOnshoreForecast = windSolarParser.findByTime(fossil.timeBegin, EPsrType.WIND_ONSHORE);
+            Result solarForecast = windSolarParser.findByTime(forecastTime.toInstant(), EPsrType.SOLAR);
+            LOG.info("Solar forecast: {}", solarForecast);
+            Result windOffshoreForecast = windSolarParser.findByTime(forecastTime.toInstant(), EPsrType.WIND_OFFSHORE);
+            Result windOnshoreForecast = windSolarParser.findByTime(forecastTime.toInstant(), EPsrType.WIND_ONSHORE);
             LOG.info("Wind forecast: {} (off-shore) + {} (on-shore) = {} (total)", windOffshoreForecast.value,
                     windOnshoreForecast.value, windOffshoreForecast.value + windOnshoreForecast.value);
             LOG.info("Wind reported: {} (off-shore) + {} (on-shore) = {} (total)", windOffshoreReported.value,
