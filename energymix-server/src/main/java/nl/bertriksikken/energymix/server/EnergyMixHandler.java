@@ -80,22 +80,16 @@ public final class EnergyMixHandler {
 
     public void start() {
         LOG.info("Starting");
-        executor.execute(new CatchingRunnable(LOG, this::downloadGeneration));
+        executor.execute(new CatchingRunnable(LOG, this::updateEnergyMix));
     }
 
     // runs on the executor
-    private void downloadGeneration() {
+    private void updateEnergyMix() {
         ZonedDateTime now = ZonedDateTime.now(config.getTimeZone());
         Instant periodStart = now.minusHours(2).truncatedTo(ChronoUnit.DAYS).toInstant();
         Instant periodEnd = now.truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant();
         try {
-            // get actual generation by type
-            LOG.info("Downloading actual generation per type");
-            EntsoeRequest actualGenerationRequest = new EntsoeRequest(EDocumentType.ACTUAL_GENERATION_PER_TYPE);
-            actualGenerationRequest.setProcessType(EProcessType.REALISED);
-            actualGenerationRequest.setInDomain(config.getArea());
-            actualGenerationRequest.setPeriod(periodStart, periodEnd);
-            EntsoeResponse actualGenerationResponse = entsoeFetcher.getDocument(actualGenerationRequest);
+            EntsoeResponse actualGenerationResponse = downloadGenerationByType(periodStart, periodEnd);
             EntsoeParser actualGenerationParser = new EntsoeParser(actualGenerationResponse);
             Result fossil = sumGeneration(actualGenerationParser, EPsrType.FOSSIL_HARD_COAL, EPsrType.FOSSIL_GAS);
             Result nuclear = sumGeneration(actualGenerationParser, EPsrType.NUCLEAR);
@@ -148,7 +142,7 @@ public final class EnergyMixHandler {
             next = next.plus(ENTSO_INTERVAL);
         }
         LOG.info("Schedule next actual generation download after {}, at {}", delay, next);
-        executor.schedule(new CatchingRunnable(LOG, this::downloadGeneration), delay.toSeconds() + 1, TimeUnit.SECONDS);
+        executor.schedule(new CatchingRunnable(LOG, this::updateEnergyMix), delay.toSeconds() + 1, TimeUnit.SECONDS);
     }
 
     private Result sumGeneration(EntsoeParser parser, EPsrType... types) {
@@ -170,6 +164,15 @@ public final class EnergyMixHandler {
             }
         }
         return new Result(timeBegin, timeEnd, value);
+    }
+
+    private EntsoeResponse downloadGenerationByType(Instant periodStart, Instant periodEnd) throws IOException {
+        LOG.info("Downloading actual generation per type");
+        EntsoeRequest actualGenerationRequest = new EntsoeRequest(EDocumentType.ACTUAL_GENERATION_PER_TYPE);
+        actualGenerationRequest.setProcessType(EProcessType.REALISED);
+        actualGenerationRequest.setInDomain(config.getArea());
+        actualGenerationRequest.setPeriod(periodStart, periodEnd);
+        return entsoeFetcher.getDocument(actualGenerationRequest);
     }
 
     private EntsoeResponse downloadPriceDocument(Instant periodStart, Instant periodEnd) throws IOException {
