@@ -124,8 +124,8 @@ public final class EnergyMixHandler {
             energyMix.addComponent("wind", wind, "#0000FF");
             energyMix.addComponent("fossil", fossil.value, "#FF0000");
             energyMix.addComponent("nuclear", nuclear.value, "#00FF00");
-            energyMix.addComponent("waste", waste.value, "#444444");
-            energyMix.addComponent("other", other.value, "#444444");
+            energyMix.addComponent("waste", waste.value, "#FF00FF");
+            energyMix.addComponent("other", other.value, "#FF00FF");
             LOG.info("Energy mix is now: {}", energyMix);
 
             isHealthy.set(true);
