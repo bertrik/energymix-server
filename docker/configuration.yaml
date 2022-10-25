@@ -1,7 +1,12 @@
 ---
-berthub:
-  url: "https://berthub.eu"
+entsoe:
+  url: "https://transparency.entsoe.eu"
   timeout: 30
+  apikey: "your-entsoe-api-key-here"
+energymix:
+  area: "10YNL----------L"
+  timezone: "Europe/Amsterdam"
+  forecastOffset: 30
 logging: !<default>
   level: "INFO"
   loggers: {}
