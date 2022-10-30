@@ -1,6 +1,5 @@
 package nl.bertriksikken.energymix.app;
 
-import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,8 +11,12 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Iterables;
 
 import es.moki.ratelimij.dropwizard.annotation.Rate;
 import es.moki.ratelimij.dropwizard.annotation.RateLimited;
@@ -23,9 +26,12 @@ import io.dropwizard.lifecycle.Managed;
 import nl.bertriksikken.energymix.server.NaturalGasHandler;
 import nl.bertriksikken.naturalgas.NeutralGasPrices;
 import nl.bertriksikken.naturalgas.NeutralGasPrices.NeutralGasDayPrice;
+import nl.bertriksikken.naturalgas.NeutralGasPrices.NeutralGasDayPrice.ENgpStatus;
 
 @Path("/naturalgas")
 public final class NaturalGasResource implements Managed {
+
+    private static final Logger LOG = LoggerFactory.getLogger(NaturalGasResource.class);
 
     private final NaturalGasHandler handler;
 
@@ -56,16 +62,21 @@ public final class NaturalGasResource implements Managed {
     @RateLimited(keys = KeyPart.ANY, rates = { @Rate(duration = 1, timeUnit = TimeUnit.MINUTES, limit = 10) })
     public NaturalGasPrice getPrices() {
         // get data from handler
-        NeutralGasPrices neutralGasPrice = handler.getGasPrices();
+        NeutralGasPrices neutralGasPrices = handler.getGasPrices();
+        List<NeutralGasDayPrice> dayPrices = neutralGasPrices.getDayPrices();
 
-        LocalDate today = LocalDate.now(NeutralGasPrices.NGP_TIME_ZONE);
-        NeutralGasDayPrice current = neutralGasPrice.findDayPrice(today);
+        // determine todays price (assume this is the first price in the list)
+        NeutralGasDayPrice currentPrice = Iterables.getFirst(dayPrices, null);
+        if (currentPrice == null) {
+            LOG.warn("Could not determine todays gas price");
+            return null;
+        }
 
         // build JSON response
-        NaturalGasPrice naturalGasPrice = new NaturalGasPrice(current);
-        for (NeutralGasDayPrice dayPrice : neutralGasPrice.getDayPrices()) {
-            if (dayPrice.indexVolume > 0) {
-                naturalGasPrice.addDayPrice(dayPrice);
+        NaturalGasPrice naturalGasPrice = new NaturalGasPrice(currentPrice);
+        for (NeutralGasDayPrice dayPrice : dayPrices) {
+            if ((dayPrice.status == ENgpStatus.TEMPORARY) && (dayPrice.indexVolume > 0)) {
+                naturalGasPrice.addDayAheadPrice(dayPrice);
             }
         }
         return naturalGasPrice;
@@ -85,7 +96,7 @@ public final class NaturalGasResource implements Managed {
             this.currentPrice = new NaturalGasDayPrice(currentPrice);
         }
 
-        private void addDayPrice(NeutralGasDayPrice entry) {
+        private void addDayAheadPrice(NeutralGasDayPrice entry) {
             dayAheadPrices.add(new NaturalGasDayPrice(entry));
         }
 
@@ -94,18 +105,15 @@ public final class NaturalGasResource implements Managed {
             private String date;
             @JsonProperty("price")
             private double price;
-            @JsonProperty("status")
-            private String status;
 
             private NaturalGasDayPrice(NeutralGasDayPrice entry) {
                 this.date = DATE_FORMATTER.format(entry.date);
                 this.price = entry.indexValue;
-                this.status = entry.status.name();
             }
 
             @Override
             public String toString() {
-                return String.format(Locale.ROOT, "{%s,%s,%s}", date, price, status);
+                return String.format(Locale.ROOT, "{%s,%s,%s}", date, price);
             }
         }
     }
