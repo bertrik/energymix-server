@@ -7,9 +7,9 @@ import com.google.common.base.Preconditions;
 public final class CatchingRunnable implements Runnable {
 
     private final Logger logger;
-    private final Runnable runnable;
+    private final CheckedRunnable runnable;
 
-    public CatchingRunnable(Logger logger, Runnable runnable) {
+    public CatchingRunnable(Logger logger, CheckedRunnable runnable) {
         this.logger = Preconditions.checkNotNull(logger);
         this.runnable = Preconditions.checkNotNull(runnable);
     }
@@ -19,8 +19,12 @@ public final class CatchingRunnable implements Runnable {
         try {
             runnable.run();
         } catch (Throwable e) {
-            logger.error("Caught throwable from runnable", e);
+            logger.warn("Caught throwable from runnable: {}", e.getMessage());
         }
+    }
+
+    public interface CheckedRunnable {
+        public void run() throws Throwable;
     }
 
 }

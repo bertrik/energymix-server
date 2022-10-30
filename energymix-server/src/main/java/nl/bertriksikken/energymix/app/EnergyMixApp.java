@@ -16,6 +16,7 @@ import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import nl.bertriksikken.energymix.entsoe.EntsoeFetcher;
 import nl.bertriksikken.energymix.server.EnergyMixHandler;
+import nl.bertriksikken.energymix.server.NaturalGasHandler;
 
 public final class EnergyMixApp extends Application<EnergyMixAppConfig> {
 
@@ -38,11 +39,16 @@ public final class EnergyMixApp extends Application<EnergyMixAppConfig> {
         EnergyMixHandler handler = new EnergyMixHandler(entsoeFetcher, configuration.energyMixConfig);
         ElectricityResource electricityResource = new ElectricityResource(handler);
         EnergyMixResource energyMixResource = new EnergyMixResource(electricityResource);
-
         environment.healthChecks().register("electricity", new ElectricityResourceHealthCheck(handler));
         environment.jersey().register(electricityResource);
         environment.jersey().register(energyMixResource);
         environment.lifecycle().manage(electricityResource);
+
+        // natural gas
+        NaturalGasHandler naturalGasHandler = new NaturalGasHandler(configuration.powerNextConfig);
+        NaturalGasResource naturalGasResource = new NaturalGasResource(naturalGasHandler);
+        environment.jersey().register(naturalGasResource);
+        environment.lifecycle().manage(naturalGasResource);
     }
 
     public static void main(String[] args) throws Exception {
