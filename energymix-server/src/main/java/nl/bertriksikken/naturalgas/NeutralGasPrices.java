@@ -6,9 +6,11 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
+
+import nl.bertriksikken.naturalgas.NeutralGasPrices.NeutralGasDayPrice.ENgpStatus;
 
 /**
  * List of TTF neutral gas prices.
@@ -29,15 +31,20 @@ public final class NeutralGasPrices {
     // copy-constructor
     public NeutralGasPrices(NeutralGasPrices original) {
         this(original.creationTime);
-        original.getDayPrices().forEach(entry -> add(entry));
+        original.dayPrices.forEach(entry -> add(entry));
     }
 
     public void add(NeutralGasDayPrice entry) {
         dayPrices.add(entry);
     }
 
-    public NeutralGasDayPrice findDayPrice(LocalDate date) {
-        return dayPrices.stream().filter(entry -> entry.date.equals(date)).findFirst().orElse(null);
+    public NeutralGasDayPrice findFinalPrice() {
+        return dayPrices.stream().filter(p -> p.status == ENgpStatus.FINAL).findFirst().orElse(null);
+    }
+
+    public List<NeutralGasDayPrice> getTemporaryPrices() {
+        return dayPrices.stream().filter(p -> p.status == ENgpStatus.TEMPORARY).filter(p -> p.indexVolume > 0)
+                .collect(Collectors.toList());
     }
 
     // one entry in the neutral gas price, for a specific day
@@ -66,10 +73,6 @@ public final class NeutralGasPrices {
 
     public Instant getCreationTime() {
         return creationTime;
-    }
-
-    public List<NeutralGasDayPrice> getDayPrices() {
-        return ImmutableList.copyOf(dayPrices);
     }
 
 }

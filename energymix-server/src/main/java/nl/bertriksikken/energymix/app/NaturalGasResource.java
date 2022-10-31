@@ -16,7 +16,6 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Iterables;
 
 import es.moki.ratelimij.dropwizard.annotation.Rate;
 import es.moki.ratelimij.dropwizard.annotation.RateLimited;
@@ -26,7 +25,6 @@ import io.dropwizard.lifecycle.Managed;
 import nl.bertriksikken.energymix.server.NaturalGasHandler;
 import nl.bertriksikken.naturalgas.NeutralGasPrices;
 import nl.bertriksikken.naturalgas.NeutralGasPrices.NeutralGasDayPrice;
-import nl.bertriksikken.naturalgas.NeutralGasPrices.NeutralGasDayPrice.ENgpStatus;
 
 @Path("/naturalgas")
 public final class NaturalGasResource implements Managed {
@@ -63,23 +61,18 @@ public final class NaturalGasResource implements Managed {
     public NaturalGasPrice getPrices() {
         // get data from handler
         NeutralGasPrices neutralGasPrices = handler.getGasPrices();
-        List<NeutralGasDayPrice> dayPrices = neutralGasPrices.getDayPrices();
 
         // determine todays price (assume this is the first price in the list)
-        NeutralGasDayPrice currentPrice = Iterables.getFirst(dayPrices, null);
-        if (currentPrice == null) {
-            LOG.warn("Could not determine todays gas price");
+        NeutralGasDayPrice finalPrice = neutralGasPrices.findFinalPrice();
+        if (finalPrice != null) {
+            // build JSON response
+            NaturalGasPrice naturalGasPrice = new NaturalGasPrice(finalPrice);
+            neutralGasPrices.getTemporaryPrices().forEach(p -> naturalGasPrice.addDayAheadPrice(p));
+            return naturalGasPrice;
+        } else {
+            LOG.warn("Could not determine a final gas price");
             return null;
         }
-
-        // build JSON response
-        NaturalGasPrice naturalGasPrice = new NaturalGasPrice(currentPrice);
-        for (NeutralGasDayPrice dayPrice : dayPrices) {
-            if ((dayPrice.status == ENgpStatus.TEMPORARY) && (dayPrice.indexVolume > 0)) {
-                naturalGasPrice.addDayAheadPrice(dayPrice);
-            }
-        }
-        return naturalGasPrice;
     }
 
     // JSON representation of natural gas price

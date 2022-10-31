@@ -3,7 +3,6 @@ package nl.bertriksikken.energymix.server;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
-import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
@@ -39,7 +38,7 @@ public final class NaturalGasHandler {
     }
 
     public void start() {
-        // schedule download immediately
+        // start download immediately
         executor.execute(new CatchingRunnable(LOG, this::downloadGasPrices));
     }
 
@@ -53,21 +52,24 @@ public final class NaturalGasHandler {
     }
 
     private void downloadGasPrices() {
-        LOG.info("Download NGP current prices");
+        LOG.info("Download NGP current price document");
 
         // download and try to parse
         Instant next;
         try {
             FileResponse response = powernextClient.getCurrentPriceDocument();
-            neutralGasPrice = CurrentPriceDocument.parse(response);
+            LOG.info("Downloaded NGP current price document, {} bytes, last modified {}",
+                    response.getContents().length(), response.getLastModified());
 
             // get price for today
-            LocalDate today = LocalDate.now(NeutralGasPrices.NGP_TIME_ZONE);
-            NeutralGasDayPrice entry = neutralGasPrice.findDayPrice(today);
-            LOG.info("Current NGP: {} @ {}", entry.indexValue, entry.date);
+            neutralGasPrice = CurrentPriceDocument.parse(response);
+            NeutralGasDayPrice finalPrice = neutralGasPrice.findFinalPrice();
+            if (finalPrice != null) {
+                LOG.info("Final neutral gas price: {} EUR/MWh @ {}", finalPrice.indexValue, finalPrice.date);
+            }
             next = response.getLastModified().plus(GAS_DOWNLOAD_INTERVAL).plusSeconds(30);
         } catch (IOException e) {
-            LOG.warn("Download NGP failed: ", e.getMessage());
+            LOG.warn("Download NGP current price document failed: {}", e.getMessage());
             next = Instant.now().plus(Duration.ofMinutes(5));
         }
 
