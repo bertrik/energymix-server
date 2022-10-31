@@ -58,7 +58,7 @@ public final class NaturalGasResource implements Managed {
     @GET
     @Path("/price")
     @Produces(MediaType.APPLICATION_JSON)
-    @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.DAYS)
+    @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.HOURS)
     @RateLimited(keys = KeyPart.ANY, rates = { @Rate(duration = 1, timeUnit = TimeUnit.MINUTES, limit = 10) })
     public NaturalGasPrice getPrices() {
         // get data from handler
