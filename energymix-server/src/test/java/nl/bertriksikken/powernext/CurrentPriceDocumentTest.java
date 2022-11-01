@@ -2,9 +2,6 @@ package nl.bertriksikken.powernext;
 
 import java.io.IOException;
 import java.net.URL;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -32,16 +29,11 @@ public final class CurrentPriceDocumentTest {
         Assert.assertNotNull(document);
         LOG.info("Document: {}", document);
 
-        List<NeutralGasDayPrice> dayPrices = document.getDayPrices();
-        Assert.assertEquals(4, dayPrices.size());
-
-        NeutralGasDayPrice first = dayPrices.get(0);
-        Assert.assertEquals(ENgpStatus.FINAL, first.status);
-        Assert.assertEquals(29.937, first.indexValue, 0.001);
-
-        LocalDate day = LocalDate.ofInstant(document.getCreationTime(), ZoneId.of("CET")).minusDays(1);
-        NeutralGasDayPrice entry = document.findDayPrice(day);
-        Assert.assertNotNull(entry);
+        NeutralGasDayPrice finalPrice = document.findFinalPrice();
+        Assert.assertEquals(ENgpStatus.FINAL, finalPrice.status);
+        Assert.assertEquals(29.937, finalPrice.indexValue, 0.001);
+        
+        Assert.assertEquals(2, document.getTemporaryPrices().size());
     }
 
 }
