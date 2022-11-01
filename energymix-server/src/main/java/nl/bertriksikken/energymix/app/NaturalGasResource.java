@@ -80,28 +80,28 @@ public final class NaturalGasResource implements Managed {
 
         private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE;;
 
-        @JsonProperty("current")
+        @JsonProperty("final")
         private final NaturalGasDayPrice currentPrice;
-        @JsonProperty("day-ahead")
-        private final List<NaturalGasDayPrice> dayAheadPrices = new ArrayList<>();
+        @JsonProperty("temporary")
+        private final List<NaturalGasDayPrice> temporaryPrices = new ArrayList<>();
 
         private NaturalGasPrice(NeutralGasDayPrice currentPrice) {
             this.currentPrice = new NaturalGasDayPrice(currentPrice);
         }
 
         private void addDayAheadPrice(NeutralGasDayPrice entry) {
-            dayAheadPrices.add(new NaturalGasDayPrice(entry));
+            temporaryPrices.add(new NaturalGasDayPrice(entry));
         }
 
         private static final class NaturalGasDayPrice {
-            @JsonProperty("date")
-            private String date;
             @JsonProperty("price")
             private double price;
+            @JsonProperty("date")
+            private String date;
 
             private NaturalGasDayPrice(NeutralGasDayPrice entry) {
-                this.date = DATE_FORMATTER.format(entry.date);
                 this.price = entry.indexValue;
+                this.date = DATE_FORMATTER.format(entry.date);
             }
 
             @Override
