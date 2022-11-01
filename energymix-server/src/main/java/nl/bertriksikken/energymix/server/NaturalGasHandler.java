@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -62,10 +61,11 @@ public final class NaturalGasHandler {
                     response.getContents().length(), response.getLastModified());
 
             // get price for today
-            neutralGasPrice = CurrentPriceDocument.parse(response);
-            NeutralGasDayPrice finalPrice = neutralGasPrice.findFinalPrice();
+            NeutralGasPrices prices = CurrentPriceDocument.parse(response);
+            NeutralGasDayPrice finalPrice = prices.findFinalPrice();
             if (finalPrice != null) {
                 LOG.info("Final neutral gas price: {} EUR/MWh @ {}", finalPrice.indexValue, finalPrice.date);
+                setGasPrices(prices);
             }
             next = response.getLastModified().plus(GAS_DOWNLOAD_INTERVAL).plusSeconds(30);
         } catch (IOException e) {
@@ -83,12 +83,12 @@ public final class NaturalGasHandler {
     }
 
     // get a copy of the neutral gas price
-    public NeutralGasPrices getGasPrices() {
-        try {
-            return executor.submit(() -> new NeutralGasPrices(neutralGasPrice)).get();
-        } catch (InterruptedException | ExecutionException e) {
-            return new NeutralGasPrices(Instant.now());
-        }
+    public synchronized NeutralGasPrices getGasPrices() {
+        return new NeutralGasPrices(neutralGasPrice);
+    }
+
+    private synchronized void setGasPrices(NeutralGasPrices neutralGasPrice) {
+        this.neutralGasPrice = neutralGasPrice;
     }
 
 }
