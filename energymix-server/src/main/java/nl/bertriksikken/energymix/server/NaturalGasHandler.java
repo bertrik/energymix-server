@@ -43,7 +43,7 @@ public final class NaturalGasHandler {
     }
 
     public void stop() {
-        executor.shutdown();
+        executor.shutdownNow();
         try {
             executor.awaitTermination(5, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
