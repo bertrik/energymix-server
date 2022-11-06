@@ -49,8 +49,8 @@ public class ElectricityResource implements Managed {
     @GET
     @Path("/generation")
     @Produces(MediaType.APPLICATION_JSON)
-    @CacheControl(maxAge = 15, maxAgeUnit = TimeUnit.MINUTES)
-    @RateLimited(keys = KeyPart.ANY, rates = { @Rate(duration = 1, timeUnit = TimeUnit.MINUTES, limit = 2) })
+    @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.MINUTES)
+    @RateLimited(keys = KeyPart.ANY, rates = { @Rate(duration = 1, timeUnit = TimeUnit.MINUTES, limit = 10) })
     public EnergyMix getGeneration() {
         return handler.getGeneration();
     }
@@ -59,7 +59,7 @@ public class ElectricityResource implements Managed {
     @Path("/price")
     @Produces(MediaType.APPLICATION_JSON)
     @CacheControl(maxAge = 60, maxAgeUnit = TimeUnit.MINUTES)
-    @RateLimited(keys = KeyPart.ANY, rates = { @Rate(duration = 1, timeUnit = TimeUnit.MINUTES, limit = 2) })
+    @RateLimited(keys = KeyPart.ANY, rates = { @Rate(duration = 1, timeUnit = TimeUnit.MINUTES, limit = 10) })
     public DayAheadPrices getPrices() {
         return handler.getPrices();
     }
