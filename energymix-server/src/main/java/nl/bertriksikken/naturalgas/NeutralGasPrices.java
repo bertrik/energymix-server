@@ -3,6 +3,7 @@ package nl.bertriksikken.naturalgas;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -38,6 +39,10 @@ public final class NeutralGasPrices {
         dayPrices.add(entry);
     }
 
+    public Instant getCreationTime() {
+        return creationTime;
+    }
+
     public NeutralGasDayPrice findFinalPrice() {
         return dayPrices.stream().filter(p -> p.status == ENgpStatus.FINAL).findFirst().orElse(null);
     }
@@ -45,6 +50,11 @@ public final class NeutralGasPrices {
     public List<NeutralGasDayPrice> getTemporaryPrices() {
         return dayPrices.stream().filter(p -> p.status == ENgpStatus.TEMPORARY).filter(p -> p.indexVolume > 0)
                 .collect(Collectors.toList());
+    }
+    
+    @Override
+    public String toString() {
+        return String.format(Locale.ROOT, "%s @ %s", dayPrices, creationTime);
     }
 
     // one entry in the neutral gas price, for a specific day
@@ -63,16 +73,12 @@ public final class NeutralGasPrices {
 
         @Override
         public String toString() {
-            return String.format(Locale.ROOT, "{%s: %.3f, %s}", date, indexValue, status);
+            return String.format(Locale.ROOT, "%.3f @ %s", indexValue, DateTimeFormatter.ISO_LOCAL_DATE.format(date));
         }
 
         public static enum ENgpStatus {
             FINAL, TEMPORARY, UNKNOWN;
         }
-    }
-
-    public Instant getCreationTime() {
-        return creationTime;
     }
 
 }

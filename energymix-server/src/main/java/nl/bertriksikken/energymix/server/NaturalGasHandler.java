@@ -62,9 +62,9 @@ public final class NaturalGasHandler {
 
             // get price for today
             NeutralGasPrices prices = CurrentPriceDocument.parse(response);
+            LOG.info("Gas prices: {}", prices);
             NeutralGasDayPrice finalPrice = prices.findFinalPrice();
             if (finalPrice != null) {
-                LOG.info("Final neutral gas price: {} EUR/MWh @ {}", finalPrice.indexValue, finalPrice.date);
                 setGasPrices(prices);
             }
             next = response.getLastModified().plus(GAS_DOWNLOAD_INTERVAL).plusSeconds(30);
