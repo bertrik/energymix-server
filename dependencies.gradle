@@ -1,7 +1,7 @@
 ext {
     libraries = [:]
 
-    jacksonVersion = '2.13.4'
+    jacksonVersion = '2.14.0'
     retrofitVersion = '2.9.0'
     jerseyVersion = '2.34'
     dropwizardVersion = '2.1.4'
