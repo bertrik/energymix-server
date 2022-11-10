@@ -25,3 +25,9 @@ server: !<default>
   applicationConnectors:
   - type: http
     port: 9001
+  requestLog:
+    appenders:
+      - type: file
+        currentLogFilename: requests.log
+        archivedLogFilenamePattern: requests.log.%d
+        archivedFileCount: 10
