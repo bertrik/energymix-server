@@ -3,6 +3,9 @@ entsoe:
   url: "https://transparency.entsoe.eu"
   timeout: 30
   apikey: "secret"
+powernext:
+  url: "https://www.powernext.com"
+  timeout: 30
 energymix:
   area: "10YNL----------L"
   timezone: "Europe/Amsterdam"
