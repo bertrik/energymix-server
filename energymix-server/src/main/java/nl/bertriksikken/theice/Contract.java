@@ -1,16 +1,23 @@
 package nl.bertriksikken.theice;
 
+import java.time.Instant;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public final class Contract {
 
+    // formatter/parser for the "lastTime" field
+    public static final DateTimeFormatter LAST_TIME_FORMATTER = DateTimeFormatter.ofPattern("MM/dd/yyyy hh:mm a z");
+
     @JsonProperty("volume")
     public final int volume;
 
     @JsonProperty("lastTime")
-    public final String lastTime; // can be "null"
+    private final String lastTime; // can be "null"
 
     @JsonProperty("endDate")
     public final String endDate;
@@ -36,5 +43,14 @@ public final class Contract {
         change = Double.NaN;
         marketId = 0;
         lastPrice = Double.NaN;
+    }
+
+    public Instant getLastTime() {
+        return lastTime != null ? LAST_TIME_FORMATTER.parse(lastTime, Instant::from) : null;
+    }
+
+    @Override
+    public String toString() {
+        return String.format(Locale.ROOT, "%.3f @ %s for %s", lastPrice, getLastTime(), marketStrip);
     }
 }
