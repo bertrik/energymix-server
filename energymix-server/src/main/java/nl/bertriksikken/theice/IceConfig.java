@@ -18,7 +18,7 @@ public final class IceConfig {
     private final int timeoutSec;
 
     // no-arg jackson constructor
-    IceConfig() {
+    public IceConfig() {
         this.url = "https://www.theice.com";
         this.timeoutSec = 30;
     }

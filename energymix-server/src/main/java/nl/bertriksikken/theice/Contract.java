@@ -7,6 +7,8 @@ import java.util.Locale;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import nl.bertriksikken.naturalgas.FutureGasPrices.FutureGasPrice;
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 public final class Contract {
 
@@ -47,6 +49,13 @@ public final class Contract {
 
     public Instant getLastTime() {
         return lastTime != null ? LAST_TIME_FORMATTER.parse(lastTime, Instant::from) : null;
+    }
+
+    public FutureGasPrice toFutureGasPrice() {
+        if ((lastPrice == null) || (lastTime == null) || (marketStrip == null)) {
+            return null;
+        }
+        return new FutureGasPrice(lastPrice, getLastTime(), marketStrip);
     }
 
     @Override

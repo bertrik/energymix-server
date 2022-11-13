@@ -23,6 +23,8 @@ import es.moki.ratelimij.dropwizard.filter.KeyPart;
 import io.dropwizard.jersey.caching.CacheControl;
 import io.dropwizard.lifecycle.Managed;
 import nl.bertriksikken.energymix.server.NaturalGasHandler;
+import nl.bertriksikken.naturalgas.FutureGasPrices;
+import nl.bertriksikken.naturalgas.FutureGasPrices.FutureGasPrice;
 import nl.bertriksikken.naturalgas.NeutralGasPrices;
 import nl.bertriksikken.naturalgas.NeutralGasPrices.NeutralGasDayPrice;
 
@@ -59,20 +61,23 @@ public final class NaturalGasResource implements Managed {
     @CacheControl(maxAge = 15, maxAgeUnit = TimeUnit.MINUTES)
     @RateLimited(keys = KeyPart.ANY, rates = { @Rate(duration = 1, timeUnit = TimeUnit.MINUTES, limit = 10) })
     public NaturalGasPrice getPrices() {
-        // get data from handler
-        NeutralGasPrices neutralGasPrices = handler.getGasPrices();
+        NaturalGasPrice naturalGasPrice = new NaturalGasPrice();
 
-        // determine todays price (assume this is the first price in the list)
+        // build day-ahead part
+        NeutralGasPrices neutralGasPrices = handler.getNeutralGasPrices();
         NeutralGasDayPrice finalPrice = neutralGasPrices.findFinalPrice();
         if (finalPrice != null) {
-            // build JSON response
-            NaturalGasPrice naturalGasPrice = new NaturalGasPrice(finalPrice);
+            naturalGasPrice.addDayAheadPrice(finalPrice);
             neutralGasPrices.getTemporaryPrices().forEach(p -> naturalGasPrice.addDayAheadPrice(p));
-            return naturalGasPrice;
         } else {
             LOG.warn("Could not determine a final gas price");
-            return null;
         }
+
+        // build month-ahead part
+        FutureGasPrices futureGasPrices = handler.getFutureGasPrices();
+        futureGasPrices.getPrices().stream().limit(3).forEach(p -> naturalGasPrice.addFutureGasPrice(p));
+
+        return naturalGasPrice;
     }
 
     // JSON representation of natural gas price
@@ -80,33 +85,34 @@ public final class NaturalGasResource implements Managed {
 
         private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE;;
 
-        @JsonProperty("final")
-        private final NaturalGasDayPrice currentPrice;
-        @JsonProperty("temporary")
-        private final List<NaturalGasDayPrice> temporaryPrices = new ArrayList<>();
+        @JsonProperty("day-ahead")
+        private final List<PriceAtDate> dayAheadPrices = new ArrayList<>();
 
-        private NaturalGasPrice(NeutralGasDayPrice currentPrice) {
-            this.currentPrice = new NaturalGasDayPrice(currentPrice);
+        @JsonProperty("month-ahead")
+        private final List<PriceAtDate> monthAheadPrices = new ArrayList<>();
+
+        private void addDayAheadPrice(NeutralGasDayPrice price) {
+            dayAheadPrices.add(new PriceAtDate(price.indexValue, DATE_FORMATTER.format(price.date)));
         }
 
-        private void addDayAheadPrice(NeutralGasDayPrice entry) {
-            temporaryPrices.add(new NaturalGasDayPrice(entry));
+        private void addFutureGasPrice(FutureGasPrice price) {
+            monthAheadPrices.add(new PriceAtDate(price.price, price.period));
         }
 
-        private static final class NaturalGasDayPrice {
+        private static final class PriceAtDate {
             @JsonProperty("price")
             private double price;
             @JsonProperty("date")
             private String date;
 
-            private NaturalGasDayPrice(NeutralGasDayPrice entry) {
-                this.price = entry.indexValue;
-                this.date = DATE_FORMATTER.format(entry.date);
+            private PriceAtDate(double price, String date) {
+                this.price = price;
+                this.date = date;
             }
 
             @Override
             public String toString() {
-                return String.format(Locale.ROOT, "{%s,%s,%s}", date, price);
+                return String.format(Locale.ROOT, "{%.3f @ %s}", price, date);
             }
         }
     }
