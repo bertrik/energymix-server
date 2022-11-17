@@ -1,6 +1,7 @@
 package nl.bertriksikken.powernext;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -26,7 +27,9 @@ public final class CurrentPriceDocument {
     private static final CsvSchema SCHEMA = CsvSchema.emptySchema().withHeader().withColumnSeparator(';');
 
     private static final ZoneId ZONE = ZoneId.of("CET");
-    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy").withZone(ZONE);
+    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy").withZone(ZONE);
+    private static final DateTimeFormatter TIMESTAMP_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
+            .withZone(ZONE);
 
     // parses the CSV data into the domain model
     public static NeutralGasPrices parse(FileResponse fileResponse) throws IOException {
@@ -39,9 +42,11 @@ public final class CurrentPriceDocument {
 
         // parse each line
         for (CurrentPriceEntryCsv csvEntry : csvEntries) {
-            LocalDate date = DATE_FORMATTER.parse(csvEntry.gasDay, LocalDate::from);
+            LocalDate date = DATE_FORMAT.parse(csvEntry.gasDay, LocalDate::from);
             EStatus status = EStatus.from(csvEntry.ngpStatus);
-            document.add(new NeutralGasDayPrice(date, csvEntry.indexValue, csvEntry.indexVolume, status.ngpStatus));
+            Instant timestamp = TIMESTAMP_FORMAT.parse(csvEntry.timeStamp, Instant::from);
+            document.add(new NeutralGasDayPrice(date, csvEntry.indexValue, csvEntry.indexVolume, status.ngpStatus,
+                    timestamp));
         }
         return document;
     }

@@ -1,5 +1,6 @@
 package nl.bertriksikken.energymix.app;
 
+import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -83,7 +84,7 @@ public final class NaturalGasResource implements Managed {
     // JSON representation of natural gas price
     private static final class NaturalGasPrice {
 
-        private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE;;
+        private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ISO_LOCAL_DATE;
 
         @JsonProperty("day-ahead")
         private final List<PriceAtDate> dayAheadPrices = new ArrayList<>();
@@ -92,22 +93,28 @@ public final class NaturalGasResource implements Managed {
         private final List<PriceAtDate> monthAheadPrices = new ArrayList<>();
 
         private void addDayAheadPrice(NeutralGasDayPrice price) {
-            dayAheadPrices.add(new PriceAtDate(price.indexValue, DATE_FORMATTER.format(price.date)));
+            dayAheadPrices.add(new PriceAtDate(price.indexValue, DATE_FORMAT.format(price.date), price.timestamp));
         }
 
         private void addFutureGasPrice(FutureGasPrice price) {
-            monthAheadPrices.add(new PriceAtDate(price.price, price.period));
+            monthAheadPrices.add(new PriceAtDate(price.price, price.period, price.time));
         }
 
         private static final class PriceAtDate {
-            @JsonProperty("price")
-            private double price;
-            @JsonProperty("date")
-            private String date;
 
-            private PriceAtDate(double price, String date) {
+            private static final DateTimeFormatter TIMESTAMP_FORMAT = DateTimeFormatter.ISO_INSTANT;
+
+            @JsonProperty("price")
+            private final double price;
+            @JsonProperty("date")
+            private final String date;
+            @JsonProperty("timestamp")
+            private final String timestamp;
+
+            private PriceAtDate(double price, String date, Instant timestamp) {
                 this.price = price;
                 this.date = date;
+                this.timestamp = TIMESTAMP_FORMAT.format(timestamp);
             }
 
             @Override

@@ -18,12 +18,13 @@ public final class NeutralGasPricesTest {
 
     @Test
     public void testToString() {
+        Instant now = Instant.now();
         LocalDate today = LocalDate.now(ZoneId.systemDefault());
         NeutralGasPrices prices = new NeutralGasPrices(Instant.now().truncatedTo(ChronoUnit.SECONDS));
-        prices.add(new NeutralGasDayPrice(today.minusDays(1), 0.50, 1000, ENgpStatus.FINAL));
-        prices.add(new NeutralGasDayPrice(today, 0.60, 1000, ENgpStatus.TEMPORARY));
-        prices.add(new NeutralGasDayPrice(today.plusDays(1), 0.70, 1000, ENgpStatus.TEMPORARY));
-        prices.add(new NeutralGasDayPrice(today.minusDays(1), 0, 0, ENgpStatus.TEMPORARY));
+        prices.add(new NeutralGasDayPrice(today.minusDays(1), 0.50, 1000, ENgpStatus.FINAL, now));
+        prices.add(new NeutralGasDayPrice(today, 0.60, 1000, ENgpStatus.TEMPORARY, now));
+        prices.add(new NeutralGasDayPrice(today.plusDays(1), 0.70, 1000, ENgpStatus.TEMPORARY, now));
+        prices.add(new NeutralGasDayPrice(today.minusDays(1), 0, 0, ENgpStatus.TEMPORARY, now));
         
         String s = prices.toString();
         LOG.info(s);

@@ -51,7 +51,7 @@ public final class NeutralGasPrices {
         return dayPrices.stream().filter(p -> p.status == ENgpStatus.TEMPORARY).filter(p -> p.indexVolume > 0)
                 .collect(Collectors.toList());
     }
-    
+
     @Override
     public String toString() {
         return String.format(Locale.ROOT, "%s @ %s", dayPrices, creationTime);
@@ -63,12 +63,15 @@ public final class NeutralGasPrices {
         public final double indexValue; // EUR/MWh
         public final int indexVolume; // MWh
         public final ENgpStatus status;
+        public final Instant timestamp;
 
-        public NeutralGasDayPrice(LocalDate date, double indexValue, int indexVolume, ENgpStatus status) {
+        public NeutralGasDayPrice(LocalDate date, double indexValue, int indexVolume, ENgpStatus status,
+                Instant timestamp) {
             this.date = Preconditions.checkNotNull(date);
             this.indexValue = indexValue;
             this.indexVolume = indexVolume;
             this.status = status;
+            this.timestamp = timestamp;
         }
 
         @Override
