@@ -34,7 +34,7 @@ public final class NaturalGasHandler {
     private static final Logger LOG = LoggerFactory.getLogger(NaturalGasHandler.class);
 
     private static final Duration GAS_DOWNLOAD_INTERVAL = Duration.ofMinutes(15);
-    private static final Duration ICE_DOWNLOAD_INTERVAL = Duration.ofDays(1);
+    private static final Duration ICE_DOWNLOAD_INTERVAL = Duration.ofMinutes(15);
 
     private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
     private final PowernextClient powernextClient;
@@ -97,7 +97,7 @@ public final class NaturalGasHandler {
     private void downloadIceContracts() {
         LOG.info("Download ICE gas contracts");
 
-        Instant next = Instant.now().plus(Duration.ofHours(1));
+        Instant next = Instant.now().plus(ICE_DOWNLOAD_INTERVAL);
         try {
             FutureGasPrices futureGasPrices = new FutureGasPrices(Instant.now());
             List<Contract> contracts = iceClient.getContracts();
@@ -107,8 +107,8 @@ public final class NaturalGasHandler {
             if (monthAheadGasPrice != null) {
                 LOG.info("ICE month ahead price: {}", monthAheadGasPrice);
                 setFutureGasPrices(futureGasPrices);
+                next = Instant.now().truncatedTo(ChronoUnit.HOURS);
             }
-            next = monthAheadGasPrice.time.plusSeconds(120);
         } catch (IOException e) {
             LOG.warn("Download ICE gas contracts failed: {}", e.getMessage());
         }
@@ -119,7 +119,8 @@ public final class NaturalGasHandler {
         }
         Duration delay = Duration.between(Instant.now(), next);
         LOG.info("Schedule next ICE download in {} at {}", delay, next);
-        executor.schedule(new CatchingRunnable(LOG, this::downloadIceContracts), delay.toSeconds(), TimeUnit.SECONDS);
+        executor.schedule(new CatchingRunnable(LOG, this::downloadIceContracts), delay.toMillis(),
+                TimeUnit.MILLISECONDS);
     }
 
     // get a copy of the neutral gas price
