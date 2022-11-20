@@ -63,11 +63,13 @@ public final class EnergyMixHandler {
     private EntsoeResponse loadDocument(DocumentKey key) {
         try {
             Instant periodStart = key.dateTime.truncatedTo(ChronoUnit.DAYS).toInstant();
-            Instant periodEnd = periodStart.plus(Duration.ofDays(1));
+            Instant periodEnd;
             switch (key.documentType) {
             case PRICE_DOCUMENT:
+                periodEnd = periodStart.plus(Duration.ofDays(2));
                 return downloadPriceDocument(periodStart, periodEnd);
             case WIND_SOLAR_FORECAST:
+                periodEnd = periodStart.plus(Duration.ofDays(1));
                 return downloadWindSolarForecast(periodStart, periodEnd);
             default:
                 break;
@@ -219,7 +221,7 @@ public final class EnergyMixHandler {
         ZonedDateTime now = ZonedDateTime.now(config.getTimeZone());
         try {
             // get the day-ahead price document
-            DocumentKey key = new DocumentKey(EDocumentType.PRICE_DOCUMENT, now.truncatedTo(ChronoUnit.DAYS));
+            DocumentKey key = new DocumentKey(EDocumentType.PRICE_DOCUMENT, now.truncatedTo(ChronoUnit.HOURS));
             EntsoeResponse priceDocument = documentCache.get(key);
             // extract data
             EntsoeParser parser = new EntsoeParser(priceDocument);
