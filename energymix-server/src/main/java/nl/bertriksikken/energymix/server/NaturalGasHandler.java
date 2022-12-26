@@ -101,8 +101,7 @@ public final class NaturalGasHandler {
         try {
             FutureGasPrices futureGasPrices = new FutureGasPrices(Instant.now());
             List<Contract> contracts = iceClient.getContracts();
-            contracts.stream().map(c -> c.toFutureGasPrice()).filter(Objects::nonNull)
-                    .forEach(p -> futureGasPrices.add(p));
+            contracts.stream().map(Contract::toFutureGasPrice).filter(Objects::nonNull).forEach(futureGasPrices::add);
             FutureGasPrice monthAheadGasPrice = Iterables.getFirst(futureGasPrices.getPrices(), null);
             if (monthAheadGasPrice != null) {
                 LOG.info("ICE month ahead price: {}", monthAheadGasPrice);
