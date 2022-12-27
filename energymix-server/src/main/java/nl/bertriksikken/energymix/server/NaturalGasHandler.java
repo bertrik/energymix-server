@@ -9,6 +9,7 @@ import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -101,7 +102,8 @@ public final class NaturalGasHandler {
         try {
             FutureGasPrices futureGasPrices = new FutureGasPrices(Instant.now());
             List<Contract> contracts = iceClient.getContracts();
-            contracts.stream().map(Contract::toFutureGasPrice).filter(Objects::nonNull).forEach(futureGasPrices::add);
+            contracts.stream().map(Contract::toFutureGasPrice).filter(Objects::nonNull).filter(p -> isMonth(p.period))
+                    .forEach(futureGasPrices::add);
             FutureGasPrice monthAheadGasPrice = Iterables.getFirst(futureGasPrices.getPrices(), null);
             if (monthAheadGasPrice != null) {
                 LOG.info("ICE month ahead price: {}", monthAheadGasPrice);
@@ -120,6 +122,11 @@ public final class NaturalGasHandler {
         LOG.info("Schedule next ICE download in {} at {}", delay, next);
         executor.schedule(new CatchingRunnable(LOG, this::downloadIceContracts), delay.toMillis(),
                 TimeUnit.MILLISECONDS);
+    }
+
+    private boolean isMonth(String month) {
+        return Stream.of("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
+                .anyMatch(month::startsWith);
     }
 
     // get a copy of the neutral gas price
