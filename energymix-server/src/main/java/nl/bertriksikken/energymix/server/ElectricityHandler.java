@@ -31,13 +31,9 @@ import nl.bertriksikken.entsoe.EntsoeParser.Result;
 import nl.bertriksikken.entsoe.EntsoeRequest;
 import nl.bertriksikken.entsoe.EntsoeResponse;
 
-/**
- * Main process, downloads a new CSV from berthub.eu and serves an EnergyMix
- * JSON message.
- */
-public final class EnergyMixHandler {
+public final class ElectricityHandler {
 
-    private static final Logger LOG = LoggerFactory.getLogger(EnergyMixHandler.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ElectricityHandler.class);
     private static final Duration ENTSO_INTERVAL = Duration.ofMinutes(15);
 
     private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
@@ -48,7 +44,7 @@ public final class EnergyMixHandler {
 
     private EnergyMix energyMix;
 
-    public EnergyMixHandler(EntsoeFetcher entsoeFetcher, EnergyMixConfig config) {
+    public ElectricityHandler(EntsoeFetcher entsoeFetcher, EnergyMixConfig config) {
         this.entsoeFetcher = Preconditions.checkNotNull(entsoeFetcher);
         this.config = Preconditions.checkNotNull(config);
         this.documentCache = CacheBuilder.newBuilder().expireAfterAccess(Duration.ofDays(1))

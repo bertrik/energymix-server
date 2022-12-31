@@ -3,13 +3,13 @@ package nl.bertriksikken.energymix.app;
 import com.codahale.metrics.health.HealthCheck;
 import com.google.common.base.Preconditions;
 
-import nl.bertriksikken.energymix.server.EnergyMixHandler;
+import nl.bertriksikken.energymix.server.ElectricityHandler;
 
 public final class ElectricityResourceHealthCheck extends HealthCheck {
 
-    private final EnergyMixHandler handler;
+    private final ElectricityHandler handler;
 
-    ElectricityResourceHealthCheck(EnergyMixHandler resource) {
+    ElectricityResourceHealthCheck(ElectricityHandler resource) {
         this.handler = Preconditions.checkNotNull(resource);
     }
 

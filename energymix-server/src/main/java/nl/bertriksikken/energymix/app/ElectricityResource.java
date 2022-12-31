@@ -16,7 +16,7 @@ import io.dropwizard.jersey.caching.CacheControl;
 import io.dropwizard.lifecycle.Managed;
 import nl.bertriksikken.energymix.server.DayAheadPrices;
 import nl.bertriksikken.energymix.server.EnergyMix;
-import nl.bertriksikken.energymix.server.EnergyMixHandler;
+import nl.bertriksikken.energymix.server.ElectricityHandler;
 
 /**
  * Main REST endpoint for (dutch) electricity queries.
@@ -24,9 +24,9 @@ import nl.bertriksikken.energymix.server.EnergyMixHandler;
 @Path("/electricity")
 public class ElectricityResource implements Managed {
 
-    private final EnergyMixHandler handler;
+    private final ElectricityHandler handler;
 
-    ElectricityResource(EnergyMixHandler handler) {
+    ElectricityResource(ElectricityHandler handler) {
         this.handler = Preconditions.checkNotNull(handler);
     }
 
