@@ -22,7 +22,7 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.cache.RemovalNotification;
 
-import nl.bertriksikken.energymix.entsoe.EntsoeFetcher;
+import nl.bertriksikken.energymix.entsoe.EntsoeClient;
 import nl.bertriksikken.entsoe.EDocumentType;
 import nl.bertriksikken.entsoe.EProcessType;
 import nl.bertriksikken.entsoe.EPsrType;
@@ -37,14 +37,14 @@ public final class ElectricityHandler {
     private static final Duration ENTSO_INTERVAL = Duration.ofMinutes(15);
 
     private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-    private final EntsoeFetcher entsoeFetcher;
+    private final EntsoeClient entsoeFetcher;
     private final EnergyMixConfig config;
     private final LoadingCache<DocumentKey, EntsoeResponse> documentCache;
     private final AtomicBoolean isHealthy = new AtomicBoolean(false);
 
     private EnergyMix energyMix;
 
-    public ElectricityHandler(EntsoeFetcher entsoeFetcher, EnergyMixConfig config) {
+    public ElectricityHandler(EntsoeClient entsoeFetcher, EnergyMixConfig config) {
         this.entsoeFetcher = Preconditions.checkNotNull(entsoeFetcher);
         this.config = Preconditions.checkNotNull(config);
         this.documentCache = CacheBuilder.newBuilder().expireAfterAccess(Duration.ofDays(1))

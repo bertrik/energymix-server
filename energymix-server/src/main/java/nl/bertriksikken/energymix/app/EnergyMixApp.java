@@ -15,7 +15,7 @@ import es.moki.ratelimitj.inmemory.InMemoryRateLimiterFactory;
 import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
-import nl.bertriksikken.energymix.entsoe.EntsoeFetcher;
+import nl.bertriksikken.energymix.entsoe.EntsoeClient;
 import nl.bertriksikken.energymix.server.ElectricityHandler;
 import nl.bertriksikken.energymix.server.NaturalGasHandler;
 import nl.bertriksikken.powernext.PowernextClient;
@@ -39,7 +39,7 @@ public final class EnergyMixApp extends Application<EnergyMixAppConfig> {
     @Override
     public void run(EnergyMixAppConfig configuration, Environment environment) throws Exception {
         XmlMapper xmlMapper = new XmlMapper();
-        EntsoeFetcher entsoeFetcher = EntsoeFetcher.create(configuration.entsoeFetcherConfig, xmlMapper);
+        EntsoeClient entsoeFetcher = EntsoeClient.create(configuration.entsoeFetcherConfig, xmlMapper);
         ElectricityHandler handler = new ElectricityHandler(entsoeFetcher, configuration.energyMixConfig);
         ElectricityResource electricityResource = new ElectricityResource(handler);
         EnergyMixResource energyMixResource = new EnergyMixResource(electricityResource);

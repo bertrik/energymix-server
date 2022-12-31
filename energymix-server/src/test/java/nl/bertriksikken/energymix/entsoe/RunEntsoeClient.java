@@ -23,9 +23,9 @@ import nl.bertriksikken.entsoe.EProcessType;
 import nl.bertriksikken.entsoe.EPsrType;
 import nl.bertriksikken.entsoe.EntsoeRequest;
 
-public final class RunEntsoeFetcher {
+public final class RunEntsoeClient {
 
-    private static final Logger LOG = LoggerFactory.getLogger(RunEntsoeFetcher.class);
+    private static final Logger LOG = LoggerFactory.getLogger(RunEntsoeClient.class);
     private static final EArea AREA = EArea.NETHERLANDS;
     private static final ZoneId ZONE_ID = ZoneId.of("Europe/Amsterdam");
 
@@ -34,12 +34,12 @@ public final class RunEntsoeFetcher {
 
         YAMLMapper yamlMapper = new YAMLMapper();
         yamlMapper.findAndRegisterModules();
-        EntsoeFetcherConfig config = yamlMapper.readValue(new File("entsoe.yaml"), EntsoeFetcherConfig.class);
+        EntsoeClientConfig config = yamlMapper.readValue(new File("entsoe.yaml"), EntsoeClientConfig.class);
 
         XmlMapper xmlMapper = new XmlMapper();
-        EntsoeFetcher fetcher = EntsoeFetcher.create(config, xmlMapper);
+        EntsoeClient fetcher = EntsoeClient.create(config, xmlMapper);
 
-        RunEntsoeFetcher test = new RunEntsoeFetcher();
+        RunEntsoeClient test = new RunEntsoeClient();
         test.fetchActualGeneration(fetcher, "A75_actualgeneration.xml");
         test.fetchSolarForecast(fetcher, "A69_solar_wind_forecast.xml");
         test.fetchDayAheadPrices(fetcher, "A44_day_ahead_prices.xml");
@@ -54,7 +54,7 @@ public final class RunEntsoeFetcher {
      * &productionType.values=B16&processType.values=A01&dateTime.timezone=CET_CEST
      * &dateTime.timezone_input=CET+(UTC+1)+/+CEST+(UTC+2)
      */
-    private void fetchSolarForecast(EntsoeFetcher fetcher, String fileName) throws IOException {
+    private void fetchSolarForecast(EntsoeClient fetcher, String fileName) throws IOException {
         ZonedDateTime now = ZonedDateTime.now(ZONE_ID);
         Instant periodStart = now.truncatedTo(ChronoUnit.DAYS).toInstant();
         Instant periodEnd = periodStart.plus(Duration.ofDays(1));
@@ -70,7 +70,7 @@ public final class RunEntsoeFetcher {
         }
     }
 
-    private void fetchActualGeneration(EntsoeFetcher fetcher, String fileName) throws IOException {
+    private void fetchActualGeneration(EntsoeClient fetcher, String fileName) throws IOException {
         ZonedDateTime now = ZonedDateTime.now(ZONE_ID);
         Instant periodStart = now.minusHours(2).truncatedTo(ChronoUnit.DAYS).toInstant();
         Instant periodEnd = now.truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant();
@@ -85,7 +85,7 @@ public final class RunEntsoeFetcher {
         }
     }
 
-    private void fetchDayAheadPrices(EntsoeFetcher fetcher, String fileName) throws IOException {
+    private void fetchDayAheadPrices(EntsoeClient fetcher, String fileName) throws IOException {
         ZonedDateTime now = ZonedDateTime.now(ZONE_ID);
         Instant periodStart = now.truncatedTo(ChronoUnit.DAYS).toInstant();
         Instant periodEnd = periodStart.plus(Duration.ofDays(1));

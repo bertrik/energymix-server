@@ -10,7 +10,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonAutoDetect(getterVisibility = Visibility.NONE)
-public class EntsoeFetcherConfig {
+public class EntsoeClientConfig {
 
     @JsonProperty("url")
     private final String url;
@@ -22,7 +22,7 @@ public class EntsoeFetcherConfig {
     private final String apiKey;
 
     // no-arg jackson constructor
-    public EntsoeFetcherConfig() {
+    public EntsoeClientConfig() {
         this.url = "https://transparency.entsoe.eu";
         this.timeoutSec = 30;
         this.apiKey = "your-secret-key";
