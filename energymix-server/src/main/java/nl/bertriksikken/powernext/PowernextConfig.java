@@ -19,7 +19,7 @@ public final class PowernextConfig {
 
     // no-arg jackson constructor
     public PowernextConfig() {
-        this.url = "https://www.powernext.com";
+        this.url = "https://gasandregistry.eex.com";
         this.timeoutSec = 30;
     }
 
