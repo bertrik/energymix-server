@@ -18,6 +18,9 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.scalars.ScalarsConverterFactory;
 
+/**
+ * See https://transparency.entsoe.eu/content/static_content/Static%20content/web%20api/Guide.html
+ */
 public final class EntsoeClient {
 
     private static final Logger LOG = LoggerFactory.getLogger(EntsoeClient.class);

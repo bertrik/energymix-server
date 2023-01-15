@@ -5,8 +5,10 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 
 import nl.bertriksikken.entsoe.EntsoeResponse.Period;
@@ -78,6 +80,18 @@ public final class EntsoeParser {
         return Iterables.getLast(results, null);
     }
 
+    public Map<EPsrType, Integer> parseInstalledCapacity() {
+        ImmutableMap.Builder<EPsrType, Integer> map = ImmutableMap.builder();
+        for (TimeSeries timeSeries : document.timeSeries) {
+            for (Period period : timeSeries.period) {
+                for (Point point : period.points) {
+                    map.put(timeSeries.psrType.psrType, point.quantity);
+                }
+            }
+        }
+        return map.build();
+    }
+
     // parse result
     public static final class Result {
         public final Instant timeBegin;
@@ -100,4 +114,5 @@ public final class EntsoeParser {
             return String.format(Locale.ROOT, "%.0f @ %s-%s", value, timeBegin, timeEnd);
         }
     }
+
 }

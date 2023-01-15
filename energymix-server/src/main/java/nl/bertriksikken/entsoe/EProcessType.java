@@ -6,7 +6,8 @@ package nl.bertriksikken.entsoe;
 public enum EProcessType {
 
     DAY_AHEAD("A01"), //
-    REALISED("A16"); //
+    REALISED("A16"), //
+    YEAR_AHEAD("A33");
 
     private final String code;
 

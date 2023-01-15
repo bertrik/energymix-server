@@ -6,6 +6,7 @@ package nl.bertriksikken.entsoe;
 public enum EDocumentType {
 
     PRICE_DOCUMENT("A44"),    //
+    INSTALLED_CAPACITY_PER_TYPE("A68"), //
     WIND_SOLAR_FORECAST("A69"), //
     ACTUAL_GENERATION_PER_TYPE("A75");
 

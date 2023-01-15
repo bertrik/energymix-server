@@ -40,11 +40,27 @@ public final class RunEntsoeClient {
         EntsoeClient fetcher = EntsoeClient.create(config, xmlMapper);
 
         RunEntsoeClient test = new RunEntsoeClient();
+        test.fetchInstalledGeneration(fetcher, "A68_installed_capacity.xml");
         test.fetchActualGeneration(fetcher, "A75_actualgeneration.xml");
         test.fetchSolarForecast(fetcher, "A69_solar_wind_forecast.xml");
         test.fetchDayAheadPrices(fetcher, "A44_day_ahead_prices.xml");
 
         LOG.info("Done fetching data");
+    }
+
+    private void fetchInstalledGeneration(EntsoeClient client, String fileName) throws IOException {
+        ZonedDateTime now = ZonedDateTime.now(ZONE_ID);
+        ZonedDateTime periodStart = now.withDayOfYear(1).truncatedTo(ChronoUnit.DAYS);
+        ZonedDateTime periodEnd = periodStart.plusYears(1);
+
+        EntsoeRequest request = new EntsoeRequest(EDocumentType.INSTALLED_CAPACITY_PER_TYPE);
+        request.setProcessType(EProcessType.YEAR_AHEAD);
+        request.setInDomain(AREA.getCode());
+        request.setPeriod(periodStart.toInstant(), periodEnd.toInstant());
+        String xml = client.getRawDocument(request.getParams());
+        try (Writer writer = new FileWriter(new File(fileName), Charsets.UTF_8)) {
+            writer.write(xml);
+        }
     }
 
     /**

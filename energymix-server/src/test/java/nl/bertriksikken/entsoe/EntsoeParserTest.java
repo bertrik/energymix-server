@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -16,10 +17,22 @@ import nl.bertriksikken.entsoe.EntsoeParser.Result;
 
 public final class EntsoeParserTest {
 
+    private static final XmlMapper mapper = new XmlMapper();
+
+    @Test
+    public void testExtractInstalledGeneration() throws IOException {
+        InputStream is = this.getClass().getClassLoader().getResourceAsStream("A68_installed_capacity.xml");
+        EntsoeResponse document = mapper.readValue(is, EntsoeResponse.class);
+
+        // extract and verify
+        EntsoeParser parser = new EntsoeParser(document);
+        Map<EPsrType, Integer> capacities = parser.parseInstalledCapacity();
+        Assert.assertEquals(22590, (long) capacities.get(EPsrType.SOLAR));
+    }
+
     @Test
     public void testExtractSolar() throws IOException {
         InputStream is = this.getClass().getClassLoader().getResourceAsStream("A69_solar_wind_forecast.xml");
-        XmlMapper mapper = new XmlMapper();
         EntsoeResponse document = mapper.readValue(is, EntsoeResponse.class);
 
         // extract and verify
@@ -32,7 +45,6 @@ public final class EntsoeParserTest {
     @Test
     public void findMostRecentGeneration() throws IOException {
         InputStream is = this.getClass().getClassLoader().getResourceAsStream("A75_actualgeneration.xml");
-        XmlMapper mapper = new XmlMapper();
         EntsoeResponse document = mapper.readValue(is, EntsoeResponse.class);
 
         // extract and verify
@@ -44,18 +56,17 @@ public final class EntsoeParserTest {
     @Test
     public void parseDayAheadPrices() throws IOException {
         InputStream is = this.getClass().getClassLoader().getResourceAsStream("A44_day_ahead_prices.xml");
-        XmlMapper mapper = new XmlMapper();
         EntsoeResponse document = mapper.readValue(is, EntsoeResponse.class);
 
         // extract and verify
         EntsoeParser parser = new EntsoeParser(document);
         List<Result> results = parser.parseDayAheadPrices();
         Assert.assertFalse(results.isEmpty());
-        
+
         Instant time = Instant.parse("2022-07-30T22:05:00Z");
         Double currentPrice = parser.findDayAheadPrice(time);
         Assert.assertEquals(382.79, currentPrice, 0.01);
-        
+
         // build our structure
         DayAheadPrices prices = new DayAheadPrices(time, currentPrice);
         parser.parseDayAheadPrices().forEach(r -> prices.addPrice(r.timeBegin, r.value));
