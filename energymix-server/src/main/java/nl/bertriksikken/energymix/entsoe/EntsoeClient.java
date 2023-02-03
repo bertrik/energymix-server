@@ -1,6 +1,7 @@
 package nl.bertriksikken.energymix.entsoe;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,7 +20,8 @@ import retrofit2.Retrofit;
 import retrofit2.converter.scalars.ScalarsConverterFactory;
 
 /**
- * See https://transparency.entsoe.eu/content/static_content/Static%20content/web%20api/Guide.html
+ * See
+ * https://transparency.entsoe.eu/content/static_content/Static%20content/web%20api/Guide.html
  */
 public final class EntsoeClient {
 
@@ -36,8 +38,10 @@ public final class EntsoeClient {
     }
 
     public static EntsoeClient create(EntsoeClientConfig config, XmlMapper mapper) {
-        LOG.info("Creating new REST client for URL '{}' with timeout {}", config.getUrl(), config.getTimeout());
-        OkHttpClient client = new OkHttpClient().newBuilder().callTimeout(config.getTimeout()).build();
+        Duration timeout = config.getTimeout();
+        LOG.info("Creating new REST client for URL '{}' with timeout {}", config.getUrl(), timeout);
+        OkHttpClient client = new OkHttpClient().newBuilder().connectTimeout(timeout).readTimeout(timeout)
+                .writeTimeout(timeout).build();
         Retrofit retrofit = new Retrofit.Builder().baseUrl(config.getUrl())
                 .addConverterFactory(ScalarsConverterFactory.create()).client(client).build();
         IEntsoeRestApi restApi = retrofit.create(IEntsoeRestApi.class);
