@@ -1,8 +1,8 @@
 version: "3"
 services:
   java:
-    build: ..
     image: ghcr.io/bertrik/energymix-server
+    build: ..
     restart: always
     volumes:
       - "./configuration.yaml:/opt/energymix-server/configuration.yaml:ro"
