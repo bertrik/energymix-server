@@ -1,6 +1,6 @@
 ---
 entsoe:
-  url: "https://transparency.entsoe.eu"
+  url: "https://web-api.tp.entsoe.eu/api/"
   timeout: 30
   apikey: "secret"
 powernext:

@@ -23,7 +23,7 @@ public class EntsoeClientConfig {
 
     // no-arg jackson constructor
     public EntsoeClientConfig() {
-        this.url = "https://transparency.entsoe.eu";
+        this.url = "https://web-api.tp.entsoe.eu/api/";
         this.timeoutSec = 30;
         this.apiKey = "your-secret-key";
     }
