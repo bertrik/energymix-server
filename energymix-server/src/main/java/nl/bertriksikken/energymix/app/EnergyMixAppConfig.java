@@ -15,7 +15,7 @@ public final class EnergyMixAppConfig extends Configuration {
     @JsonProperty("entsoe")
     public final EntsoeClientConfig entsoeFetcherConfig = new EntsoeClientConfig();
 
-    @JsonProperty("powernext")
+    @JsonProperty("eex")
     public final PowernextConfig powerNextConfig = new PowernextConfig();
 
     @JsonProperty("ice")

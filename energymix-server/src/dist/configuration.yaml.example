@@ -3,8 +3,8 @@ entsoe:
   url: "https://web-api.tp.entsoe.eu/api/"
   timeout: 30
   apikey: "secret"
-powernext:
-  url: "https://www.powernext.com"
+eex:
+  url: "https://gasandregistry.eex.com"
   timeout: 30
 energymix:
   area: "10YNL----------L"
