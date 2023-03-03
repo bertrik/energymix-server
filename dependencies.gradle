@@ -4,7 +4,7 @@ ext {
     jacksonVersion = '2.14.2'
     retrofitVersion = '2.9.0'
     jerseyVersion = '2.34'
-    dropwizardVersion = '2.1.4'
+    dropwizardVersion = '2.1.5'
 }
 
 libraries.guava = 'com.google.guava:guava:31.1-jre'
