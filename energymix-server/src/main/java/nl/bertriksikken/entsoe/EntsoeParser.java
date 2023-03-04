@@ -3,12 +3,12 @@ package nl.bertriksikken.entsoe;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 
 import nl.bertriksikken.entsoe.EntsoeResponse.Period;
@@ -81,7 +81,7 @@ public final class EntsoeParser {
     }
 
     public Map<EPsrType, Integer> parseInstalledCapacity() {
-        ImmutableMap.Builder<EPsrType, Integer> map = ImmutableMap.builder();
+        Map<EPsrType, Integer> map = new HashMap<>();
         for (TimeSeries timeSeries : document.timeSeries) {
             for (Period period : timeSeries.period) {
                 for (Point point : period.points) {
@@ -89,7 +89,7 @@ public final class EntsoeParser {
                 }
             }
         }
-        return map.build();
+        return Map.copyOf(map);
     }
 
     // parse result

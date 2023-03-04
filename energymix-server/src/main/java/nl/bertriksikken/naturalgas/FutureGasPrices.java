@@ -5,8 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import com.google.common.collect.ImmutableList;
-
 /**
  * Format-independent month-ahead natural gas price, TTF future.
  */
@@ -30,7 +28,7 @@ public final class FutureGasPrices {
     }
 
     public List<FutureGasPrice> getPrices() {
-        return ImmutableList.copyOf(prices);
+        return List.copyOf(prices);
     }
 
     public static final class FutureGasPrice {

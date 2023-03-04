@@ -2,13 +2,13 @@ package nl.bertriksikken.powernext;
 
 import java.io.IOException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
 
 import nl.bertriksikken.naturalgas.NeutralGasPrices;
@@ -23,7 +23,7 @@ public final class CurrentPriceDocumentTest {
     public void testPriceDocument() throws IOException {
         String date = "Fri, 28 Oct 2022 17:16:04 GMT";
         URL url = Resources.getResource("NGP-Current-Prices.csv");
-        FileResponse response = FileResponse.create(Resources.toString(url, Charsets.UTF_8), date);
+        FileResponse response = FileResponse.create(Resources.toString(url, StandardCharsets.UTF_8), date);
 
         NeutralGasPrices document = CurrentPriceDocument.parse(response);
         Assert.assertNotNull(document);

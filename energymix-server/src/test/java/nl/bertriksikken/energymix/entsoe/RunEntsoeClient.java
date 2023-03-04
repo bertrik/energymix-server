@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -15,7 +16,6 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
-import com.google.common.base.Charsets;
 
 import nl.bertriksikken.entsoe.EArea;
 import nl.bertriksikken.entsoe.EDocumentType;
@@ -58,7 +58,7 @@ public final class RunEntsoeClient {
         request.setInDomain(AREA.getCode());
         request.setPeriod(periodStart.toInstant(), periodEnd.toInstant());
         String xml = client.getRawDocument(request.getParams());
-        try (Writer writer = new FileWriter(new File(fileName), Charsets.UTF_8)) {
+        try (Writer writer = new FileWriter(new File(fileName), StandardCharsets.UTF_8)) {
             writer.write(xml);
         }
     }
@@ -81,7 +81,7 @@ public final class RunEntsoeClient {
         request.setPeriod(periodStart, periodEnd);
         request.setProductionType(EPsrType.SOLAR);
         String xml = fetcher.getRawDocument(request.getParams());
-        try (Writer writer = new FileWriter(new File(fileName), Charsets.UTF_8)) {
+        try (Writer writer = new FileWriter(new File(fileName), StandardCharsets.UTF_8)) {
             writer.write(xml);
         }
     }
@@ -96,7 +96,7 @@ public final class RunEntsoeClient {
         request.setInDomain(AREA.getCode());
         request.setPeriod(periodStart, periodEnd);
         String xml = fetcher.getRawDocument(request.getParams());
-        try (Writer writer = new FileWriter(new File(fileName), Charsets.UTF_8)) {
+        try (Writer writer = new FileWriter(new File(fileName), StandardCharsets.UTF_8)) {
             writer.write(xml);
         }
     }
@@ -112,7 +112,7 @@ public final class RunEntsoeClient {
         request.setOutDomain(area.getCode());
         request.setPeriod(periodStart, periodEnd);
         String xml = fetcher.getRawDocument(request.getParams());
-        try (Writer writer = new FileWriter(new File(fileName), Charsets.UTF_8)) {
+        try (Writer writer = new FileWriter(new File(fileName), StandardCharsets.UTF_8)) {
             writer.write(xml);
         }
     }

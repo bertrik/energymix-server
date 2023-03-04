@@ -6,8 +6,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.google.common.collect.ImmutableMap;
-
 public final class EntsoeRequest {
 
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyyMMddHHmm")
@@ -41,7 +39,7 @@ public final class EntsoeRequest {
     }
 
     public Map<String, String> getParams() {
-        return ImmutableMap.copyOf(params);
+        return Map.copyOf(params);
     }
 
 }
