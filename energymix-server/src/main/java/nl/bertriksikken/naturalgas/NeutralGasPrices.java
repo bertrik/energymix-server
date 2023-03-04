@@ -7,9 +7,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.stream.Collectors;
-
-import com.google.common.base.Preconditions;
 
 import nl.bertriksikken.naturalgas.NeutralGasPrices.NeutralGasDayPrice.ENgpStatus;
 
@@ -67,7 +66,7 @@ public final class NeutralGasPrices {
 
         public NeutralGasDayPrice(LocalDate date, double indexValue, int indexVolume, ENgpStatus status,
                 Instant timestamp) {
-            this.date = Preconditions.checkNotNull(date);
+            this.date = Objects.requireNonNull(date);
             this.indexValue = indexValue;
             this.indexVolume = indexVolume;
             this.status = status;

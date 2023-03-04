@@ -1,13 +1,12 @@
 package nl.bertriksikken.energymix.app;
 
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-
-import com.google.common.base.Preconditions;
 
 import es.moki.ratelimij.dropwizard.annotation.Rate;
 import es.moki.ratelimij.dropwizard.annotation.RateLimited;
@@ -25,7 +24,7 @@ public class EnergyMixResource implements Managed {
     private final ElectricityResource electricityResource;
 
     EnergyMixResource(ElectricityResource electricityResource) {
-        this.electricityResource = Preconditions.checkNotNull(electricityResource);
+        this.electricityResource = Objects.requireNonNull(electricityResource);
     }
 
     @GET

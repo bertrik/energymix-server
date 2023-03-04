@@ -1,8 +1,8 @@
 package nl.bertriksikken.energymix.server;
 
-import org.slf4j.Logger;
+import java.util.Objects;
 
-import com.google.common.base.Preconditions;
+import org.slf4j.Logger;
 
 public final class CatchingRunnable implements Runnable {
 
@@ -10,8 +10,8 @@ public final class CatchingRunnable implements Runnable {
     private final CheckedRunnable runnable;
 
     public CatchingRunnable(Logger logger, CheckedRunnable runnable) {
-        this.logger = Preconditions.checkNotNull(logger);
-        this.runnable = Preconditions.checkNotNull(runnable);
+        this.logger = Objects.requireNonNull(logger);
+        this.runnable = Objects.requireNonNull(runnable);
     }
 
     @Override

@@ -1,5 +1,6 @@
 package nl.bertriksikken.energymix.app;
 
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import javax.ws.rs.GET;
@@ -7,16 +8,14 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import com.google.common.base.Preconditions;
-
 import es.moki.ratelimij.dropwizard.annotation.Rate;
 import es.moki.ratelimij.dropwizard.annotation.RateLimited;
 import es.moki.ratelimij.dropwizard.filter.KeyPart;
 import io.dropwizard.jersey.caching.CacheControl;
 import io.dropwizard.lifecycle.Managed;
 import nl.bertriksikken.energymix.server.DayAheadPrices;
-import nl.bertriksikken.energymix.server.EnergyMix;
 import nl.bertriksikken.energymix.server.ElectricityHandler;
+import nl.bertriksikken.energymix.server.EnergyMix;
 
 /**
  * Main REST endpoint for (dutch) electricity queries.
@@ -27,7 +26,7 @@ public class ElectricityResource implements Managed {
     private final ElectricityHandler handler;
 
     ElectricityResource(ElectricityHandler handler) {
-        this.handler = Preconditions.checkNotNull(handler);
+        this.handler = Objects.requireNonNull(handler);
     }
 
     @Override

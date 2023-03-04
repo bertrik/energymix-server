@@ -5,6 +5,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import javax.ws.rs.GET;
@@ -16,7 +17,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.base.Preconditions;
 
 import es.moki.ratelimij.dropwizard.annotation.Rate;
 import es.moki.ratelimij.dropwizard.annotation.RateLimited;
@@ -37,7 +37,7 @@ public final class NaturalGasResource implements Managed {
     private final NaturalGasHandler handler;
 
     NaturalGasResource(NaturalGasHandler handler) {
-        this.handler = Preconditions.checkNotNull(handler);
+        this.handler = Objects.requireNonNull(handler);
     }
 
     @Override

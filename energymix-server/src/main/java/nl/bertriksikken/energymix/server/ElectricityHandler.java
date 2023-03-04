@@ -16,7 +16,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Preconditions;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -45,8 +44,8 @@ public final class ElectricityHandler {
     private EnergyMix energyMix;
 
     public ElectricityHandler(EntsoeClient entsoeFetcher, EnergyMixConfig config) {
-        this.entsoeFetcher = Preconditions.checkNotNull(entsoeFetcher);
-        this.config = Preconditions.checkNotNull(config);
+        this.entsoeFetcher = Objects.requireNonNull(entsoeFetcher);
+        this.config = Objects.requireNonNull(config);
         this.documentCache = CacheBuilder.newBuilder().expireAfterAccess(Duration.ofDays(1))
                 .removalListener(this::onDocumentExpiry).build(CacheLoader.from(this::loadDocument));
     }

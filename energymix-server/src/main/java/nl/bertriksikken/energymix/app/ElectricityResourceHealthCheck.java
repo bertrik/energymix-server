@@ -1,7 +1,8 @@
 package nl.bertriksikken.energymix.app;
 
+import java.util.Objects;
+
 import com.codahale.metrics.health.HealthCheck;
-import com.google.common.base.Preconditions;
 
 import nl.bertriksikken.energymix.server.ElectricityHandler;
 
@@ -10,7 +11,7 @@ public final class ElectricityResourceHealthCheck extends HealthCheck {
     private final ElectricityHandler handler;
 
     ElectricityResourceHealthCheck(ElectricityHandler resource) {
-        this.handler = Preconditions.checkNotNull(resource);
+        this.handler = Objects.requireNonNull(resource);
     }
 
     @Override

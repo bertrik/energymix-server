@@ -4,12 +4,12 @@ import java.io.IOException;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import com.google.common.base.Preconditions;
 
 import nl.bertriksikken.entsoe.EntsoeRequest;
 import nl.bertriksikken.entsoe.EntsoeResponse;
@@ -32,9 +32,9 @@ public final class EntsoeClient {
     private final XmlMapper mapper;
 
     EntsoeClient(IEntsoeRestApi restApi, EntsoeClientConfig config, XmlMapper mapper) {
-        this.restApi = Preconditions.checkNotNull(restApi);
-        this.config = Preconditions.checkNotNull(config);
-        this.mapper = Preconditions.checkNotNull(mapper);
+        this.restApi = Objects.requireNonNull(restApi);
+        this.config = Objects.requireNonNull(config);
+        this.mapper = Objects.requireNonNull(mapper);
     }
 
     public static EntsoeClient create(EntsoeClientConfig config, XmlMapper mapper) {

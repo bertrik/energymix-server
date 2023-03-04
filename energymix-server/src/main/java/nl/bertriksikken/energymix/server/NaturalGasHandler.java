@@ -14,7 +14,6 @@ import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 
 import nl.bertriksikken.naturalgas.FutureGasPrices;
@@ -45,8 +44,8 @@ public final class NaturalGasHandler {
     private FutureGasPrices futureGasPrices = new FutureGasPrices(Instant.now());
 
     public NaturalGasHandler(PowernextClient powernextClient, IceClient iceClient) {
-        this.powernextClient = Preconditions.checkNotNull(powernextClient);
-        this.iceClient = Preconditions.checkNotNull(iceClient);
+        this.powernextClient = Objects.requireNonNull(powernextClient);
+        this.iceClient = Objects.requireNonNull(iceClient);
     }
 
     public void start() {

@@ -7,8 +7,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 
 import nl.bertriksikken.entsoe.EntsoeResponse.Period;
@@ -20,7 +20,7 @@ public final class EntsoeParser {
     private final EntsoeResponse document;
 
     public EntsoeParser(EntsoeResponse document) {
-        this.document = Preconditions.checkNotNull(document);
+        this.document = Objects.requireNonNull(document);
     }
 
     public Double findDayAheadPrice(Instant time) {
@@ -99,8 +99,8 @@ public final class EntsoeParser {
         public final double value;
 
         public Result(Instant timeBegin, Instant timeEnd, double value) {
-            this.timeBegin = Preconditions.checkNotNull(timeBegin);
-            this.timeEnd = Preconditions.checkNotNull(timeEnd);
+            this.timeBegin = Objects.requireNonNull(timeBegin);
+            this.timeEnd = Objects.requireNonNull(timeEnd);
             this.value = value;
         }
 

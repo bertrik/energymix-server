@@ -4,9 +4,9 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.base.Preconditions;
 
 public final class DayAheadPrices {
     
@@ -33,7 +33,7 @@ public final class DayAheadPrices {
 
         public PriceElement(Instant time, double price) {
             this.time = time.getEpochSecond();
-            this.price = Preconditions.checkNotNull(price);
+            this.price = Objects.requireNonNull(price);
         }
         
         @Override

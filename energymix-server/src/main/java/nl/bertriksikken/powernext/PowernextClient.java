@@ -1,11 +1,10 @@
 package nl.bertriksikken.powernext;
 
 import java.io.IOException;
+import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Preconditions;
 
 import okhttp3.OkHttpClient;
 import retrofit2.Response;
@@ -19,7 +18,7 @@ public final class PowernextClient {
     private final IPowernextApi restApi;
 
     PowernextClient(IPowernextApi restApi) {
-        this.restApi = Preconditions.checkNotNull(restApi);
+        this.restApi = Objects.requireNonNull(restApi);
     }
 
     public static PowernextClient create(PowernextConfig config) {
