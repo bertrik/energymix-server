@@ -31,7 +31,7 @@ public final class NeutralGasPrices {
     // copy-constructor
     public NeutralGasPrices(NeutralGasPrices original) {
         this(original.creationTime);
-        original.dayPrices.forEach(entry -> add(entry));
+        original.dayPrices.forEach(this::add);
     }
 
     public void add(NeutralGasDayPrice entry) {

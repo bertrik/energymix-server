@@ -20,7 +20,7 @@ public final class FutureGasPrices {
     // copy constructor
     public FutureGasPrices(FutureGasPrices original) {
         this(original.creationTime);
-        original.prices.forEach(entry -> add(entry));
+        original.prices.forEach(this::add);
     }
 
     public void add(FutureGasPrice price) {

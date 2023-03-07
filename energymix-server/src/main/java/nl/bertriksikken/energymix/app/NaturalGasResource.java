@@ -69,14 +69,14 @@ public final class NaturalGasResource implements Managed {
         NeutralGasDayPrice finalPrice = neutralGasPrices.findFinalPrice();
         if (finalPrice != null) {
             naturalGasPrice.addDayAheadPrice(finalPrice);
-            neutralGasPrices.getTemporaryPrices().forEach(p -> naturalGasPrice.addDayAheadPrice(p));
+            neutralGasPrices.getTemporaryPrices().forEach(naturalGasPrice::addDayAheadPrice);
         } else {
             LOG.warn("Could not determine a final gas price");
         }
 
         // build month-ahead part
         FutureGasPrices futureGasPrices = handler.getFutureGasPrices();
-        futureGasPrices.getPrices().stream().limit(3).forEach(p -> naturalGasPrice.addFutureGasPrice(p));
+        futureGasPrices.getPrices().stream().limit(3).forEach(naturalGasPrice::addFutureGasPrice);
 
         return naturalGasPrice;
     }
