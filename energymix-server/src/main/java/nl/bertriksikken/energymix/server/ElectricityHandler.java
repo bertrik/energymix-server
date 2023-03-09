@@ -6,6 +6,7 @@ import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
@@ -57,15 +58,19 @@ public final class ElectricityHandler {
     // loads a document into the document cache
     private EntsoeResponse loadDocument(DocumentKey key) {
         try {
-            Instant periodStart = key.dateTime.truncatedTo(ChronoUnit.DAYS).toInstant();
-            Instant periodEnd;
+            ZonedDateTime periodStart = key.dateTime.truncatedTo(ChronoUnit.DAYS);
+            ZonedDateTime periodEnd;
             switch (key.documentType) {
             case PRICE_DOCUMENT:
                 periodEnd = periodStart.plus(Duration.ofDays(2));
-                return downloadPriceDocument(periodStart, periodEnd);
+                return downloadPriceDocument(periodStart.toInstant(), periodEnd.toInstant());
+            case INSTALLED_CAPACITY_PER_TYPE:
+                ZonedDateTime capacityStart = periodStart.withDayOfYear(1);
+                ZonedDateTime capacityEnd = capacityStart.plusYears(1);
+                return downloadInstalledCapacity(capacityStart.toInstant(), capacityEnd.toInstant());
             case WIND_SOLAR_FORECAST:
                 periodEnd = periodStart.plus(Duration.ofDays(1));
-                return downloadWindSolarForecast(periodStart, periodEnd);
+                return downloadWindSolarForecast(periodStart.toInstant(), periodEnd.toInstant());
             default:
                 break;
             }
@@ -83,9 +88,17 @@ public final class ElectricityHandler {
     // runs on the executor
     private void updateEnergyMix() {
         ZonedDateTime now = ZonedDateTime.now(config.getTimeZone());
+        ZonedDateTime today = now.truncatedTo(ChronoUnit.DAYS);
         Instant periodStart = now.minusHours(2).truncatedTo(ChronoUnit.DAYS).toInstant();
-        Instant periodEnd = now.truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant();
+        Instant periodEnd = today.plusDays(1).toInstant();
         try {
+            // get installed capacity
+            EntsoeResponse installedCapacity = documentCache
+                    .get(new DocumentKey(EDocumentType.INSTALLED_CAPACITY_PER_TYPE, today));
+            EntsoeParser capacityParser = new EntsoeParser(installedCapacity);
+            Map<EPsrType, Integer> capacities = capacityParser.parseInstalledCapacity();
+
+            // get generation by production type
             EntsoeResponse actualGenerationResponse = downloadGenerationByType(periodStart, periodEnd);
             EntsoeParser actualGenerationParser = new EntsoeParser(actualGenerationResponse);
             Result fossil = sumGeneration(actualGenerationParser, EPsrType.FOSSIL_HARD_COAL, EPsrType.FOSSIL_GAS);
@@ -103,7 +116,7 @@ public final class ElectricityHandler {
                     .get(new DocumentKey(EDocumentType.WIND_SOLAR_FORECAST, forecastTime.truncatedTo(ChronoUnit.DAYS)));
             EntsoeParser windSolarParser = new EntsoeParser(windSolarForecast);
             Result solarForecast = windSolarParser.findByTime(forecastTime.toInstant(), EPsrType.SOLAR);
-            LOG.info("Solar forecast: {}", solarForecast);
+            LOG.info("Solar forecast: {} (capacity {})", solarForecast, capacities.get(EPsrType.SOLAR));
             Result windOffshoreForecast = windSolarParser.findByTime(forecastTime.toInstant(), EPsrType.WIND_OFFSHORE);
             Result windOnshoreForecast = windSolarParser.findByTime(forecastTime.toInstant(), EPsrType.WIND_ONSHORE);
             LOG.info("Wind forecast: {} (off-shore) + {} (on-shore) = {} (total)", windOffshoreForecast.value,
@@ -185,6 +198,14 @@ public final class ElectricityHandler {
         LOG.info("Downloading wind/solar forecast {}-{}", periodStart, periodEnd);
         EntsoeRequest request = new EntsoeRequest(EDocumentType.WIND_SOLAR_FORECAST);
         request.setProcessType(EProcessType.DAY_AHEAD);
+        request.setInDomain(config.getArea());
+        request.setPeriod(periodStart, periodEnd);
+        return entsoeFetcher.getDocument(request);
+    }
+
+    private EntsoeResponse downloadInstalledCapacity(Instant periodStart, Instant periodEnd) throws IOException {
+        EntsoeRequest request = new EntsoeRequest(EDocumentType.INSTALLED_CAPACITY_PER_TYPE);
+        request.setProcessType(EProcessType.YEAR_AHEAD);
         request.setInDomain(config.getArea());
         request.setPeriod(periodStart, periodEnd);
         return entsoeFetcher.getDocument(request);
