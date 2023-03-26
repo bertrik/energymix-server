@@ -15,6 +15,7 @@ libraries.jackson = [
     "com.fasterxml.jackson.dataformat:jackson-dataformat-csv:${jacksonVersion}",
     "com.fasterxml.jackson.dataformat:jackson-dataformat-xml:${jacksonVersion}",
     "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${jacksonVersion}",
+    "org.yaml:snakeyaml:2.0"
 ]
 
 libraries.dropwizard = [
