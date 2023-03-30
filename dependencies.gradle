@@ -7,8 +7,6 @@ ext {
     dropwizardVersion = '2.1.5'
 }
 
-libraries.guava = 'com.google.guava:guava:31.1-jre'
-
 libraries.jackson = [
     "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}",
     "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:${jacksonVersion}",

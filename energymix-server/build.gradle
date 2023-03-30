@@ -3,7 +3,6 @@ apply plugin: "application"
 mainClassName = 'nl.bertriksikken.energymix.app.EnergyMixApp'
 
 dependencies {
-    implementation libraries.guava
     implementation libraries.retrofit
     implementation libraries.jackson
 
