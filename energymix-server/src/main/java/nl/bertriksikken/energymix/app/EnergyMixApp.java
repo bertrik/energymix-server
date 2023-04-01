@@ -9,12 +9,9 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 
-import es.moki.ratelimij.dropwizard.RateLimitBundle;
-import es.moki.ratelimitj.core.limiter.request.RequestRateLimiterFactory;
-import es.moki.ratelimitj.inmemory.InMemoryRateLimiterFactory;
-import io.dropwizard.Application;
-import io.dropwizard.setup.Bootstrap;
-import io.dropwizard.setup.Environment;
+import io.dropwizard.core.Application;
+import io.dropwizard.core.setup.Bootstrap;
+import io.dropwizard.core.setup.Environment;
 import nl.bertriksikken.energymix.entsoe.EntsoeClient;
 import nl.bertriksikken.energymix.server.ElectricityHandler;
 import nl.bertriksikken.energymix.server.NaturalGasHandler;
@@ -31,8 +28,6 @@ public final class EnergyMixApp extends Application<EnergyMixAppConfig> {
 
     @Override
     public void initialize(Bootstrap<EnergyMixAppConfig> bootstrap) {
-        RequestRateLimiterFactory factory = new InMemoryRateLimiterFactory();
-        bootstrap.addBundle(new RateLimitBundle(factory));
         bootstrap.getObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
     }
 
