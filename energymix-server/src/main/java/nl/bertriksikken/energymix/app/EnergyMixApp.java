@@ -37,10 +37,8 @@ public final class EnergyMixApp extends Application<EnergyMixAppConfig> {
         EntsoeClient entsoeFetcher = EntsoeClient.create(configuration.entsoeFetcherConfig, xmlMapper);
         ElectricityHandler handler = new ElectricityHandler(entsoeFetcher, configuration.energyMixConfig);
         ElectricityResource electricityResource = new ElectricityResource(handler);
-        EnergyMixResource energyMixResource = new EnergyMixResource(electricityResource);
         environment.healthChecks().register("electricity", new ElectricityResourceHealthCheck(handler));
         environment.jersey().register(electricityResource);
-        environment.jersey().register(energyMixResource);
         environment.lifecycle().manage(electricityResource);
 
         // natural gas
