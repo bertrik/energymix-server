@@ -49,7 +49,7 @@ public enum EPsrType {
     }
 
     @JsonValue
-    String getCode() {
+    public String getCode() {
         return code;
     }
 

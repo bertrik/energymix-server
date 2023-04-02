@@ -16,6 +16,7 @@ import io.dropwizard.lifecycle.Managed;
 import nl.bertriksikken.energymix.server.DayAheadPrices;
 import nl.bertriksikken.energymix.server.ElectricityHandler;
 import nl.bertriksikken.energymix.server.EnergyMix;
+import nl.bertriksikken.energymix.server.GenerationCapacity;
 
 /**
  * Main REST endpoint for (dutch) electricity queries.
@@ -61,6 +62,14 @@ public class ElectricityResource implements Managed {
     @RateLimited(keys = KeyPart.ANY, rates = { @Rate(duration = 1, timeUnit = TimeUnit.MINUTES, limit = 10) })
     public DayAheadPrices getPrices() {
         return handler.getPrices();
+    }
+
+    @GET
+    @Path("/capacity")
+    @Produces(MediaType.APPLICATION_JSON)
+    @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.DAYS)
+    public GenerationCapacity getCapacity() {
+        return handler.getCapacity();
     }
 
 }

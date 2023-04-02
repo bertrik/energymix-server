@@ -3,7 +3,7 @@ package nl.bertriksikken.entsoe;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -81,7 +81,7 @@ public final class EntsoeParser {
     }
 
     public Map<EPsrType, Integer> parseInstalledCapacity() {
-        Map<EPsrType, Integer> map = new HashMap<>();
+        Map<EPsrType, Integer> map = new LinkedHashMap<>();
         for (TimeSeries timeSeries : document.timeSeries) {
             for (Period period : timeSeries.period) {
                 for (Point point : period.points) {
@@ -89,7 +89,7 @@ public final class EntsoeParser {
                 }
             }
         }
-        return Map.copyOf(map);
+        return map;
     }
 
     // parse result

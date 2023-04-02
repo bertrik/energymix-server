@@ -43,6 +43,17 @@ public final class EntsoeParserTest {
     }
 
     @Test
+    public void testExtractGeneration() throws IOException {
+        InputStream is = this.getClass().getClassLoader().getResourceAsStream("A68_installed_capacity.xml");
+        EntsoeResponse document = mapper.readValue(is, EntsoeResponse.class);
+
+        // extract and verify
+        EntsoeParser parser = new EntsoeParser(document);
+        Map<EPsrType, Integer> capacities = parser.parseInstalledCapacity();
+        Assert.assertEquals(22590.0, capacities.get(EPsrType.SOLAR), 0.1);
+    }
+
+    @Test
     public void findMostRecentGeneration() throws IOException {
         InputStream is = this.getClass().getClassLoader().getResourceAsStream("A75_actualgeneration.xml");
         EntsoeResponse document = mapper.readValue(is, EntsoeResponse.class);

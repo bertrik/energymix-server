@@ -7,6 +7,7 @@ import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
@@ -92,12 +93,6 @@ public final class ElectricityHandler {
         Instant periodStart = now.minusHours(2).truncatedTo(ChronoUnit.DAYS).toInstant();
         Instant periodEnd = today.plusDays(1).toInstant();
         try {
-            // get installed capacity
-            EntsoeResponse installedCapacity = documentCache
-                    .get(new DocumentKey(EDocumentType.INSTALLED_CAPACITY_PER_TYPE, today));
-            EntsoeParser capacityParser = new EntsoeParser(installedCapacity);
-            Map<EPsrType, Integer> capacities = capacityParser.parseInstalledCapacity();
-
             // get generation by production type
             EntsoeResponse actualGenerationResponse = downloadGenerationByType(periodStart, periodEnd);
             EntsoeParser actualGenerationParser = new EntsoeParser(actualGenerationResponse);
@@ -116,7 +111,7 @@ public final class ElectricityHandler {
                     .get(new DocumentKey(EDocumentType.WIND_SOLAR_FORECAST, forecastTime.truncatedTo(ChronoUnit.DAYS)));
             EntsoeParser windSolarParser = new EntsoeParser(windSolarForecast);
             Result solarForecast = windSolarParser.findByTime(forecastTime.toInstant(), EPsrType.SOLAR);
-            LOG.info("Solar forecast: {} (capacity {})", solarForecast, capacities.get(EPsrType.SOLAR));
+            LOG.info("Solar forecast: {}", solarForecast);
             Result windOffshoreForecast = windSolarParser.findByTime(forecastTime.toInstant(), EPsrType.WIND_OFFSHORE);
             Result windOnshoreForecast = windSolarParser.findByTime(forecastTime.toInstant(), EPsrType.WIND_ONSHORE);
             LOG.info("Wind forecast: {} (off-shore) + {} (on-shore) = {} (total)", windOffshoreForecast.value,
@@ -255,6 +250,33 @@ public final class ElectricityHandler {
 
     public boolean isHealthy() {
         return isHealthy.get();
+    }
+
+    public GenerationCapacity getCapacity() {
+        GenerationCapacity generationCapacity = new GenerationCapacity();
+
+        ZonedDateTime now = ZonedDateTime.now(config.getTimeZone());
+        ZonedDateTime today = now.truncatedTo(ChronoUnit.DAYS);
+
+        // get installed capacity
+        EntsoeResponse response;
+        try {
+            response = documentCache.get(new DocumentKey(EDocumentType.INSTALLED_CAPACITY_PER_TYPE, today));
+        } catch (ExecutionException e) {
+            LOG.warn("Caught Exception", e);
+            isHealthy.set(false);
+            return generationCapacity;
+        }
+        EntsoeParser capacityParser = new EntsoeParser(response);
+        Map<EPsrType, Integer> capacities = capacityParser.parseInstalledCapacity();
+        for (Entry<EPsrType, Integer> entry : capacities.entrySet()) {
+            EPsrType type = entry.getKey();
+            Integer power = entry.getValue();
+            if ((power != null) && (power > 0)) {
+                generationCapacity.add(type.getCode(), type.name(), power);
+            }
+        }
+        return generationCapacity;
     }
 
     // document/time combination, used in the dynamic cache
