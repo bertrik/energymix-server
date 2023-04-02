@@ -4,9 +4,9 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import io.dropwizard.core.Configuration;
+import nl.bertriksikken.eex.EexConfig;
 import nl.bertriksikken.energymix.entsoe.EntsoeClientConfig;
 import nl.bertriksikken.energymix.server.EnergyMixConfig;
-import nl.bertriksikken.powernext.PowernextConfig;
 import nl.bertriksikken.theice.IceConfig;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -16,7 +16,7 @@ public final class EnergyMixAppConfig extends Configuration {
     public final EntsoeClientConfig entsoeFetcherConfig = new EntsoeClientConfig();
 
     @JsonProperty("eex")
-    public final PowernextConfig powerNextConfig = new PowernextConfig();
+    public final EexConfig eexConfig = new EexConfig();
 
     @JsonProperty("ice")
     public final IceConfig iceConfig = new IceConfig();

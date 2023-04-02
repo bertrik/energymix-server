@@ -1,4 +1,4 @@
-package nl.bertriksikken.powernext;
+package nl.bertriksikken.eex;
 
 import java.io.IOException;
 import java.time.Instant;
@@ -19,7 +19,7 @@ import nl.bertriksikken.naturalgas.NeutralGasPrices.NeutralGasDayPrice;
 import nl.bertriksikken.naturalgas.NeutralGasPrices.NeutralGasDayPrice.ENgpStatus;
 
 /**
- * Representation of the powernext NGP current price document.
+ * Representation of the EEX NGP current price document.
  */
 public final class CurrentPriceDocument {
 

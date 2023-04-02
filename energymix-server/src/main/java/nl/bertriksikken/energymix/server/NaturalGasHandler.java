@@ -16,13 +16,13 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Iterables;
 
+import nl.bertriksikken.eex.CurrentPriceDocument;
+import nl.bertriksikken.eex.FileResponse;
+import nl.bertriksikken.eex.EexClient;
 import nl.bertriksikken.naturalgas.FutureGasPrices;
 import nl.bertriksikken.naturalgas.FutureGasPrices.FutureGasPrice;
 import nl.bertriksikken.naturalgas.NeutralGasPrices;
 import nl.bertriksikken.naturalgas.NeutralGasPrices.NeutralGasDayPrice;
-import nl.bertriksikken.powernext.CurrentPriceDocument;
-import nl.bertriksikken.powernext.FileResponse;
-import nl.bertriksikken.powernext.PowernextClient;
 import nl.bertriksikken.theice.Contract;
 import nl.bertriksikken.theice.IceClient;
 
@@ -37,21 +37,21 @@ public final class NaturalGasHandler {
     private static final Duration ICE_DOWNLOAD_INTERVAL = Duration.ofMinutes(15);
 
     private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-    private final PowernextClient powernextClient;
+    private final EexClient eexClient;
     private final IceClient iceClient;
 
     private NeutralGasPrices neutralGasPrice = new NeutralGasPrices(Instant.now());
     private FutureGasPrices futureGasPrices = new FutureGasPrices(Instant.now());
 
-    public NaturalGasHandler(PowernextClient powernextClient, IceClient iceClient) {
-        this.powernextClient = Objects.requireNonNull(powernextClient);
+    public NaturalGasHandler(EexClient eexClient, IceClient iceClient) {
+        this.eexClient = Objects.requireNonNull(eexClient);
         this.iceClient = Objects.requireNonNull(iceClient);
     }
 
     public void start() {
         // start download immediately
         executor.execute(new CatchingRunnable(LOG, this::downloadIceContracts));
-        executor.execute(new CatchingRunnable(LOG, this::downloadPowernextNGP));
+        executor.execute(new CatchingRunnable(LOG, this::downloadEexNGP));
     }
 
     public void stop() {
@@ -63,13 +63,13 @@ public final class NaturalGasHandler {
         }
     }
 
-    private void downloadPowernextNGP() {
-        LOG.info("Download Powernext NGP current price document");
+    private void downloadEexNGP() {
+        LOG.info("Download EEX NGP current price document");
 
         // download and try to parse
         Instant next = Instant.now().plus(Duration.ofMinutes(5));
         try {
-            FileResponse response = powernextClient.getCurrentPriceDocument();
+            FileResponse response = eexClient.getCurrentPriceDocument();
             LOG.info("Downloaded NGP current price document, {} bytes, last modified {}",
                     response.getContents().length(), response.getLastModified());
 
@@ -90,8 +90,8 @@ public final class NaturalGasHandler {
             next = next.plus(GAS_DOWNLOAD_INTERVAL);
         }
         Duration delay = Duration.between(Instant.now(), next).truncatedTo(ChronoUnit.SECONDS);
-        LOG.info("Schedule next Powernext download in {} at {}", delay, next);
-        executor.schedule(new CatchingRunnable(LOG, this::downloadPowernextNGP), delay.toSeconds(), TimeUnit.SECONDS);
+        LOG.info("Schedule next EEX download in {} at {}", delay, next);
+        executor.schedule(new CatchingRunnable(LOG, this::downloadEexNGP), delay.toSeconds(), TimeUnit.SECONDS);
     }
 
     private void downloadIceContracts() {

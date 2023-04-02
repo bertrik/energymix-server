@@ -1,4 +1,4 @@
-package nl.bertriksikken.powernext;
+package nl.bertriksikken.eex;
 
 import org.junit.Assert;
 import org.junit.Test;

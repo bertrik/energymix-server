@@ -1,4 +1,4 @@
-package nl.bertriksikken.powernext;
+package nl.bertriksikken.eex;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -11,28 +11,28 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.scalars.ScalarsConverterFactory;
 
-public final class PowernextClient {
+public final class EexClient {
 
-    private static final Logger LOG = LoggerFactory.getLogger(PowernextClient.class);
+    private static final Logger LOG = LoggerFactory.getLogger(EexClient.class);
 
-    private final IPowernextApi restApi;
+    private final IEexApi restApi;
 
-    PowernextClient(IPowernextApi restApi) {
+    EexClient(IEexApi restApi) {
         this.restApi = Objects.requireNonNull(restApi);
     }
 
-    public static PowernextClient create(PowernextConfig config) {
+    public static EexClient create(EexConfig config) {
         LOG.info("Creating new REST client for URL '{}' with timeout {}", config.getUrl(), config.getTimeout());
         OkHttpClient client = new OkHttpClient().newBuilder().connectTimeout(config.getTimeout())
                 .readTimeout(config.getTimeout()).build();
         Retrofit retrofit = new Retrofit.Builder().baseUrl(config.getUrl())
                 .addConverterFactory(ScalarsConverterFactory.create()).client(client).build();
-        IPowernextApi restApi = retrofit.create(IPowernextApi.class);
-        return new PowernextClient(restApi);
+        IEexApi restApi = retrofit.create(IEexApi.class);
+        return new EexClient(restApi);
     }
 
     public FileResponse getCurrentPriceDocument() throws IOException {
-        Response<String> response = restApi.downloadFile(IPowernextApi.NGP_CURRENT_PRICES).execute();
+        Response<String> response = restApi.downloadFile(IEexApi.NGP_CURRENT_PRICES).execute();
         if (response.isSuccessful()) {
             return FileResponse.create(response.body(), response.headers().get("Last-Modified"));
         } else {

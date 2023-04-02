@@ -1,7 +1,7 @@
 package nl.bertriksikken.energymix.server;
 
-import nl.bertriksikken.powernext.PowernextClient;
-import nl.bertriksikken.powernext.PowernextConfig;
+import nl.bertriksikken.eex.EexClient;
+import nl.bertriksikken.eex.EexConfig;
 import nl.bertriksikken.theice.IceClient;
 import nl.bertriksikken.theice.IceConfig;
 
@@ -11,11 +11,11 @@ import nl.bertriksikken.theice.IceConfig;
 public final class RunNaturalGasHandler {
 
     public static void main(String args[]) {
-        PowernextConfig powernextConfig = new PowernextConfig();
-        PowernextClient powernextClient = PowernextClient.create(powernextConfig);
+        EexConfig eexConfig = new EexConfig();
+        EexClient eexClient = EexClient.create(eexConfig);
         IceConfig iceConfig = new IceConfig();
         IceClient iceClient = IceClient.create(iceConfig);
-        NaturalGasHandler handler = new NaturalGasHandler(powernextClient, iceClient);
+        NaturalGasHandler handler = new NaturalGasHandler(eexClient, iceClient);
         handler.start();
     }
 

@@ -1,4 +1,4 @@
-package nl.bertriksikken.powernext;
+package nl.bertriksikken.eex;
 
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;

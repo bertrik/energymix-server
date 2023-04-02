@@ -12,10 +12,10 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import io.dropwizard.core.Application;
 import io.dropwizard.core.setup.Bootstrap;
 import io.dropwizard.core.setup.Environment;
+import nl.bertriksikken.eex.EexClient;
 import nl.bertriksikken.energymix.entsoe.EntsoeClient;
 import nl.bertriksikken.energymix.server.ElectricityHandler;
 import nl.bertriksikken.energymix.server.NaturalGasHandler;
-import nl.bertriksikken.powernext.PowernextClient;
 import nl.bertriksikken.theice.IceClient;
 
 public final class EnergyMixApp extends Application<EnergyMixAppConfig> {
@@ -42,9 +42,9 @@ public final class EnergyMixApp extends Application<EnergyMixAppConfig> {
         environment.lifecycle().manage(electricityResource);
 
         // natural gas
-        PowernextClient powernextClient = PowernextClient.create(configuration.powerNextConfig);
+        EexClient eexClient = EexClient.create(configuration.eexConfig);
         IceClient iceClient = IceClient.create(configuration.iceConfig);
-        NaturalGasHandler naturalGasHandler = new NaturalGasHandler(powernextClient, iceClient);
+        NaturalGasHandler naturalGasHandler = new NaturalGasHandler(eexClient, iceClient);
         NaturalGasResource naturalGasResource = new NaturalGasResource(naturalGasHandler);
         environment.jersey().register(naturalGasResource);
         environment.lifecycle().manage(naturalGasResource);

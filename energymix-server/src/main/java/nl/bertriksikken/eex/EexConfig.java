@@ -1,4 +1,4 @@
-package nl.bertriksikken.powernext;
+package nl.bertriksikken.eex;
 
 import java.time.Duration;
 
@@ -9,7 +9,7 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonAutoDetect(getterVisibility = Visibility.NONE)
-public final class PowernextConfig {
+public final class EexConfig {
 
     @JsonProperty("url")
     private final String url;
@@ -18,7 +18,7 @@ public final class PowernextConfig {
     private final int timeoutSec;
 
     // no-arg jackson constructor
-    public PowernextConfig() {
+    public EexConfig() {
         this.url = "https://gasandregistry.eex.com";
         this.timeoutSec = 30;
     }
