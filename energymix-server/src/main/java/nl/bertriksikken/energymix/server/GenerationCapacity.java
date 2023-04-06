@@ -1,6 +1,7 @@
 package nl.bertriksikken.energymix.server;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -18,6 +19,7 @@ public final class GenerationCapacity {
 
     public void add(String id, String description, int power) {
         capacities.add(new Capacity(id, description, power));
+        Collections.sort(capacities, (c1, c2) -> c1.id.compareTo(c2.id));
         total += power;
     }
 
@@ -35,4 +37,5 @@ public final class GenerationCapacity {
             this.power = power;
         }
     }
+
 }
