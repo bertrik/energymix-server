@@ -273,7 +273,7 @@ public final class ElectricityHandler {
             EPsrType type = entry.getKey();
             Integer power = entry.getValue();
             if ((power != null) && (power > 0)) {
-                generationCapacity.add(type.getCode(), type.name(), power);
+                generationCapacity.add(type.getCode(), type.getDescription(), power);
             }
         }
         return generationCapacity;

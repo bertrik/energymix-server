@@ -10,42 +10,44 @@ import com.fasterxml.jackson.annotation.JsonValue;
  */
 public enum EPsrType {
 
-    UNKNOWN(""), //
+    UNKNOWN("", "Unknown"), //
 
-    MIXED("A03"), //
-    GENERATION("A04"), //
-    LOAD("A05"), //
+    MIXED("A03", "Mixed"), //
+    GENERATION("A04", "Generation"), //
+    LOAD("A05", "Load"), //
 
-    BIOMASS("B01"), //
-    FOSSIL_BROWN_COAL("B02"), //
-    FOSSIL_COAL_DERIVED_GAS("B03"), //
-    FOSSIL_GAS("B04"), //
-    FOSSIL_HARD_COAL("B05"), //
-    FOSSIL_OIL("B06"), //
-    FOSSIL_OIL_SHALE("B07"), //
-    FOSSIL_PEAT("B08"), //
-    GEOTHERMAL("B09"), //
-    HYDRO_PUMPED_STORAGE("B10"), //
-    HYDRO_RIVER_POUNDAGE("B11"), //
-    HYDRO_RESERVOIR("B12"), //
-    MARINE("B13"), //
-    NUCLEAR("B14"), //
-    OTHER_RENEWABLE("B15"), //
-    SOLAR("B16"), //
-    WASTE("B17"), //
-    WIND_OFFSHORE("B18"), //
-    WIND_ONSHORE("B19"), //
-    OTHER("B20"), //
+    BIOMASS("B01", "Biomass"), //
+    FOSSIL_BROWN_COAL("B02", "Fossil brown coal/Lignite"), //
+    FOSSIL_COAL_DERIVED_GAS("B03", "Fossil coal-derived gas"), //
+    FOSSIL_GAS("B04", "Fossil Gas"), //
+    FOSSIL_HARD_COAL("B05", "Fossil Hard coal"), //
+    FOSSIL_OIL("B06", "Fossil oil"), //
+    FOSSIL_OIL_SHALE("B07", "Fossil oil shale"), //
+    FOSSIL_PEAT("B08", "Fossil peat"), //
+    GEOTHERMAL("B09", "Geothermal"), //
+    HYDRO_PUMPED_STORAGE("B10", "Hydro Pumped Storage"), //
+    HYDRO_RIVER_POUNDAGE("B11", "Hydro run-of-river and poundage"), //
+    HYDRO_RESERVOIR("B12", "Hydro Water Reservoir"), //
+    MARINE("B13", "Marine"), //
+    NUCLEAR("B14", "Nuclear"), //
+    OTHER_RENEWABLE("B15", "Other renewable"), //
+    SOLAR("B16", "Solar"), //
+    WASTE("B17", "Waste"), //
+    WIND_OFFSHORE("B18", "Wind Offshore"), //
+    WIND_ONSHORE("B19", "Wind Onshore"), //
+    OTHER("B20", "Other"), //
 
-    AC_LINK("B21"), //
-    DC_LINK("B22"), //
-    SUBSTATION("B23"), //
-    TRANSFORMER("B24"); //
+    AC_LINK("B21", "AC Link"), //
+    DC_LINK("B22", "DC Link"), //
+    SUBSTATION("B23", "Substation"), //
+    TRANSFORMER("B24", "Transformer"); //
 
     private final String code;
+    private final String description;
 
-    private EPsrType(String code) {
+    private EPsrType(String code, String description) {
         this.code = code;
+        this.description = description;
     }
 
     @JsonValue
@@ -53,6 +55,10 @@ public enum EPsrType {
         return code;
     }
 
+    public String getDescription() {
+        return description;
+    }
+    
     @JsonCreator
     public static EPsrType create(String code) {
         return Stream.of(values()).filter(t -> t.code.equals(code)).findFirst().orElse(EPsrType.UNKNOWN);
