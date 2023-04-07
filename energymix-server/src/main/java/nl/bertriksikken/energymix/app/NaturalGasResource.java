@@ -8,21 +8,17 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import es.moki.ratelimij.dropwizard.annotation.Rate;
-import es.moki.ratelimij.dropwizard.annotation.RateLimited;
-import es.moki.ratelimij.dropwizard.filter.KeyPart;
 import io.dropwizard.jersey.caching.CacheControl;
 import io.dropwizard.lifecycle.Managed;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.MediaType;
 import nl.bertriksikken.energymix.server.NaturalGasHandler;
 import nl.bertriksikken.naturalgas.FutureGasPrices;
 import nl.bertriksikken.naturalgas.FutureGasPrices.FutureGasPrice;
@@ -60,7 +56,6 @@ public final class NaturalGasResource implements Managed {
     @Path("/price")
     @Produces(MediaType.APPLICATION_JSON)
     @CacheControl(maxAge = 15, maxAgeUnit = TimeUnit.MINUTES)
-    @RateLimited(keys = KeyPart.ANY, rates = { @Rate(duration = 1, timeUnit = TimeUnit.MINUTES, limit = 10) })
     public NaturalGasPrice getPrices() {
         NaturalGasPrice naturalGasPrice = new NaturalGasPrice();
 

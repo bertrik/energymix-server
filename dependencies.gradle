@@ -4,7 +4,7 @@ ext {
     jacksonVersion = '2.14.2'
     retrofitVersion = '2.9.0'
     jerseyVersion = '2.34'
-    dropwizardVersion = '3.0.0'
+    dropwizardVersion = '4.0.0'
 }
 
 libraries.jackson = [
@@ -18,11 +18,6 @@ libraries.jackson = [
 
 libraries.dropwizard = [
     "io.dropwizard:dropwizard-core:${dropwizardVersion}"
-]
-
-libraries.ratelimitj = [
-    "es.moki.ratelimitj:ratelimitj-dropwizard:0.7.0",
-    "es.moki.ratelimitj:ratelimitj-inmemory:0.7.0"
 ]
 
 libraries.retrofit = [

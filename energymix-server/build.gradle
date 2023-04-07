@@ -7,7 +7,6 @@ dependencies {
     implementation libraries.jackson
 
     implementation libraries.dropwizard
-    implementation libraries.ratelimitj
 }
 
 // fix scripts executable bit and line endings
