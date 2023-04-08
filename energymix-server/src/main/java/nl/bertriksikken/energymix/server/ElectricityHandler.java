@@ -96,14 +96,15 @@ public final class ElectricityHandler {
             // get generation by production type
             EntsoeResponse actualGenerationResponse = downloadGenerationByType(periodStart, periodEnd);
             EntsoeParser actualGenerationParser = new EntsoeParser(actualGenerationResponse);
-            Result fossil = sumGeneration(actualGenerationParser, EPsrType.FOSSIL_HARD_COAL, EPsrType.FOSSIL_GAS);
+            Result fossilCoal = sumGeneration(actualGenerationParser, EPsrType.FOSSIL_HARD_COAL);
+            Result fossilGas = sumGeneration(actualGenerationParser, EPsrType.FOSSIL_GAS);
             Result nuclear = sumGeneration(actualGenerationParser, EPsrType.NUCLEAR);
             Result windOffshoreReported = sumGeneration(actualGenerationParser, EPsrType.WIND_OFFSHORE);
             Result windOnshoreReported = sumGeneration(actualGenerationParser, EPsrType.WIND_ONSHORE);
             Result other = sumGeneration(actualGenerationParser, EPsrType.OTHER);
             Result waste = sumGeneration(actualGenerationParser, EPsrType.WASTE);
-            ZonedDateTime fossilTime = ZonedDateTime.ofInstant(fossil.timeBegin, config.getTimeZone());
-            LOG.info("Fossil generation: {}, age {}", fossil, Duration.between(fossil.timeEnd, now));
+            ZonedDateTime fossilTime = ZonedDateTime.ofInstant(fossilGas.timeBegin, config.getTimeZone());
+            LOG.info("Fossil gas generation: {}, age {}", fossilGas, Duration.between(fossilGas.timeEnd, now));
 
             // get solar/wind forecast
             ZonedDateTime forecastTime = fossilTime.plus(config.getForecastOffset());
@@ -121,13 +122,15 @@ public final class ElectricityHandler {
 
             // calculate wind
             Double windOnshore = Math.max(windOnshoreReported.value, windOnshoreForecast.value);
-            Double wind = windOffshoreReported.value + windOnshore;
+            Double windOffshore = windOffshoreReported.value;
 
             // build energy mix structure
-            energyMix = new EnergyMix(fossil.timeEnd.getEpochSecond());
+            energyMix = new EnergyMix(fossilGas.timeEnd.getEpochSecond());
             energyMix.addComponent("solar", solarForecast.value, "#FFFF00");
-            energyMix.addComponent("wind", wind, "#0000FF");
-            energyMix.addComponent("fossil", fossil.value, "#FF0000");
+            energyMix.addComponent("wind onshore", windOnshore, "#0000FF");
+            energyMix.addComponent("wind offshore", windOffshore, "#0000FF");
+            energyMix.addComponent("fossil gas", fossilGas.value, "#FF0000");
+            energyMix.addComponent("fossil coal", fossilCoal.value, "#FF0000");
             energyMix.addComponent("nuclear", nuclear.value, "#00FF00");
             energyMix.addComponent("waste", waste.value, "#FF00FF");
             energyMix.addComponent("other", other.value, "#FF00FF");
