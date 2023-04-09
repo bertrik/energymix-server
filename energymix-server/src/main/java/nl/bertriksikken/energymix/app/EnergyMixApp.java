@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 
+import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.core.Application;
 import io.dropwizard.core.setup.Bootstrap;
 import io.dropwizard.core.setup.Environment;
@@ -29,6 +30,7 @@ public final class EnergyMixApp extends Application<EnergyMixAppConfig> {
     @Override
     public void initialize(Bootstrap<EnergyMixAppConfig> bootstrap) {
         bootstrap.getObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
+        bootstrap.addBundle(new AssetsBundle("/assets/energy.png", "/favicon.ico"));
     }
 
     @Override

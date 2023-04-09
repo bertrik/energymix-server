@@ -17,7 +17,8 @@ libraries.jackson = [
 ]
 
 libraries.dropwizard = [
-    "io.dropwizard:dropwizard-core:${dropwizardVersion}"
+    "io.dropwizard:dropwizard-core:${dropwizardVersion}",
+    "io.dropwizard:dropwizard-assets:${dropwizardVersion}"
 ]
 
 libraries.retrofit = [
