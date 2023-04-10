@@ -33,7 +33,7 @@ public final class NaturalGasHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(NaturalGasHandler.class);
 
-    private static final Duration GAS_DOWNLOAD_INTERVAL = Duration.ofMinutes(15);
+    private static final Duration EEX_DOWNLOAD_INTERVAL = Duration.ofMinutes(15);
     private static final Duration ICE_DOWNLOAD_INTERVAL = Duration.ofMinutes(15);
 
     private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
@@ -80,14 +80,14 @@ public final class NaturalGasHandler {
             if (finalPrice != null) {
                 setNeutralGasPrices(prices);
             }
-            next = response.getLastModified().plus(GAS_DOWNLOAD_INTERVAL).plusSeconds(30);
+            next = response.getLastModified().plus(EEX_DOWNLOAD_INTERVAL).plusSeconds(30);
         } catch (IOException e) {
             LOG.warn("Download NGP current price document failed: {}", e.getMessage());
         }
 
         // schedule new download
         while (next.isBefore(Instant.now())) {
-            next = next.plus(GAS_DOWNLOAD_INTERVAL);
+            next = next.plus(EEX_DOWNLOAD_INTERVAL);
         }
         Duration delay = Duration.between(Instant.now(), next).truncatedTo(ChronoUnit.SECONDS);
         LOG.info("Schedule next EEX download in {} at {}", delay, next);
