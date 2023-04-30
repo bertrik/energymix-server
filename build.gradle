@@ -23,8 +23,8 @@ subprojects {
     apply plugin: "com.github.spotbugs"
     apply plugin: 'com.github.ben-manes.versions'
     
-    targetCompatibility = 1.11
-    sourceCompatibility = 1.11
+    targetCompatibility = 1.14
+    sourceCompatibility = 1.14
 
     repositories {
         mavenCentral()
