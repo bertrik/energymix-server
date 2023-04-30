@@ -42,6 +42,7 @@ subprojects {
     // Standard libraries added to all projects
     dependencies {
         testImplementation libraries.junit
+        compileOnly libraries.spotbugs_annotations
     }
 }
 

@@ -30,3 +30,6 @@ libraries.retrofit_mock = "com.squareup.retrofit2:retrofit-mock:${retrofitVersio
 // test libraries
 libraries.junit = 'junit:junit:4.13.2'
 
+// check libraries
+libraries.spotbugs_annotations = 'com.github.spotbugs:spotbugs-annotations:4.7.3'
+
