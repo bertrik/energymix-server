@@ -13,17 +13,20 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public final class EnergyMix {
 
     @JsonProperty("time")
-    public long time;
+    public final long time;
+
+    @JsonProperty("datetime")
+    public final String dateTime;
 
     @JsonProperty("total")
-    public int total;
+    public int total = 0;
 
     @JsonProperty("mix")
     private List<EnergyComponent> mix = new ArrayList<>();
 
-    public EnergyMix(long time) {
+    EnergyMix(long time, String dateTime) {
         this.time = time;
-        this.total = 0;
+        this.dateTime = dateTime;
     }
 
     public void addComponent(String id, double power, String color) {

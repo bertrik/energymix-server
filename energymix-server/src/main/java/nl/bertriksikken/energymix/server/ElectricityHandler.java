@@ -42,6 +42,7 @@ public final class ElectricityHandler {
     private final EnergyMixConfig config;
     private final LoadingCache<DocumentKey, EntsoeResponse> documentCache;
     private final AtomicBoolean isHealthy = new AtomicBoolean(false);
+    private final EnergyMixFactory energyMixFactory;
 
     private EnergyMix energyMix;
 
@@ -50,6 +51,7 @@ public final class ElectricityHandler {
         this.config = Objects.requireNonNull(config);
         this.documentCache = CacheBuilder.newBuilder().expireAfterAccess(Duration.ofDays(1))
                 .removalListener(this::onDocumentExpiry).build(CacheLoader.from(this::loadDocument));
+        this.energyMixFactory = new EnergyMixFactory(config.getTimeZone());
     }
 
     private void onDocumentExpiry(RemovalNotification<DocumentKey, EntsoeResponse> notification) {
@@ -125,7 +127,7 @@ public final class ElectricityHandler {
             Double windOffshore = windOffshoreReported.value;
 
             // build energy mix structure
-            energyMix = new EnergyMix(fossilGas.timeEnd.getEpochSecond());
+            energyMix = energyMixFactory.build(fossilGas.timeEnd);
             energyMix.addComponent("solar", solarForecast.value, "#FFFF00");
             energyMix.addComponent("wind onshore", windOnshore, "#0000FF");
             energyMix.addComponent("wind offshore", windOffshore, "#0000FF");
