@@ -30,8 +30,6 @@ subprojects {
         mavenCentral()
     }
 
-    spotbugsMain { reports { html { enabled = true } } }
-
     // Reject all non stable versions in dependency check
     tasks.named("dependencyUpdates").configure {
         rejectVersionIf {
