@@ -2,6 +2,8 @@ package nl.bertriksikken.energymix.server;
 
 import nl.bertriksikken.eex.EexClient;
 import nl.bertriksikken.eex.EexConfig;
+import nl.bertriksikken.energymix.entsog.EntsogClient;
+import nl.bertriksikken.energymix.entsog.EntsogClientConfig;
 import nl.bertriksikken.theice.IceClient;
 import nl.bertriksikken.theice.IceConfig;
 
@@ -15,7 +17,9 @@ public final class RunNaturalGasHandler {
         EexClient eexClient = EexClient.create(eexConfig);
         IceConfig iceConfig = new IceConfig();
         IceClient iceClient = IceClient.create(iceConfig);
-        NaturalGasHandler handler = new NaturalGasHandler(eexClient, iceClient);
+        EntsogClientConfig entsogConfig = new EntsogClientConfig();
+        EntsogClient entsogClient = EntsogClient.create(entsogConfig);
+        NaturalGasHandler handler = new NaturalGasHandler(eexClient, iceClient, entsogClient);
         handler.start();
     }
 

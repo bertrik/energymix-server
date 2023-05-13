@@ -22,6 +22,7 @@ import jakarta.ws.rs.core.MediaType;
 import nl.bertriksikken.energymix.server.NaturalGasHandler;
 import nl.bertriksikken.naturalgas.FutureGasPrices;
 import nl.bertriksikken.naturalgas.FutureGasPrices.FutureGasPrice;
+import nl.bertriksikken.naturalgas.GasFlows;
 import nl.bertriksikken.naturalgas.NeutralGasPrices;
 import nl.bertriksikken.naturalgas.NeutralGasPrices.NeutralGasDayPrice;
 
@@ -50,6 +51,14 @@ public final class NaturalGasResource implements Managed {
     @Path("/ping")
     public String ping() {
         return "pong!";
+    }
+
+    @GET
+    @Path("/flow")
+    @Produces(MediaType.APPLICATION_JSON)
+    @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.DAYS)
+    public GasFlows getFlows() {
+        return handler.getGasFlows();
     }
 
     @GET

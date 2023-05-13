@@ -1,9 +1,9 @@
 package nl.bertriksikken.naturalgas;
 
+import java.time.LocalDate;
+import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-
-import com.google.common.collect.Iterables;
 
 import nl.bertriksikken.entsog.EAdjacentSystemsKey;
 import nl.bertriksikken.entsog.EIndicator;
@@ -24,10 +24,17 @@ public final class GasFlowsFactory {
     }
 
     public GasFlows build(EntsogAggregatedData entsogAggregatedData) {
-        AggregatedData first = Iterables.getFirst(entsogAggregatedData.aggregatedData, null);
-        String date = dateFormatter.format(first.getDate());
-        String lastUpdated = timeFormatter.format(first.lastUpdateDateTime);
-        GasFlows gasFlows = new GasFlows(date, lastUpdated);
+        // calculate date and last-updated
+        LocalDate date = LocalDate.MIN;
+        OffsetDateTime lastUpdated = OffsetDateTime.MIN;
+        for (AggregatedData data : entsogAggregatedData.aggregatedData) {
+            if (data.lastUpdateDateTime.isAfter(lastUpdated)) {
+                lastUpdated = data.lastUpdateDateTime;
+                date = data.getDate();
+            }
+        }
+        // build structure
+        GasFlows gasFlows = new GasFlows(dateFormatter.format(date), timeFormatter.format(lastUpdated));
         for (AggregatedData data : entsogAggregatedData.aggregatedData) {
             if ((data.adjacentSystemsKey != EAdjacentSystemsKey.UNKNOWN)
                     && (data.indicator == EIndicator.PHYSICAL_FLOW)) {
@@ -36,6 +43,12 @@ public final class GasFlowsFactory {
                 gasFlows.addFlow(updated, data.adjacentSystemsKey, data.directionKey, mwh);
             }
         }
+        return gasFlows;
+    }
+
+    public GasFlows copy(GasFlows original) {
+        GasFlows gasFlows = new GasFlows(original.date, original.lastUpdated);
+        original.flows.forEach(gasFlows.flows::add);
         return gasFlows;
     }
 

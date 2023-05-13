@@ -15,6 +15,7 @@ import io.dropwizard.core.setup.Bootstrap;
 import io.dropwizard.core.setup.Environment;
 import nl.bertriksikken.eex.EexClient;
 import nl.bertriksikken.energymix.entsoe.EntsoeClient;
+import nl.bertriksikken.energymix.entsog.EntsogClient;
 import nl.bertriksikken.energymix.server.ElectricityHandler;
 import nl.bertriksikken.energymix.server.NaturalGasHandler;
 import nl.bertriksikken.theice.IceClient;
@@ -36,6 +37,7 @@ public final class EnergyMixApp extends Application<EnergyMixAppConfig> {
     @Override
     public void run(EnergyMixAppConfig configuration, Environment environment) throws Exception {
         XmlMapper xmlMapper = new XmlMapper();
+
         EntsoeClient entsoeFetcher = EntsoeClient.create(configuration.entsoeFetcherConfig, xmlMapper);
         ElectricityHandler handler = new ElectricityHandler(entsoeFetcher, configuration.energyMixConfig);
         ElectricityResource electricityResource = new ElectricityResource(handler);
@@ -46,7 +48,8 @@ public final class EnergyMixApp extends Application<EnergyMixAppConfig> {
         // natural gas
         EexClient eexClient = EexClient.create(configuration.eexConfig);
         IceClient iceClient = IceClient.create(configuration.iceConfig);
-        NaturalGasHandler naturalGasHandler = new NaturalGasHandler(eexClient, iceClient);
+        EntsogClient entsogClient = EntsogClient.create(configuration.entsogConfig);
+        NaturalGasHandler naturalGasHandler = new NaturalGasHandler(eexClient, iceClient, entsogClient);
         NaturalGasResource naturalGasResource = new NaturalGasResource(naturalGasHandler);
         environment.jersey().register(naturalGasResource);
         environment.lifecycle().manage(naturalGasResource);

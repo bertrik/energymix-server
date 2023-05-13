@@ -14,13 +14,13 @@ import nl.bertriksikken.entsog.EDirectionKey;
 public final class GasFlows {
 
     @JsonProperty("date")
-    private final String date;
+    final String date;
 
     @JsonProperty("flows")
-    private final List<GasFlow> flows = new ArrayList<>();
+    final List<GasFlow> flows = new ArrayList<>();
 
     @JsonProperty("lastUpdated")
-    private final String lastUpdated;
+    final String lastUpdated;
 
     public GasFlows(String date, String lastUpdated) {
         this.date = date;
@@ -46,13 +46,13 @@ public final class GasFlows {
     }
 
     @JsonInclude(Include.NON_NULL)
-    private static final class GasFlow {
+    static final class GasFlow {
         @JsonProperty("system")
-        private final EAdjacentSystemsKey system;
+        final EAdjacentSystemsKey system;
         @JsonProperty("entry")
-        private Integer entry = null;
+        Integer entry = null;
         @JsonProperty("exit")
-        private Integer exit = null;
+        Integer exit = null;
 
         private GasFlow(EAdjacentSystemsKey system) {
             this.system = system;

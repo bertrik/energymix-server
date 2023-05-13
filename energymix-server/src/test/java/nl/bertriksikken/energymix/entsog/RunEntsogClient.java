@@ -31,8 +31,7 @@ public final class RunEntsogClient {
     public static void main(String[] args) throws IOException {
         RunEntsogClient test = new RunEntsogClient();
         EntsogClientConfig config = new EntsogClientConfig();
-        ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
-        EntsogClient client = EntsogClient.create(config, objectMapper);
+        EntsogClient client = EntsogClient.create(config);
 
         String json = test.fetchFlows(client, "entsog_aggregated_physical_flow.json");
         LOG.info("done");
