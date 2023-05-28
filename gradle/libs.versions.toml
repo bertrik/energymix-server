@@ -27,4 +27,6 @@ dropwizard = ["dropwizard-core", "dropwizard-assets"]
 
 [plugins]
 versions = { id = "com.github.ben-manes.versions", version = "0.46.0" }
+spotbugs = "com.github.spotbugs:5.0.14"
+dependencycheck = "org.owasp.dependencycheck:8.2.1"
 
