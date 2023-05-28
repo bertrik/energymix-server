@@ -1,6 +1,8 @@
 package nl.bertriksikken.energymix.app;
 
 import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -106,7 +108,8 @@ public final class NaturalGasResource implements Managed {
 
         private static final class PriceAtDate {
 
-            private static final DateTimeFormatter TIMESTAMP_FORMAT = DateTimeFormatter.ISO_INSTANT;
+            private static final DateTimeFormatter TIMESTAMP_FORMAT = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
+            private static final ZoneId ZONE = ZoneId.of("Europe/Amsterdam");
 
             @JsonProperty("price")
             private final double price;
@@ -118,7 +121,7 @@ public final class NaturalGasResource implements Managed {
             private PriceAtDate(double price, String date, Instant timestamp) {
                 this.price = price;
                 this.date = date;
-                this.timestamp = TIMESTAMP_FORMAT.format(timestamp);
+                this.timestamp = TIMESTAMP_FORMAT.format(OffsetDateTime.ofInstant(timestamp, ZONE));
             }
 
             @Override
