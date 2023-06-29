@@ -243,6 +243,10 @@ public final class ElectricityHandler {
             EntsoeParser parser = new EntsoeParser(priceDocument);
             List<Result> results = parser.parseDayAheadPrices();
             double currentPrice = parser.findDayAheadPrice(now.toInstant());
+            if (!Double.isFinite(currentPrice)) {
+                // invalidate cache, so next request triggers a new download attempt
+                documentCache.invalidate(key);
+            }
             // build response structure
             DayAheadPrices prices = new DayAheadPrices(now.toInstant(), currentPrice);
             results.forEach(r -> prices.addPrice(r.timeBegin, r.value));
