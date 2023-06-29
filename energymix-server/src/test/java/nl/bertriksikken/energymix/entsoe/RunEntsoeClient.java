@@ -14,7 +14,6 @@ import java.time.temporal.ChronoUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 
 import nl.bertriksikken.entsoe.EArea;
@@ -36,8 +35,7 @@ public final class RunEntsoeClient {
         yamlMapper.findAndRegisterModules();
         EntsoeClientConfig config = yamlMapper.readValue(new File("entsoe.yaml"), EntsoeClientConfig.class);
 
-        XmlMapper xmlMapper = new XmlMapper();
-        EntsoeClient fetcher = EntsoeClient.create(config, xmlMapper);
+        EntsoeClient fetcher = EntsoeClient.create(config);
 
         RunEntsoeClient test = new RunEntsoeClient();
         test.fetchInstalledGeneration(fetcher, "A68_installed_capacity.xml");

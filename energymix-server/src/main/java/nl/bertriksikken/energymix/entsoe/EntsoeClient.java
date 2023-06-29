@@ -26,6 +26,8 @@ import retrofit2.converter.scalars.ScalarsConverterFactory;
 public final class EntsoeClient {
 
     private static final Logger LOG = LoggerFactory.getLogger(EntsoeClient.class);
+    
+    private static final XmlMapper XML_MAPPER = new XmlMapper();
 
     private final IEntsoeRestApi restApi;
     private final EntsoeClientConfig config;
@@ -37,7 +39,7 @@ public final class EntsoeClient {
         this.mapper = Objects.requireNonNull(mapper);
     }
 
-    public static EntsoeClient create(EntsoeClientConfig config, XmlMapper mapper) {
+    public static EntsoeClient create(EntsoeClientConfig config) {
         Duration timeout = config.getTimeout();
         LOG.info("Creating new REST client for URL '{}' with timeout {}", config.getUrl(), timeout);
         OkHttpClient client = new OkHttpClient().newBuilder().connectTimeout(timeout).readTimeout(timeout)
@@ -45,7 +47,7 @@ public final class EntsoeClient {
         Retrofit retrofit = new Retrofit.Builder().baseUrl(config.getUrl())
                 .addConverterFactory(ScalarsConverterFactory.create()).client(client).build();
         IEntsoeRestApi restApi = retrofit.create(IEntsoeRestApi.class);
-        return new EntsoeClient(restApi, config, mapper);
+        return new EntsoeClient(restApi, config, XML_MAPPER);
     }
 
     String getRawDocument(Map<String, String> requestParams) throws IOException {

@@ -6,7 +6,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 
 import io.dropwizard.assets.AssetsBundle;
@@ -36,9 +35,7 @@ public final class EnergyMixApp extends Application<EnergyMixAppConfig> {
 
     @Override
     public void run(EnergyMixAppConfig configuration, Environment environment) throws Exception {
-        XmlMapper xmlMapper = new XmlMapper();
-
-        EntsoeClient entsoeFetcher = EntsoeClient.create(configuration.entsoeFetcherConfig, xmlMapper);
+        EntsoeClient entsoeFetcher = EntsoeClient.create(configuration.entsoeFetcherConfig);
         ElectricityHandler handler = new ElectricityHandler(entsoeFetcher, configuration.energyMixConfig);
         ElectricityResource electricityResource = new ElectricityResource(handler);
         environment.healthChecks().register("electricity", new ElectricityResourceHealthCheck(handler));
