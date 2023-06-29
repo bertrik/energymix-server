@@ -1,7 +1,7 @@
 [versions]
 jackson = "2.15.2"
 retrofit = "2.9.0"
-dropwizard = "4.0.0"
+dropwizard = "4.0.1"
 
 [libraries]
 jackson-bind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref= "jackson" }
@@ -28,5 +28,5 @@ dropwizard = ["dropwizard-core", "dropwizard-assets"]
 [plugins]
 versions = { id = "com.github.ben-manes.versions", version = "0.47.0" }
 spotbugs = "com.github.spotbugs:5.0.14"
-dependencycheck = "org.owasp.dependencycheck:8.2.1"
+dependencycheck = "org.owasp.dependencycheck:8.3.1"
 
