@@ -56,6 +56,7 @@ public final class ElectricityHandler {
 
     private void logDocumentExpiry(RemovalNotification<DocumentKey, EntsoeResponse> notification) {
         LOG.info("Document {} expired for {}", notification.getValue().type, notification.getKey().dateTime);
+        LOG.info("Cache stats: {}", documentCache.stats());
     }
 
     // loads a document into the document cache
