@@ -50,11 +50,11 @@ public final class ElectricityHandler {
         this.entsoeFetcher = Objects.requireNonNull(entsoeFetcher);
         this.config = Objects.requireNonNull(config);
         this.documentCache = CacheBuilder.newBuilder().expireAfterAccess(Duration.ofDays(1))
-                .removalListener(this::onDocumentExpiry).build(CacheLoader.from(this::loadDocument));
+                .removalListener(this::logDocumentExpiry).build(CacheLoader.from(this::loadDocument));
         this.energyMixFactory = new EnergyMixFactory(config.getTimeZone());
     }
 
-    private void onDocumentExpiry(RemovalNotification<DocumentKey, EntsoeResponse> notification) {
+    private void logDocumentExpiry(RemovalNotification<DocumentKey, EntsoeResponse> notification) {
         LOG.info("Document {} expired for {}", notification.getValue().type, notification.getKey().dateTime);
     }
 

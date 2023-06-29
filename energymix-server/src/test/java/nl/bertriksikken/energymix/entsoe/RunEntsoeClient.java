@@ -35,13 +35,13 @@ public final class RunEntsoeClient {
         yamlMapper.findAndRegisterModules();
         EntsoeClientConfig config = yamlMapper.readValue(new File("entsoe.yaml"), EntsoeClientConfig.class);
 
-        EntsoeClient fetcher = EntsoeClient.create(config);
+        EntsoeClient client = EntsoeClient.create(config);
 
         RunEntsoeClient test = new RunEntsoeClient();
-        test.fetchInstalledGeneration(fetcher, "A68_installed_capacity.xml");
-        test.fetchActualGeneration(fetcher, "A75_actualgeneration.xml");
-        test.fetchSolarForecast(fetcher, "A69_solar_wind_forecast.xml");
-        test.fetchDayAheadPrices(fetcher, "A44_day_ahead_prices.xml");
+        test.fetchInstalledGeneration(client, "A68_installed_capacity.xml");
+        test.fetchActualGeneration(client, "A75_actualgeneration.xml");
+        test.fetchSolarForecast(client, "A69_solar_wind_forecast.xml");
+        test.fetchDayAheadPrices(client, "A44_day_ahead_prices.xml");
 
         LOG.info("Done fetching data");
     }

@@ -35,8 +35,8 @@ public final class EnergyMixApp extends Application<EnergyMixAppConfig> {
 
     @Override
     public void run(EnergyMixAppConfig configuration, Environment environment) throws Exception {
-        EntsoeClient entsoeFetcher = EntsoeClient.create(configuration.entsoeFetcherConfig);
-        ElectricityHandler handler = new ElectricityHandler(entsoeFetcher, configuration.energyMixConfig);
+        EntsoeClient entsoeClient = EntsoeClient.create(configuration.entsoeFetcherConfig);
+        ElectricityHandler handler = new ElectricityHandler(entsoeClient, configuration.energyMixConfig);
         ElectricityResource electricityResource = new ElectricityResource(handler);
         environment.healthChecks().register("electricity", new ElectricityResourceHealthCheck(handler));
         environment.jersey().register(electricityResource);
