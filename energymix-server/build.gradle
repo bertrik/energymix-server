@@ -1,6 +1,8 @@
 apply plugin: "application"
 
-mainClassName = 'nl.bertriksikken.energymix.app.EnergyMixApp'
+application {
+    mainClass = 'nl.bertriksikken.energymix.app.EnergyMixApp'
+}
 
 dependencies {
     implementation libs.bundles.retrofit
