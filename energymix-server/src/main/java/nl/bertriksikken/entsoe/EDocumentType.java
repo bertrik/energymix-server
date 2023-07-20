@@ -16,7 +16,7 @@ public enum EDocumentType {
         this.code = code;
     }
 
-    String getCode() {
+    public String getCode() {
         return code;
     }
 

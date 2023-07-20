@@ -6,6 +6,7 @@ import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
@@ -111,8 +112,9 @@ public final class ElectricityHandler {
 
             // get solar/wind forecast
             ZonedDateTime forecastTime = fossilTime.plus(config.getForecastOffset());
-            EntsoeResponse windSolarForecast = documentCache
-                    .get(new DocumentKey(EDocumentType.WIND_SOLAR_FORECAST, forecastTime.truncatedTo(ChronoUnit.DAYS)));
+            DocumentKey forecastKey = new DocumentKey(EDocumentType.WIND_SOLAR_FORECAST,
+                    forecastTime.truncatedTo(ChronoUnit.DAYS));
+            EntsoeResponse windSolarForecast = documentCache.get(forecastKey);
             EntsoeParser windSolarParser = new EntsoeParser(windSolarForecast);
             Result solarForecast = windSolarParser.findByTime(forecastTime.toInstant(), EPsrType.SOLAR);
             LOG.info("Solar forecast: {}", solarForecast);
@@ -122,6 +124,11 @@ public final class ElectricityHandler {
                     windOnshoreForecast.value, windOffshoreForecast.value + windOnshoreForecast.value);
             LOG.info("Wind reported: {} (off-shore) + {} (on-shore) = {} (total)", windOffshoreReported.value,
                     windOnshoreReported.value, windOffshoreReported.value + windOnshoreReported.value);
+            if (!Double.isFinite(solarForecast.value) || !Double.isFinite(windOnshoreForecast.value)) {
+                // invalidate to trigger new download next time
+                LOG.info("Invalidating forecast: {}", forecastKey);
+                documentCache.invalidate(forecastKey);
+            }
 
             // calculate wind
             Double windOnshore = Math.max(windOnshoreReported.value, windOnshoreForecast.value);
@@ -311,6 +318,11 @@ public final class ElectricityHandler {
                 return documentType.equals(other.documentType) && dateTime.equals(other.dateTime);
             }
             return false;
+        }
+
+        @Override
+        public String toString() {
+            return String.format(Locale.ROOT, "%s for %s", documentType.getCode(), dateTime.toString());
         }
     }
 
