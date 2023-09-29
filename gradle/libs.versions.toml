@@ -1,7 +1,7 @@
 [versions]
 jackson = "2.15.2"
 retrofit = "2.9.0"
-dropwizard = "4.0.1"
+dropwizard = "4.0.2"
 
 [libraries]
 jackson-bind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref= "jackson" }
@@ -9,6 +9,8 @@ jackson-yaml = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-y
 jackson-csv = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-csv", version.ref = "jackson" }
 jackson-xml = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-xml", version.ref = "jackson" }
 jackson-jsr310 = { module = "com.fasterxml.jackson.datatype:jackson-datatype-jsr310", version.ref = "jackson" }
+
+guava = { module = "com.google.guava:guava", version = "32.1.2-jre" }
 
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref= "retrofit" }
 retrofit-jackson = { module = "com.squareup.retrofit2:converter-jackson", version.ref= "retrofit" }
@@ -23,7 +25,7 @@ spotbugs-annotations = { module = "com.github.spotbugs:spotbugs-annotations", ve
 [bundles]
 jackson = ["jackson-bind", "jackson-yaml", "jackson-csv", "jackson-xml", "jackson-jsr310"]
 retrofit = ["retrofit", "retrofit-jackson", "retrofit-scalars"]
-dropwizard = ["dropwizard-core", "dropwizard-assets"]
+dropwizard = ["dropwizard-core", "dropwizard-assets", "guava"]
 
 [plugins]
 versions = { id = "com.github.ben-manes.versions", version = "0.48.0" }
