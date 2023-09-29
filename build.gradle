@@ -1,5 +1,4 @@
 plugins {
-    alias libs.plugins.spotbugs
     alias libs.plugins.versions
     alias libs.plugins.dependencycheck
 }
@@ -17,7 +16,6 @@ dependencyCheck {
 subprojects {
     apply plugin: "java"
     apply plugin: "eclipse"
-    apply plugin: "com.github.spotbugs"
     apply plugin: 'com.github.ben-manes.versions'
     
     java {
@@ -39,7 +37,6 @@ subprojects {
     // Standard libraries added to all projects
     dependencies {
         testImplementation libs.junit
-        compileOnly libs.spotbugs.annotations
     }
 }
 

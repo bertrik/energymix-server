@@ -20,7 +20,6 @@ dropwizard-core = { module = "io.dropwizard:dropwizard-core", version.ref = "dro
 dropwizard-assets = { module = "io.dropwizard:dropwizard-assets", version.ref = "dropwizard" }
 
 junit = { module = "junit:junit", version = "4.13.2" }
-spotbugs-annotations = { module = "com.github.spotbugs:spotbugs-annotations", version = "4.7.3"}
 
 [bundles]
 jackson = ["jackson-bind", "jackson-yaml", "jackson-csv", "jackson-xml", "jackson-jsr310"]
@@ -29,6 +28,5 @@ dropwizard = ["dropwizard-core", "dropwizard-assets", "guava"]
 
 [plugins]
 versions = { id = "com.github.ben-manes.versions", version = "0.48.0" }
-spotbugs = "com.github.spotbugs:5.0.14"
 dependencycheck = "org.owasp.dependencycheck:8.4.0"
 
