@@ -24,7 +24,7 @@ public final class DayAheadPrices {
         dayAheadPrices.add(new PriceElement(time, price));
     }
     
-    private final static class PriceElement {
+    private static final class PriceElement {
         @JsonProperty("time")
         private final long time;
 
@@ -38,7 +38,7 @@ public final class DayAheadPrices {
         
         @Override
         public String toString() {
-            return String.format(Locale.ROOT, ".2f@%d", price, time);
+            return String.format(Locale.ROOT, "%.2f@%d", price, time);
         }
     }
 }

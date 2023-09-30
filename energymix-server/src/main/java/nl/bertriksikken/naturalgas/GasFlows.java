@@ -27,7 +27,7 @@ public final class GasFlows {
         this.lastUpdated = lastUpdated;
     }
 
-    public void addFlow(String updated, EAdjacentSystemsKey system, EDirectionKey direction, int value) {
+    public void addFlow(EAdjacentSystemsKey system, EDirectionKey direction, int value) {
         GasFlow flow = getOrCreate(system);
         if (direction.equals(EDirectionKey.ENTRY)) {
             flow.entry = value;
@@ -60,7 +60,7 @@ public final class GasFlows {
 
         @Override
         public String toString() {
-            return String.format(Locale.ROOT, "{system=%d,entry=%d,exit=%d}", system, entry, exit);
+            return String.format(Locale.ROOT, "{system=%s,entry=%d,exit=%d}", system, entry, exit);
         }
     }
 }

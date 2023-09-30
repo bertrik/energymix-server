@@ -38,9 +38,8 @@ public final class GasFlowsFactory {
         for (AggregatedData data : entsogAggregatedData.aggregatedData) {
             if ((data.adjacentSystemsKey != EAdjacentSystemsKey.UNKNOWN)
                     && (data.indicator == EIndicator.PHYSICAL_FLOW)) {
-                String updated = timeFormatter.format(data.lastUpdateDateTime);
                 int mwh = (int) Math.round(data.value / 1000);
-                gasFlows.addFlow(updated, data.adjacentSystemsKey, data.directionKey, mwh);
+                gasFlows.addFlow(data.adjacentSystemsKey, data.directionKey, mwh);
             }
         }
         return gasFlows;

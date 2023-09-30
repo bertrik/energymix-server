@@ -108,6 +108,7 @@ public final class IntradayChartData {
             return Double.parseDouble(get(1));
         }
 
+        @Override
         public String toString() {
             return String.format(Locale.ROOT, "%.3f @ %s", getPrice(), getDate());
         }

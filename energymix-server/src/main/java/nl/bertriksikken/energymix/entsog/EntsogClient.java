@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import nl.bertriksikken.energymix.entsoe.EntsoeClient;
 import nl.bertriksikken.entsog.EntsogAggregatedData;
 import nl.bertriksikken.entsog.EntsogRequest;
 import nl.bertriksikken.entsog.IEntsogRestApi;
@@ -21,7 +20,7 @@ import retrofit2.converter.scalars.ScalarsConverterFactory;
 
 public final class EntsogClient {
 
-    private static final Logger LOG = LoggerFactory.getLogger(EntsoeClient.class);
+    private static final Logger LOG = LoggerFactory.getLogger(EntsogClient.class);
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     private final IEntsogRestApi restApi;

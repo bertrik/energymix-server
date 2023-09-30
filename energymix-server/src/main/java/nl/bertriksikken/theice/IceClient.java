@@ -48,8 +48,7 @@ public final class IceClient {
         map.put("marketId", MARKETID_DUTCH_TTF_GAS_FUTURES);
         Response<String> response = restApi.getMarketData(map).execute();
         if (response.isSuccessful()) {
-            IntradayChartData data = OBJECT_MAPPER.readValue(response.body(), IntradayChartData.class);
-            return data;
+            return  OBJECT_MAPPER.readValue(response.body(), IntradayChartData.class);
         } else {
             LOG.warn("getMarketData failed, code {}, message {}", response.code(), response.message());
             return null;

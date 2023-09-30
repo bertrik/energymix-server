@@ -69,7 +69,7 @@ public final class CurrentPriceDocument {
         private String timeStamp = "";
     }
 
-    private static enum EStatus {
+    private enum EStatus {
         FINAL(ENgpStatus.FINAL, "Final NGP"), TEMPORARY(ENgpStatus.TEMPORARY, "Temporary NGP"),
         UNKNOWN(ENgpStatus.UNKNOWN, "Unknown");
 

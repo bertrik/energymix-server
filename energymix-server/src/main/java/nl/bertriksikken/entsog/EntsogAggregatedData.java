@@ -22,7 +22,7 @@ public final class EntsogAggregatedData {
     public List<AggregatedData> aggregatedData = new ArrayList<>();
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public final static class AggregatedData {
+    public static final class AggregatedData {
         @JsonProperty("id")
         public String id = "";
 
