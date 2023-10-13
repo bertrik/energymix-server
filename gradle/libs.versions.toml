@@ -1,5 +1,5 @@
 [versions]
-jackson = "2.15.2"
+jackson = "2.15.3"
 retrofit = "2.9.0"
 dropwizard = "4.0.2"
 
@@ -27,6 +27,6 @@ retrofit = ["retrofit", "retrofit-jackson", "retrofit-scalars"]
 dropwizard = ["dropwizard-core", "dropwizard-assets", "guava"]
 
 [plugins]
-versions = { id = "com.github.ben-manes.versions", version = "0.48.0" }
+versions = { id = "com.github.ben-manes.versions", version = "0.49.0" }
 dependencycheck = "org.owasp.dependencycheck:8.4.0"
 
