@@ -1,7 +1,7 @@
 [versions]
 jackson = "2.15.3"
 retrofit = "2.9.0"
-dropwizard = "4.0.2"
+dropwizard = "4.0.3"
 
 [libraries]
 jackson-bind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref= "jackson" }
@@ -10,7 +10,7 @@ jackson-csv = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-cs
 jackson-xml = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-xml", version.ref = "jackson" }
 jackson-jsr310 = { module = "com.fasterxml.jackson.datatype:jackson-datatype-jsr310", version.ref = "jackson" }
 
-guava = { module = "com.google.guava:guava", version = "32.1.2-jre" }
+guava = { module = "com.google.guava:guava", version = "32.1.3-jre" }
 
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref= "retrofit" }
 retrofit-jackson = { module = "com.squareup.retrofit2:converter-jackson", version.ref= "retrofit" }
