@@ -13,6 +13,7 @@ public final class EnergyMixAppConfigTest {
     public void testWriteDefault() throws IOException {
         EnergyMixAppConfig config = new EnergyMixAppConfig();
         ObjectMapper mapper = new ObjectMapper();
+        mapper.findAndRegisterModules();
         mapper.writerWithDefaultPrettyPrinter().writeValue(new File("defaults.yaml"), config);
     }
     
