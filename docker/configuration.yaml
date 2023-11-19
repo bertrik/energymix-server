@@ -1,29 +1,31 @@
 ---
 entsoe:
-  url: "https://transparency.entsoe.eu"
+  url: "https://web-api.tp.entsoe.eu/api/"
   timeout: 30
-  apikey: "your-entsoe-api-key-here"
-eex:
-  url: "https://gasandregistry.eex.com"
-  timeout: 30
-energymix:
+  apikey: "your-entsoe-api-key"
   area: "10YNL----------L"
   timezone: "Europe/Amsterdam"
   forecastOffset: 30
+entsog:
+  url: "https://transparency.entsog.eu"
+  timeout: 60
+eex:
+  url: "https://gasandregistry.eex.com"
+  timeout: 30
+ice:
+  url: "https://www.theice.com"
+  timeout: 30
 logging: !<default>
   level: "INFO"
   loggers: {}
   appenders:
+  - type: file
+    logFormat: "%d{yyyy-MM-dd} | %d{HH:mm:ss.SSS} | %-15.15thread | %5p | %-25.25logger{25} | %m%n"
+    currentLogFilename: energymix-server.log
+    archivedLogFilenamePattern: energymix-server.log.%d
+    archivedFileCount: 10
   - type: console
-    threshold: "ALL"
-    logFormat: null
-    layout: null
-    timeZone: "UTC"
-    queueSize: 256
-    discardingThreshold: -1
-    messageRate: null
-    includeCallerData: false
-    filterFactories: []
+    logFormat: "%d{yyyy-MM-dd} | %d{HH:mm:ss.SSS} | %-15.15thread | %5p | %-25.25logger{25} | %m%n"
     target: "STDOUT"
 server: !<default>
   applicationConnectors:

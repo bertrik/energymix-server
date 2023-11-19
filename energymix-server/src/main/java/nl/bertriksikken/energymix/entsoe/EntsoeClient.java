@@ -30,16 +30,16 @@ public final class EntsoeClient {
     private static final XmlMapper XML_MAPPER = new XmlMapper();
 
     private final IEntsoeRestApi restApi;
-    private final EntsoeClientConfig config;
+    private final EntsoeConfig config;
     private final XmlMapper mapper;
 
-    EntsoeClient(IEntsoeRestApi restApi, EntsoeClientConfig config, XmlMapper mapper) {
+    EntsoeClient(IEntsoeRestApi restApi, EntsoeConfig config, XmlMapper mapper) {
         this.restApi = Objects.requireNonNull(restApi);
         this.config = Objects.requireNonNull(config);
         this.mapper = Objects.requireNonNull(mapper);
     }
 
-    public static EntsoeClient create(EntsoeClientConfig config) {
+    public static EntsoeClient create(EntsoeConfig config) {
         Duration timeout = config.getTimeout();
         LOG.info("Creating new REST client for URL '{}' with timeout {}", config.getUrl(), timeout);
         OkHttpClient client = new OkHttpClient().newBuilder().connectTimeout(timeout).readTimeout(timeout)

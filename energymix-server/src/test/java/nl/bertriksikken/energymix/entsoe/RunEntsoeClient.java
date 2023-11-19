@@ -33,7 +33,7 @@ public final class RunEntsoeClient {
 
         YAMLMapper yamlMapper = new YAMLMapper();
         yamlMapper.findAndRegisterModules();
-        EntsoeClientConfig config = yamlMapper.readValue(new File("entsoe.yaml"), EntsoeClientConfig.class);
+        EntsoeConfig config = yamlMapper.readValue(new File("entsoe.yaml"), EntsoeConfig.class);
 
         EntsoeClient client = EntsoeClient.create(config);
 

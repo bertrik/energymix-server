@@ -25,6 +25,7 @@ import com.google.common.cache.LoadingCache;
 import com.google.common.cache.RemovalNotification;
 
 import nl.bertriksikken.energymix.entsoe.EntsoeClient;
+import nl.bertriksikken.energymix.entsoe.EntsoeConfig;
 import nl.bertriksikken.entsoe.EDocumentType;
 import nl.bertriksikken.entsoe.EProcessType;
 import nl.bertriksikken.entsoe.EPsrType;
@@ -39,17 +40,17 @@ public final class ElectricityHandler {
     private static final Duration ENTSO_INTERVAL = Duration.ofMinutes(15);
 
     private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-    private final EntsoeClient entsoeFetcher;
-    private final EnergyMixConfig config;
+    private final EntsoeClient entsoeClient;
+    private final EntsoeConfig entsoeConfig;
     private final LoadingCache<DocumentKey, EntsoeResponse> documentCache;
     private final AtomicBoolean isHealthy = new AtomicBoolean(false);
     private final EnergyMixFactory energyMixFactory;
 
     private EnergyMix energyMix;
 
-    public ElectricityHandler(EntsoeClient entsoeFetcher, EnergyMixConfig config) {
-        this.entsoeFetcher = Objects.requireNonNull(entsoeFetcher);
-        this.config = Objects.requireNonNull(config);
+    public ElectricityHandler(EntsoeConfig config) {
+        this.entsoeClient = EntsoeClient.create(config);
+        this.entsoeConfig = Objects.requireNonNull(config);
         this.documentCache = CacheBuilder.newBuilder().expireAfterAccess(Duration.ofDays(1))
                 .removalListener(this::logDocumentExpiry).build(CacheLoader.from(this::loadDocument));
         this.energyMixFactory = new EnergyMixFactory(config.getTimeZone());
@@ -92,7 +93,7 @@ public final class ElectricityHandler {
 
     // runs on the executor
     private void updateEnergyMix() {
-        ZonedDateTime now = ZonedDateTime.now(config.getTimeZone());
+        ZonedDateTime now = ZonedDateTime.now(entsoeConfig.getTimeZone());
         ZonedDateTime today = now.truncatedTo(ChronoUnit.DAYS);
         Instant periodStart = now.minusHours(2).truncatedTo(ChronoUnit.DAYS).toInstant();
         Instant periodEnd = today.plusDays(1).toInstant();
@@ -107,11 +108,11 @@ public final class ElectricityHandler {
             Result windOnshoreReported = sumGeneration(actualGenerationParser, EPsrType.WIND_ONSHORE);
             Result other = sumGeneration(actualGenerationParser, EPsrType.OTHER);
             Result waste = sumGeneration(actualGenerationParser, EPsrType.WASTE);
-            ZonedDateTime fossilTime = ZonedDateTime.ofInstant(fossilGas.timeBegin, config.getTimeZone());
+            ZonedDateTime fossilTime = ZonedDateTime.ofInstant(fossilGas.timeBegin, entsoeConfig.getTimeZone());
             LOG.info("Fossil gas generation: {}, age {}", fossilGas, Duration.between(fossilGas.timeEnd, now));
 
             // get solar/wind forecast
-            ZonedDateTime forecastTime = fossilTime.plus(config.getForecastOffset());
+            ZonedDateTime forecastTime = fossilTime.plus(entsoeConfig.getForecastOffset());
             DocumentKey forecastKey = new DocumentKey(EDocumentType.WIND_SOLAR_FORECAST,
                     forecastTime.truncatedTo(ChronoUnit.DAYS));
             EntsoeResponse windSolarForecast = documentCache.get(forecastKey);
@@ -188,35 +189,35 @@ public final class ElectricityHandler {
         LOG.info("Downloading actual generation per type");
         EntsoeRequest actualGenerationRequest = new EntsoeRequest(EDocumentType.ACTUAL_GENERATION_PER_TYPE);
         actualGenerationRequest.setProcessType(EProcessType.REALISED);
-        actualGenerationRequest.setInDomain(config.getArea());
+        actualGenerationRequest.setInDomain(entsoeConfig.getArea());
         actualGenerationRequest.setPeriod(periodStart, periodEnd);
-        return entsoeFetcher.getDocument(actualGenerationRequest);
+        return entsoeClient.getDocument(actualGenerationRequest);
     }
 
     private EntsoeResponse downloadPriceDocument(Instant periodStart, Instant periodEnd) throws IOException {
         LOG.info("Downloading day-ahead prices");
         EntsoeRequest request = new EntsoeRequest(EDocumentType.PRICE_DOCUMENT);
-        request.setInDomain(config.getArea());
-        request.setOutDomain(config.getArea());
+        request.setInDomain(entsoeConfig.getArea());
+        request.setOutDomain(entsoeConfig.getArea());
         request.setPeriod(periodStart, periodEnd);
-        return entsoeFetcher.getDocument(request);
+        return entsoeClient.getDocument(request);
     }
 
     private EntsoeResponse downloadWindSolarForecast(Instant periodStart, Instant periodEnd) throws IOException {
         LOG.info("Downloading wind/solar forecast {}-{}", periodStart, periodEnd);
         EntsoeRequest request = new EntsoeRequest(EDocumentType.WIND_SOLAR_FORECAST);
         request.setProcessType(EProcessType.DAY_AHEAD);
-        request.setInDomain(config.getArea());
+        request.setInDomain(entsoeConfig.getArea());
         request.setPeriod(periodStart, periodEnd);
-        return entsoeFetcher.getDocument(request);
+        return entsoeClient.getDocument(request);
     }
 
     private EntsoeResponse downloadInstalledCapacity(Instant periodStart, Instant periodEnd) throws IOException {
         EntsoeRequest request = new EntsoeRequest(EDocumentType.INSTALLED_CAPACITY_PER_TYPE);
         request.setProcessType(EProcessType.YEAR_AHEAD);
-        request.setInDomain(config.getArea());
+        request.setInDomain(entsoeConfig.getArea());
         request.setPeriod(periodStart, periodEnd);
-        return entsoeFetcher.getDocument(request);
+        return entsoeClient.getDocument(request);
     }
 
     public void stop() throws InterruptedException {
@@ -242,7 +243,7 @@ public final class ElectricityHandler {
      * @return a structure containing the day-ahead electricity prices
      */
     public DayAheadPrices getPrices() {
-        ZonedDateTime now = ZonedDateTime.now(config.getTimeZone());
+        ZonedDateTime now = ZonedDateTime.now(entsoeConfig.getTimeZone());
         try {
             // get the day-ahead price document
             DocumentKey key = new DocumentKey(EDocumentType.PRICE_DOCUMENT, now.truncatedTo(ChronoUnit.HOURS));
@@ -272,7 +273,7 @@ public final class ElectricityHandler {
     public GenerationCapacity getCapacity() {
         GenerationCapacity generationCapacity = new GenerationCapacity();
 
-        ZonedDateTime now = ZonedDateTime.now(config.getTimeZone());
+        ZonedDateTime now = ZonedDateTime.now(entsoeConfig.getTimeZone());
         ZonedDateTime today = now.truncatedTo(ChronoUnit.DAYS);
 
         // get installed capacity
