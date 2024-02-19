@@ -2,6 +2,9 @@ package nl.bertriksikken.energymix.app;
 
 import java.io.File;
 
+import jakarta.ws.rs.container.ContainerRequestContext;
+import jakarta.ws.rs.container.ContainerResponseContext;
+import jakarta.ws.rs.container.ContainerResponseFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,6 +51,13 @@ public final class EnergyMixApp extends Application<EnergyMixAppConfig> {
         NaturalGasResource naturalGasResource = new NaturalGasResource(naturalGasHandler);
         environment.jersey().register(naturalGasResource);
         environment.lifecycle().manage(naturalGasResource);
+
+        // Add CORS header to each response
+        environment.jersey().register((ContainerResponseFilter)this::addCorsHeader);
+    }
+
+    private void addCorsHeader(ContainerRequestContext requestContext, ContainerResponseContext responseContext) {
+        responseContext.getHeaders().add("Access-Control-Allow-Origin", "*");
     }
 
     public static void main(String[] args) throws Exception {
