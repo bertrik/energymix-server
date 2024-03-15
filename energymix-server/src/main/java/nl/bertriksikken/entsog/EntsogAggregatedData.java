@@ -15,6 +15,9 @@ import com.fasterxml.jackson.databind.node.NullNode;
 @JsonAutoDetect(getterVisibility = Visibility.NONE)
 public final class EntsogAggregatedData {
 
+    @JsonProperty("message")
+    public String message = "";
+
     @JsonProperty("meta")
     public JsonNode meta = NullNode.getInstance();
 
