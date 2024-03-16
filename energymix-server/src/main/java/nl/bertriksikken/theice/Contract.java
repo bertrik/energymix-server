@@ -61,6 +61,6 @@ public final class Contract {
 
     @Override
     public String toString() {
-        return String.format(Locale.ROOT, "%.3f @ %s for %s", lastPrice, getLastTime(), marketStrip);
+        return String.format(Locale.ROOT, "%.3f @ %s for %s", lastPrice, lastTime, marketStrip);
     }
 }

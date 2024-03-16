@@ -1,21 +1,19 @@
 package nl.bertriksikken.theice;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.CollectionType;
+import okhttp3.OkHttpClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.scalars.ScalarsConverterFactory;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import okhttp3.OkHttpClient;
-import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.scalars.ScalarsConverterFactory;
 
 public final class IceClient {
 
@@ -48,7 +46,7 @@ public final class IceClient {
         map.put("marketId", MARKETID_DUTCH_TTF_GAS_FUTURES);
         Response<String> response = restApi.getMarketData(map).execute();
         if (response.isSuccessful()) {
-            return  OBJECT_MAPPER.readValue(response.body(), IntradayChartData.class);
+            return OBJECT_MAPPER.readValue(response.body(), IntradayChartData.class);
         } else {
             LOG.warn("getMarketData failed, code {}, message {}", response.code(), response.message());
             return null;
@@ -61,13 +59,12 @@ public final class IceClient {
         map.put("productId", PRODUCTID);
         map.put("hubId", HUBID);
         Response<String> response = restApi.getMarketData(map).execute();
-        if (response.isSuccessful()) {
-            List<Contract> data = OBJECT_MAPPER.readValue(response.body(), new TypeReference<List<Contract>>() {
-            });
-            return data;
-        } else {
-            LOG.warn("getMarketData failed, code {}, message {}", response.code(), response.message());
-            return null;
+        if (!response.isSuccessful()) {
+            LOG.warn("getMarketData() failed, code {}, message {}", response.code(), response.message());
+            return List.of();
         }
+        CollectionType javaType = OBJECT_MAPPER.getTypeFactory()
+                .constructCollectionType(List.class, Contract.class);
+        return OBJECT_MAPPER.readValue(response.body(), javaType);
     }
 }
