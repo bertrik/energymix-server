@@ -36,7 +36,7 @@ public final class EnergyMixApp extends Application<EnergyMixAppConfig> {
     }
 
     @Override
-    public void run(EnergyMixAppConfig configuration, Environment environment) throws Exception {
+    public void run(EnergyMixAppConfig configuration, Environment environment) {
         ElectricityHandler handler = new ElectricityHandler(configuration.entsoeConfig);
         ElectricityResource electricityResource = new ElectricityResource(handler);
         environment.healthChecks().register("electricity", new ElectricityResourceHealthCheck(handler));
