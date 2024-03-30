@@ -1,20 +1,6 @@
-package nl.bertriksikken.energymix.app;
-
-import java.time.Instant;
-import java.time.OffsetDateTime;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
-import java.util.concurrent.TimeUnit;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+package nl.bertriksikken.energymix.resource;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import io.dropwizard.jersey.caching.CacheControl;
 import io.dropwizard.lifecycle.Managed;
 import jakarta.ws.rs.GET;
@@ -27,6 +13,18 @@ import nl.bertriksikken.naturalgas.FutureGasPrices.FutureGasPrice;
 import nl.bertriksikken.naturalgas.GasFlows;
 import nl.bertriksikken.naturalgas.NeutralGasPrices;
 import nl.bertriksikken.naturalgas.NeutralGasPrices.NeutralGasDayPrice;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 @Path("/naturalgas")
 public final class NaturalGasResource implements Managed {
@@ -35,7 +33,7 @@ public final class NaturalGasResource implements Managed {
 
     private final NaturalGasHandler handler;
 
-    NaturalGasResource(NaturalGasHandler handler) {
+    public NaturalGasResource(NaturalGasHandler handler) {
         this.handler = Objects.requireNonNull(handler);
     }
 

@@ -1,7 +1,4 @@
-package nl.bertriksikken.energymix.app;
-
-import java.util.Objects;
-import java.util.concurrent.TimeUnit;
+package nl.bertriksikken.energymix.resource;
 
 import io.dropwizard.jersey.caching.CacheControl;
 import io.dropwizard.lifecycle.Managed;
@@ -14,6 +11,9 @@ import nl.bertriksikken.energymix.server.ElectricityHandler;
 import nl.bertriksikken.energymix.server.EnergyMix;
 import nl.bertriksikken.energymix.server.GenerationCapacity;
 
+import java.util.Objects;
+import java.util.concurrent.TimeUnit;
+
 /**
  * Main REST endpoint for (dutch) electricity queries.
  */
@@ -22,7 +22,7 @@ public class ElectricityResource implements Managed {
 
     private final ElectricityHandler handler;
 
-    ElectricityResource(ElectricityHandler handler) {
+    public ElectricityResource(ElectricityHandler handler) {
         this.handler = Objects.requireNonNull(handler);
     }
 
