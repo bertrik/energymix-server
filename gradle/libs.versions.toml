@@ -22,8 +22,6 @@ dropwizard-swagger = { module = "com.smoketurner:dropwizard-swagger", version = 
 
 junit = { module = "junit:junit", version = "4.13.2" }
 
-swagger-annotations = { module = "io.swagger:swagger-annotations", version = "1.6.14" }
-
 [bundles]
 jackson = ["jackson-bind", "jackson-yaml", "jackson-csv", "jackson-xml", "jackson-jsr310"]
 retrofit = ["retrofit", "retrofit-jackson", "retrofit-scalars"]
