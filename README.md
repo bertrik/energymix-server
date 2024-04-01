@@ -6,7 +6,7 @@ Application example config file (YAML):
 ~~~~
 ---
 entsoe:
-  url: "https://web-api.tp.entsoe.eu/api/"
+  url: "https://web-api.tp.entsoe.eu"
   timeout: 30
   apikey: "your-entsoe-key"
   area: "10YNL----------L"

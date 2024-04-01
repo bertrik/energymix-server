@@ -24,7 +24,7 @@ public final class EntsoeConfig extends RestApiConfig {
 
     // no-arg jackson constructor
     public EntsoeConfig() {
-        super("https://web-api.tp.entsoe.eu/api/", 30);
+        super("https://web-api.tp.entsoe.eu", 30);
         this.apiKey = "your-entsoe-api-key";
     }
 
