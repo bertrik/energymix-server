@@ -220,10 +220,9 @@ public final class ElectricityHandler {
         return entsoeClient.getDocument(request);
     }
 
-    public void stop() throws InterruptedException {
+    public void stop() {
         LOG.info("Stopping");
         executor.shutdownNow();
-        executor.awaitTermination(10, TimeUnit.SECONDS);
     }
 
     /**
@@ -314,8 +313,7 @@ public final class ElectricityHandler {
 
         @Override
         public boolean equals(Object object) {
-            if (object instanceof DocumentKey) {
-                DocumentKey other = (DocumentKey) object;
+            if (object instanceof DocumentKey other) {
                 return documentType.equals(other.documentType) && dateTime.equals(other.dateTime);
             }
             return false;

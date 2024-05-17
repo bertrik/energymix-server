@@ -11,6 +11,7 @@ import jakarta.ws.rs.container.ContainerResponseContext;
 import jakarta.ws.rs.container.ContainerResponseFilter;
 import nl.bertriksikken.eex.EexClient;
 import nl.bertriksikken.energymix.entsog.EntsogClient;
+import nl.bertriksikken.energymix.ned.NedHandler;
 import nl.bertriksikken.energymix.resource.ElectricityResource;
 import nl.bertriksikken.energymix.resource.NaturalGasResource;
 import nl.bertriksikken.energymix.server.ElectricityHandler;
@@ -38,9 +39,10 @@ public final class EnergyMixApp extends Application<EnergyMixAppConfig> {
 
     @Override
     public void run(EnergyMixAppConfig configuration, Environment environment) {
-        ElectricityHandler handler = new ElectricityHandler(configuration.entsoeConfig);
-        ElectricityResource electricityResource = new ElectricityResource(handler);
-        environment.healthChecks().register("electricity", new ElectricityResourceHealthCheck(handler));
+        ElectricityHandler entsoHandler = new ElectricityHandler(configuration.entsoeConfig);
+        NedHandler nedHandler = new NedHandler(configuration.nedConfig);
+        ElectricityResource electricityResource = new ElectricityResource(entsoHandler, nedHandler);
+        environment.healthChecks().register("electricity", new ElectricityResourceHealthCheck(entsoHandler));
         environment.jersey().register(electricityResource);
         environment.lifecycle().manage(electricityResource);
 

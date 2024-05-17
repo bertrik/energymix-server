@@ -7,6 +7,7 @@ import io.dropwizard.core.Configuration;
 import nl.bertriksikken.eex.EexConfig;
 import nl.bertriksikken.energymix.entsoe.EntsoeConfig;
 import nl.bertriksikken.energymix.entsog.EntsogClientConfig;
+import nl.bertriksikken.energymix.ned.NedConfig;
 import nl.bertriksikken.theice.IceConfig;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -14,6 +15,9 @@ public final class EnergyMixAppConfig extends Configuration {
 
     @JsonProperty("entsoe")
     public final EntsoeConfig entsoeConfig = new EntsoeConfig();
+
+    @JsonProperty("ned")
+    public final NedConfig nedConfig = new NedConfig();
 
     @JsonProperty("entsog")
     public final EntsogClientConfig entsogConfig = new EntsogClientConfig();
