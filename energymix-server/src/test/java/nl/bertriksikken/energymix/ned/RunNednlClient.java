@@ -58,30 +58,33 @@ public final class RunNednlClient {
         EnergyMixFactory energyMixFactory = new EnergyMixFactory(ZoneId.of("Europe/Amsterdam"));
         EnergyMix energyMix = energyMixFactory.build(instant);
 
-        double solar = 4 * map.get(EEnergyType.SOLAR).volume / 1E3;
+        double solar = getPower(map, EEnergyType.SOLAR);
         energyMix.addComponent("solar", solar, "#FFFF00");
-        double windOnshore = 4 * map.get(EEnergyType.WIND).volume / 1E3;
+        double windOnshore = getPower(map, EEnergyType.WIND);
         energyMix.addComponent("wind onshore", windOnshore, "#0000FF");
-        double windOffshore = 4 * map.get(EEnergyType.WIND_OFFSHORE_C).volume / 1E3;
+        double windOffshore = getPower(map, EEnergyType.WIND_OFFSHORE_C);
         energyMix.addComponent("wind offshore", windOffshore, "#0000FF");
-        double fossilGas = 4 * map.get(EEnergyType.FOSSIL_GAS_POWER).volume / 1E3;
+        double fossilGas = getPower(map, EEnergyType.FOSSIL_GAS_POWER);
         energyMix.addComponent("fossil gas", fossilGas, "#FF0000");
-
-        double fossilCoal = 4 * map.get(EEnergyType.FOSSIL_HARD_COAL).volume / 1E3;
+        double fossilCoal = getPower(map, EEnergyType.FOSSIL_HARD_COAL);
         energyMix.addComponent("fossil coal", fossilCoal, "#FF0000");
-
-        double nuclear = 4 * map.get(EEnergyType.NUCLEAR).volume / 1E3;
+        double nuclear = getPower(map, EEnergyType.NUCLEAR);
         energyMix.addComponent("nuclear", nuclear, "#00FF00");
-
-        double waste = 4 * map.get(EEnergyType.WASTE_POWER).volume / 1E3;
+        double waste = getPower(map, EEnergyType.WASTE_POWER);
         energyMix.addComponent("waste", waste, "#FF00FF");
-
-        double other = 4 * map.get(EEnergyType.OTHER_POWER).volume / 1E3;
+        double other = getPower(map, EEnergyType.OTHER_POWER);
         energyMix.addComponent("other", other, "#FF00FF");
-
         ObjectMapper mapper = new ObjectMapper();
         String string = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(energyMix);
         LOG.info("Energy mix is now: {}", string);
+    }
+
+    private double getPower(Map<EEnergyType, UtilizationJson> map, EEnergyType type) {
+        UtilizationJson utilization = map.get(type);
+        if (utilization == null) {
+            return Double.NaN;
+        }
+        return 4 * utilization.volume / 1E3;
     }
 
     private NedConfig readConfig(File file) throws IOException {
