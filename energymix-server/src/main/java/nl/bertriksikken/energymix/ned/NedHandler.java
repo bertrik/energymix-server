@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.List;
@@ -54,6 +55,8 @@ public final class NedHandler {
                 utilizationMap.put(type, mostRecent);
             }
         }
+        Duration duration = Duration.between(now, Instant.now());
+        LOG.info("Download from ned.nl took {} ms", duration.toMillis());
         // schedule next download
         executor.schedule(new CatchingRunnable(LOG, this::downloadGeneration), 15, TimeUnit.MINUTES);
     }
