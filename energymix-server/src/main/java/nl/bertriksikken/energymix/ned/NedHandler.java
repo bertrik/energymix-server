@@ -16,6 +16,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -28,14 +29,16 @@ public final class NedHandler {
 
     private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
     private final Map<EEnergyType, UtilizationJson> utilizationMap = new ConcurrentHashMap<>();
+    private final NedConfig config;
     private final NedClient client;
 
     public NedHandler(NedConfig config) {
+        this.config = Objects.requireNonNull(config);
         this.client = NedClient.create(config);
     }
 
     public void start() {
-        executor.execute(new CatchingRunnable(LOG, this::downloadGeneration));
+        executor.scheduleAtFixedRate(new CatchingRunnable(LOG, this::downloadGeneration), 0, config.getInterval().getSeconds(), TimeUnit.SECONDS);
     }
 
     public void stop() {
@@ -57,8 +60,6 @@ public final class NedHandler {
         }
         Duration duration = Duration.between(now, Instant.now());
         LOG.info("Download from ned.nl took {} ms", duration.toMillis());
-        // schedule next download
-        executor.schedule(new CatchingRunnable(LOG, this::downloadGeneration), 15, TimeUnit.MINUTES);
     }
 
     private double getPower(EEnergyType type) {
