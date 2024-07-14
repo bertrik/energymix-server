@@ -145,7 +145,7 @@ public final class ElectricityHandler {
             energyMix.addComponent("nuclear", nuclear.value, "#00FF00");
             energyMix.addComponent("waste", waste.value, "#FF00FF");
             energyMix.addComponent("other", other.value, "#FF00FF");
-            LOG.info("Energy mix is now: {}", energyMix);
+            LOG.info("ENTSO-E mix: {}", energyMix);
 
             isHealthy.set(true);
         } catch (IOException | ExecutionException e) {

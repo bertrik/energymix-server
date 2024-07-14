@@ -60,6 +60,9 @@ public final class NedHandler {
         }
         Duration duration = Duration.between(now, Instant.now());
         LOG.info("Download from ned.nl took {} ms", duration.toMillis());
+
+        EnergyMix energyMix = getGeneration();
+        LOG.info("NED energy mix: {}", energyMix);
     }
 
     private double getPower(EEnergyType type) {
@@ -84,7 +87,6 @@ public final class NedHandler {
         energyMix.addComponent("nuclear", getPower(EEnergyType.NUCLEAR), "#00FF00");
         energyMix.addComponent("waste", getPower(EEnergyType.WASTE_POWER), "#FF00FF");
         energyMix.addComponent("other", getPower(EEnergyType.OTHER_POWER), "#FF00FF");
-
         return energyMix;
     }
 }
