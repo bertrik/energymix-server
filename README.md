@@ -1,6 +1,8 @@
 # energymix-server
 Provides a REST interface with electrical power generation data
 
+Have a look at the [Swagger openapi](http://stofradar.nl:9001/swagger) page.
+
 Application example config file (YAML):
 
 ~~~~
