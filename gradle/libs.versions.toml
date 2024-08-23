@@ -10,7 +10,7 @@ jackson-csv = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-cs
 jackson-xml = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-xml", version.ref = "jackson" }
 jackson-jsr310 = { module = "com.fasterxml.jackson.datatype:jackson-datatype-jsr310", version.ref = "jackson" }
 
-guava = { module = "com.google.guava:guava", version = "33.1.0-jre" }
+guava = { module = "com.google.guava:guava", version = "33.3.0-jre" }
 
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref= "retrofit" }
 retrofit-jackson = { module = "com.squareup.retrofit2:converter-jackson", version.ref= "retrofit" }
