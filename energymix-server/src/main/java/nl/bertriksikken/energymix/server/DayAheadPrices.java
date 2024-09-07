@@ -1,15 +1,15 @@
 package nl.bertriksikken.energymix.server;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 public final class DayAheadPrices {
     
+    @SuppressWarnings("UnusedVariable")
     @JsonProperty("current")
     private final PriceElement current;
 
@@ -33,7 +33,7 @@ public final class DayAheadPrices {
 
         public PriceElement(Instant time, double price) {
             this.time = time.getEpochSecond();
-            this.price = Objects.requireNonNull(price);
+            this.price = price;
         }
         
         @Override

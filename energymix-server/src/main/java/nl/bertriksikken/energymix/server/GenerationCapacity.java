@@ -1,13 +1,14 @@
 package nl.bertriksikken.energymix.server;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Locale;
+
 /**
- * JSON for reporting installed generation capacity per production type
+ * JSON for reporting installed generation capacity per production type.
  */
 public final class GenerationCapacity {
 
@@ -19,7 +20,7 @@ public final class GenerationCapacity {
 
     public void add(String id, String description, int power) {
         capacities.add(new Capacity(id, description, power));
-        Collections.sort(capacities, (c1, c2) -> c1.id.compareTo(c2.id));
+        capacities.sort(Comparator.comparing(c -> c.id));
         total += power;
     }
 
@@ -35,6 +36,11 @@ public final class GenerationCapacity {
             this.id = id;
             this.description = description;
             this.power = power;
+        }
+
+        @Override
+        public String toString() {
+            return String.format(Locale.ROOT, "{id=%s,description=%s,power=%d}", id, description, power);
         }
     }
 

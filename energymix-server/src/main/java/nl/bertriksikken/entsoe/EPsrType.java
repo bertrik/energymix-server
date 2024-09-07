@@ -1,12 +1,14 @@
 package nl.bertriksikken.entsoe;
 
-import java.util.stream.Stream;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import java.util.stream.Stream;
+
 /**
- * @see https://transparency.entsoe.eu/content/static_content/Static%20content/web%20api/Guide.html#_psrtype
+ * PSR type definition.
+ *
+ * @see <a href="https://transparency.entsoe.eu/content/static_content/Static%20content/web%20api/Guide.html#_psrtype">PSR type</a>
  */
 public enum EPsrType {
 
@@ -45,7 +47,7 @@ public enum EPsrType {
     private final String code;
     private final String description;
 
-    private EPsrType(String code, String description) {
+    EPsrType(String code, String description) {
         this.code = code;
         this.description = description;
     }
@@ -58,7 +60,7 @@ public enum EPsrType {
     public String getDescription() {
         return description;
     }
-    
+
     @JsonCreator
     public static EPsrType create(String code) {
         return Stream.of(values()).filter(t -> t.code.equals(code)).findFirst().orElse(EPsrType.UNKNOWN);

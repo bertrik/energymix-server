@@ -73,13 +73,9 @@ public final class NaturalGasHandler {
 
     public void stop() {
         executor.shutdownNow();
-        try {
-            executor.awaitTermination(5, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            LOG.error("Caught InterruptedException", e);
-        }
     }
 
+    @SuppressWarnings("FutureReturnValueIgnored")
     private void downloadEexNGP() {
         LOG.info("Download EEX NGP current price document");
 
@@ -111,6 +107,7 @@ public final class NaturalGasHandler {
         executor.schedule(new CatchingRunnable(LOG, this::downloadEexNGP), delay.toSeconds(), TimeUnit.SECONDS);
     }
 
+    @SuppressWarnings("FutureReturnValueIgnored")
     private void downloadIceContracts() {
         LOG.info("Download ICE gas contracts");
 
@@ -140,6 +137,7 @@ public final class NaturalGasHandler {
                 TimeUnit.MILLISECONDS);
     }
 
+    @SuppressWarnings("FutureReturnValueIgnored")
     private void downloadGasFlows() {
         LOG.info("Download ENTSO-G gas flows");
 

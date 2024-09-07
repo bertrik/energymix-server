@@ -37,6 +37,7 @@ public final class NedHandler {
         this.client = NedClient.create(config);
     }
 
+    @SuppressWarnings("FutureReturnValueIgnored")
     public void start() {
         executor.scheduleAtFixedRate(new CatchingRunnable(LOG, this::downloadGeneration), 0, config.getInterval().getSeconds(), TimeUnit.SECONDS);
     }

@@ -92,6 +92,7 @@ public final class ElectricityHandler {
     }
 
     // runs on the executor
+    @SuppressWarnings("FutureReturnValueIgnored")
     private void updateEnergyMix() {
         ZonedDateTime now = ZonedDateTime.now(entsoeConfig.getTimeZone());
         ZonedDateTime today = now.truncatedTo(ChronoUnit.DAYS);
@@ -132,8 +133,8 @@ public final class ElectricityHandler {
             }
 
             // calculate wind
-            Double windOnshore = Math.max(windOnshoreReported.value, windOnshoreForecast.value);
-            Double windOffshore = windOffshoreReported.value;
+            double windOnshore = Math.max(windOnshoreReported.value, windOnshoreForecast.value);
+            double windOffshore = windOffshoreReported.value;
 
             // build energy mix structure
             energyMix = energyMixFactory.build(fossilGas.timeEnd);
@@ -226,7 +227,7 @@ public final class ElectricityHandler {
     }
 
     /**
-     * @return a structure containing the latest recently known mix
+     * Returns a structure containing the latest recently known mix
      */
     public EnergyMix getGeneration() {
         try {
@@ -239,7 +240,7 @@ public final class ElectricityHandler {
     }
 
     /**
-     * @return a structure containing the day-ahead electricity prices
+     * Returns a structure containing the day-ahead electricity prices
      */
     public DayAheadPrices getPrices() {
         ZonedDateTime now = ZonedDateTime.now(entsoeConfig.getTimeZone());

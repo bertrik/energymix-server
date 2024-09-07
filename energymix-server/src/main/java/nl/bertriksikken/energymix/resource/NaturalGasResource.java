@@ -44,7 +44,7 @@ public final class NaturalGasResource implements Managed, IEnergyResource {
     }
 
     @Override
-    public void stop() throws InterruptedException {
+    public void stop() {
         handler.stop();
     }
 
@@ -128,7 +128,7 @@ public final class NaturalGasResource implements Managed, IEnergyResource {
 
             @Override
             public String toString() {
-                return String.format(Locale.ROOT, "{%.3f @ %s}", price, date);
+                return String.format(Locale.ROOT, "{%.3f@%s(%s)}", price, date,timestamp);
             }
         }
     }

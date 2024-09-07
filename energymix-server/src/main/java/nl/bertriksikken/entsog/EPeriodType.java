@@ -10,7 +10,7 @@ public enum EPeriodType {
     DAY("day"), //
     HOUR("hour");
 
-    private String code;
+    private final String code;
 
     EPeriodType(String code) {
         this.code = code;

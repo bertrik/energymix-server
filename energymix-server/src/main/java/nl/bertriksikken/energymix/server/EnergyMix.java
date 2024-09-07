@@ -22,7 +22,7 @@ public final class EnergyMix {
     public int total = 0;
 
     @JsonProperty("mix")
-    private List<EnergyComponent> mix = new ArrayList<>();
+    private final List<EnergyComponent> mix = new ArrayList<>();
 
     EnergyMix(long time, String dateTime) {
         this.time = time;
@@ -60,7 +60,7 @@ public final class EnergyMix {
 
         @Override
         public String toString() {
-            return String.format(Locale.ROOT, "%s=%d", id, power);
+            return String.format(Locale.ROOT, "%s=%d(%s)", id, power, color);
         }
     }
 

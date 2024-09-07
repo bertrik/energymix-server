@@ -2,8 +2,12 @@
 jackson = "2.17.2"
 retrofit = "2.11.0"
 dropwizard = "4.0.8"
+errorprone = "2.31.0"
 
 [libraries]
+errorprone_annotations = { module = "com.google.errorprone:error_prone_annotations", version.ref = "errorprone" }
+errorprone_core = { module = "com.google.errorprone:error_prone_core", version.ref = "errorprone" }
+
 jackson-bind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref= "jackson" }
 jackson-yaml = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml", version.ref = "jackson" }
 jackson-csv = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-csv", version.ref = "jackson" }
@@ -28,6 +32,6 @@ retrofit = ["retrofit", "retrofit-jackson", "retrofit-scalars"]
 dropwizard = ["dropwizard-core", "dropwizard-assets", "guava"]
 
 [plugins]
-versions = { id = "com.github.ben-manes.versions", version = "0.51.0" }
 dependencycheck = "org.owasp.dependencycheck:8.4.3"
-
+errorprone = "net.ltgt.errorprone:4.0.1"
+versions = { id = "com.github.ben-manes.versions", version = "0.51.0" }
