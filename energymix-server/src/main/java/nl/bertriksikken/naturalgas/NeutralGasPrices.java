@@ -1,5 +1,7 @@
 package nl.bertriksikken.naturalgas;
 
+import nl.bertriksikken.naturalgas.NeutralGasPrices.NeutralGasDayPrice.ENgpStatus;
+
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -8,9 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
-import java.util.stream.Collectors;
-
-import nl.bertriksikken.naturalgas.NeutralGasPrices.NeutralGasDayPrice.ENgpStatus;
 
 /**
  * List of TTF neutral gas prices.
@@ -48,7 +47,7 @@ public final class NeutralGasPrices {
 
     public List<NeutralGasDayPrice> getTemporaryPrices() {
         return dayPrices.stream().filter(p -> p.status == ENgpStatus.TEMPORARY).filter(p -> p.indexVolume > 0)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -65,7 +64,7 @@ public final class NeutralGasPrices {
         public final Instant timestamp;
 
         public NeutralGasDayPrice(LocalDate date, double indexValue, int indexVolume, ENgpStatus status,
-                Instant timestamp) {
+                                  Instant timestamp) {
             this.date = Objects.requireNonNull(date);
             this.indexValue = indexValue;
             this.indexVolume = indexVolume;
