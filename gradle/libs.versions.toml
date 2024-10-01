@@ -2,7 +2,7 @@
 jackson = "2.18.0"
 retrofit = "2.11.0"
 dropwizard = "4.0.8"
-errorprone = "2.32.0"
+errorprone = "2.33.0"
 
 [libraries]
 errorprone_annotations = { module = "com.google.errorprone:error_prone_annotations", version.ref = "errorprone" }
@@ -14,7 +14,7 @@ jackson-csv = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-cs
 jackson-xml = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-xml", version.ref = "jackson" }
 jackson-jsr310 = { module = "com.fasterxml.jackson.datatype:jackson-datatype-jsr310", version.ref = "jackson" }
 
-guava = { module = "com.google.guava:guava", version = "33.3.0-jre" }
+guava = { module = "com.google.guava:guava", version = "33.3.1-jre" }
 
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref= "retrofit" }
 retrofit-jackson = { module = "com.squareup.retrofit2:converter-jackson", version.ref= "retrofit" }
