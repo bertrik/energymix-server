@@ -71,7 +71,9 @@ public final class NedHandler {
         if (utilization == null) {
             return Double.NaN;
         }
-        return 4 * utilization.volume / 1E3;
+        EGranularity granularity = EGranularity.fromDescriptor(utilization.granularity);
+        double multiplier = 3600.0 / granularity.getDuration().toSeconds();
+        return multiplier * utilization.volume / 1E3;
     }
 
     public EnergyMix getGeneration() {

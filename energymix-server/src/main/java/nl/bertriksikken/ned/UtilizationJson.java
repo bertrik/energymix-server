@@ -14,7 +14,7 @@ public final class UtilizationJson {
     @JsonProperty("type")
     String type = "";
     @JsonProperty("granularity")
-    String granularity = "";
+    public String granularity = "";
     @JsonProperty("granularitytimezone")
     String granularitytimezone = "";
     @JsonProperty("activity")
