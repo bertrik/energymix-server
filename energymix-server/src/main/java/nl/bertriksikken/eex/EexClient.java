@@ -11,13 +11,15 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.scalars.ScalarsConverterFactory;
 
-public final class EexClient {
+public final class EexClient implements AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(EexClient.class);
 
+    private final OkHttpClient httpClient;
     private final IEexApi restApi;
 
-    EexClient(IEexApi restApi) {
+    EexClient(OkHttpClient httpClient, IEexApi restApi) {
+        this.httpClient = Objects.requireNonNull(httpClient);
         this.restApi = Objects.requireNonNull(restApi);
     }
 
@@ -28,7 +30,13 @@ public final class EexClient {
         Retrofit retrofit = new Retrofit.Builder().baseUrl(config.getUrl())
                 .addConverterFactory(ScalarsConverterFactory.create()).client(client).build();
         IEexApi restApi = retrofit.create(IEexApi.class);
-        return new EexClient(restApi);
+        return new EexClient(client, restApi);
+    }
+
+    @Override
+    public void close() {
+        httpClient.dispatcher().executorService().shutdown();
+        httpClient.connectionPool().evictAll();
     }
 
     public FileResponse getCurrentPriceDocument() throws IOException {

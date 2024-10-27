@@ -223,6 +223,7 @@ public final class ElectricityHandler {
 
     public void stop() {
         LOG.info("Stopping");
+        entsoeClient.close();
         executor.shutdownNow();
     }
 

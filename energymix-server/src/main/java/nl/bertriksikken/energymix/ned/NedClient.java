@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-public final class NedClient {
+public final class NedClient implements AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(NedClient.class);
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ISO_DATE;
@@ -56,8 +56,10 @@ public final class NedClient {
         return new NedClient(httpClient, restApi, config);
     }
 
-    public void shutdown() {
+    @Override
+    public void close() {
         httpClient.dispatcher().executorService().shutdown();
+        httpClient.connectionPool().evictAll();
     }
 
     private static okhttp3.Response addUserAgent(Chain chain) throws IOException {

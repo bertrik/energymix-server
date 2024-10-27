@@ -43,7 +43,7 @@ public final class NedHandler {
     }
 
     public void stop() {
-        client.shutdown();
+        client.close();
         executor.shutdownNow();
     }
 

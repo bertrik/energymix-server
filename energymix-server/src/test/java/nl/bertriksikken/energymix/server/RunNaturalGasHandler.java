@@ -14,13 +14,14 @@ public final class RunNaturalGasHandler {
 
     public static void main(String args[]) {
         EexConfig eexConfig = new EexConfig();
-        EexClient eexClient = EexClient.create(eexConfig);
-        IceConfig iceConfig = new IceConfig();
-        IceClient iceClient = IceClient.create(iceConfig);
-        EntsogClientConfig entsogConfig = new EntsogClientConfig();
-        EntsogClient entsogClient = EntsogClient.create(entsogConfig);
-        NaturalGasHandler handler = new NaturalGasHandler(eexClient, iceClient, entsogClient);
-        handler.start();
+        try (EexClient eexClient = EexClient.create(eexConfig)) {
+            IceConfig iceConfig = new IceConfig();
+            IceClient iceClient = IceClient.create(iceConfig);
+            EntsogClientConfig entsogConfig = new EntsogClientConfig();
+            EntsogClient entsogClient = EntsogClient.create(entsogConfig);
+            NaturalGasHandler handler = new NaturalGasHandler(eexClient, iceClient, entsogClient);
+            handler.start();
+        }
     }
 
 }

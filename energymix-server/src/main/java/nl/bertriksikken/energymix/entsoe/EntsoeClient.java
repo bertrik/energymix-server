@@ -23,17 +23,19 @@ import retrofit2.converter.scalars.ScalarsConverterFactory;
  * See
  * https://transparency.entsoe.eu/content/static_content/Static%20content/web%20api/Guide.html
  */
-public final class EntsoeClient {
+public final class EntsoeClient implements AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(EntsoeClient.class);
     
     private static final XmlMapper XML_MAPPER = new XmlMapper();
 
+    private final OkHttpClient httpClient;
     private final IEntsoeRestApi restApi;
     private final EntsoeConfig config;
     private final XmlMapper mapper;
 
-    EntsoeClient(IEntsoeRestApi restApi, EntsoeConfig config, XmlMapper mapper) {
+    EntsoeClient(OkHttpClient httpClient, IEntsoeRestApi restApi, EntsoeConfig config, XmlMapper mapper) {
+        this.httpClient = Objects.requireNonNull(httpClient);
         this.restApi = Objects.requireNonNull(restApi);
         this.config = Objects.requireNonNull(config);
         this.mapper = Objects.requireNonNull(mapper);
@@ -47,7 +49,13 @@ public final class EntsoeClient {
         Retrofit retrofit = new Retrofit.Builder().baseUrl(config.getUrl())
                 .addConverterFactory(ScalarsConverterFactory.create()).client(client).build();
         IEntsoeRestApi restApi = retrofit.create(IEntsoeRestApi.class);
-        return new EntsoeClient(restApi, config, XML_MAPPER);
+        return new EntsoeClient(client, restApi, config, XML_MAPPER);
+    }
+
+    @Override
+    public void close() {
+        httpClient.dispatcher().executorService().shutdown();
+        httpClient.connectionPool().evictAll();
     }
 
     String getRawDocument(Map<String, String> requestParams) throws IOException {
@@ -70,5 +78,4 @@ public final class EntsoeClient {
         // parse as response
         return mapper.readValue(xml, EntsoeResponse.class);
     }
-
 }

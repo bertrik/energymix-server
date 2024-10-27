@@ -34,12 +34,11 @@ public final class RunNednlClient {
 
     private void run() throws IOException {
         NedConfig config = readConfig(new File(".nednl.yaml"));
-        NedClient client = NedClient.create(config);
         List<EEnergyType> types = List.of(EEnergyType.SOLAR, EEnergyType.WIND, EEnergyType.WIND_OFFSHORE_C,
                 EEnergyType.FOSSIL_GAS_POWER, EEnergyType.FOSSIL_HARD_COAL, EEnergyType.NUCLEAR, EEnergyType.WASTE_POWER, EEnergyType.OTHER_POWER);
         Instant now = Instant.now();
         Map<EEnergyType, UtilizationJson> map = new HashMap<>();
-        try {
+        try (NedClient client = NedClient.create(config)) {
             for (EEnergyType type : types) {
                 List<UtilizationJson> list = client.getUtilizations(now, type, EGranularity.FIFTEEN_MINUTES);
                 if (!list.isEmpty()) {
@@ -47,8 +46,6 @@ public final class RunNednlClient {
                     map.put(type, mostRecent);
                 }
             }
-        } finally {
-            client.shutdown();
         }
 
         UtilizationJson fossilGasUtilization = map.get(EEnergyType.FOSSIL_GAS_POWER);
