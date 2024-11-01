@@ -1,5 +1,10 @@
 package nl.bertriksikken.entsoe;
 
+import com.google.common.collect.Iterables;
+import nl.bertriksikken.entsoe.EntsoeResponse.Period;
+import nl.bertriksikken.entsoe.EntsoeResponse.Point;
+import nl.bertriksikken.entsoe.EntsoeResponse.TimeSeries;
+
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -8,12 +13,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
-
-import com.google.common.collect.Iterables;
-
-import nl.bertriksikken.entsoe.EntsoeResponse.Period;
-import nl.bertriksikken.entsoe.EntsoeResponse.Point;
-import nl.bertriksikken.entsoe.EntsoeResponse.TimeSeries;
 
 public final class EntsoeParser {
 
@@ -30,13 +29,13 @@ public final class EntsoeParser {
 
     public List<Result> parseDayAheadPrices() {
         List<Result> prices = new ArrayList<>();
-        for (TimeSeries timeSeries : document.timeSeries) {
-            for (Period period : timeSeries.period) {
-                Duration resolution = Duration.parse(period.resolution);
-                for (Point point : period.points) {
-                    Instant blockEnd = period.timeInterval.getStart().plus(resolution.multipliedBy(point.position));
+        for (TimeSeries timeSeries : document.timeSeries()) {
+            for (Period period : timeSeries.period()) {
+                Duration resolution = Duration.parse(period.resolution());
+                for (Point point : period.points()) {
+                    Instant blockEnd = period.timeInterval().getStart().plus(resolution.multipliedBy(point.position()));
                     Instant blockStart = blockEnd.minus(resolution);
-                    prices.add(new Result(blockStart, blockEnd, point.priceAmount));
+                    prices.add(new Result(blockStart, blockEnd, point.priceAmount()));
                 }
             }
         }
@@ -44,14 +43,14 @@ public final class EntsoeParser {
     }
 
     public Result findByTime(Instant time, EPsrType psrType) {
-        for (TimeSeries timeSeries : document.timeSeries) {
-            if (timeSeries.psrType.psrType == psrType) {
-                for (Period period : timeSeries.period) {
-                    Duration resolution = Duration.parse(period.resolution);
-                    for (Point point : period.points) {
-                        Instant blockEnd = period.timeInterval.getStart().plus(resolution.multipliedBy(point.position));
+        for (TimeSeries timeSeries : document.timeSeries()) {
+            if (timeSeries.psrType().psrType() == psrType) {
+                for (Period period : timeSeries.period()) {
+                    Duration resolution = Duration.parse(period.resolution());
+                    for (Point point : period.points()) {
+                        Instant blockEnd = period.timeInterval().getStart().plus(resolution.multipliedBy(point.position()));
                         Instant blockStart = blockEnd.minus(resolution);
-                        Result result = new Result(blockStart, blockEnd, point.quantity);
+                        Result result = new Result(blockStart, blockEnd, point.quantity());
                         if (result.match(time)) {
                             return result;
                         }
@@ -65,14 +64,14 @@ public final class EntsoeParser {
     // find most recent generation result for specified type, null if not found
     public Result findMostRecentGeneration(EPsrType psrType) {
         List<Result> results = new ArrayList<>();
-        for (TimeSeries timeSeries : document.timeSeries) {
-            if (timeSeries.isGeneration() && (timeSeries.psrType.psrType == psrType)) {
-                for (Period period : timeSeries.period) {
-                    Duration resolution = Duration.parse(period.resolution);
-                    for (Point point : period.points) {
-                        Instant blockEnd = period.timeInterval.getStart().plus(resolution.multipliedBy(point.position));
+        for (TimeSeries timeSeries : document.timeSeries()) {
+            if (timeSeries.isGeneration() && (timeSeries.psrType().psrType() == psrType)) {
+                for (Period period : timeSeries.period()) {
+                    Duration resolution = Duration.parse(period.resolution());
+                    for (Point point : period.points()) {
+                        Instant blockEnd = period.timeInterval().getStart().plus(resolution.multipliedBy(point.position()));
                         Instant blockStart = blockEnd.minus(resolution);
-                        results.add(new Result(blockStart, blockEnd, point.quantity));
+                        results.add(new Result(blockStart, blockEnd, point.quantity()));
                     }
                 }
             }
@@ -82,10 +81,10 @@ public final class EntsoeParser {
 
     public Map<EPsrType, Integer> parseInstalledCapacity() {
         Map<EPsrType, Integer> map = new LinkedHashMap<>();
-        for (TimeSeries timeSeries : document.timeSeries) {
-            for (Period period : timeSeries.period) {
-                for (Point point : period.points) {
-                    map.put(timeSeries.psrType.psrType, point.quantity);
+        for (TimeSeries timeSeries : document.timeSeries()) {
+            for (Period period : timeSeries.period()) {
+                for (Point point : period.points()) {
+                    map.put(timeSeries.psrType().psrType(), point.quantity());
                 }
             }
         }

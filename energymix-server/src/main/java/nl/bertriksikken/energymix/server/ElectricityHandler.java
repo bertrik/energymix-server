@@ -1,5 +1,21 @@
 package nl.bertriksikken.energymix.server;
 
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+import com.google.common.cache.RemovalNotification;
+import nl.bertriksikken.energymix.entsoe.EntsoeClient;
+import nl.bertriksikken.energymix.entsoe.EntsoeConfig;
+import nl.bertriksikken.entsoe.EDocumentType;
+import nl.bertriksikken.entsoe.EProcessType;
+import nl.bertriksikken.entsoe.EPsrType;
+import nl.bertriksikken.entsoe.EntsoeParser;
+import nl.bertriksikken.entsoe.EntsoeParser.Result;
+import nl.bertriksikken.entsoe.EntsoeRequest;
+import nl.bertriksikken.entsoe.EntsoeResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
@@ -15,24 +31,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
-import com.google.common.cache.RemovalNotification;
-
-import nl.bertriksikken.energymix.entsoe.EntsoeClient;
-import nl.bertriksikken.energymix.entsoe.EntsoeConfig;
-import nl.bertriksikken.entsoe.EDocumentType;
-import nl.bertriksikken.entsoe.EProcessType;
-import nl.bertriksikken.entsoe.EPsrType;
-import nl.bertriksikken.entsoe.EntsoeParser;
-import nl.bertriksikken.entsoe.EntsoeParser.Result;
-import nl.bertriksikken.entsoe.EntsoeRequest;
-import nl.bertriksikken.entsoe.EntsoeResponse;
 
 public final class ElectricityHandler {
 
@@ -57,7 +55,7 @@ public final class ElectricityHandler {
     }
 
     private void logDocumentExpiry(RemovalNotification<DocumentKey, EntsoeResponse> notification) {
-        LOG.info("Document {} expired for {}", notification.getValue().type, notification.getKey().dateTime);
+        LOG.info("Document {} expired for {}", notification.getValue().type(), notification.getKey().dateTime);
         LOG.info("Cache stats: {}", documentCache.stats());
     }
 
@@ -67,18 +65,18 @@ public final class ElectricityHandler {
             ZonedDateTime periodStart = key.dateTime.truncatedTo(ChronoUnit.DAYS);
             ZonedDateTime periodEnd;
             switch (key.documentType) {
-            case PRICE_DOCUMENT:
-                periodEnd = periodStart.plus(Duration.ofDays(2));
-                return downloadPriceDocument(periodStart.toInstant(), periodEnd.toInstant());
-            case INSTALLED_CAPACITY_PER_TYPE:
-                ZonedDateTime capacityStart = periodStart.withDayOfYear(1);
-                ZonedDateTime capacityEnd = capacityStart.plusYears(1);
-                return downloadInstalledCapacity(capacityStart.toInstant(), capacityEnd.toInstant());
-            case WIND_SOLAR_FORECAST:
-                periodEnd = periodStart.plus(Duration.ofDays(1));
-                return downloadWindSolarForecast(periodStart.toInstant(), periodEnd.toInstant());
-            default:
-                break;
+                case PRICE_DOCUMENT:
+                    periodEnd = periodStart.plus(Duration.ofDays(2));
+                    return downloadPriceDocument(periodStart.toInstant(), periodEnd.toInstant());
+                case INSTALLED_CAPACITY_PER_TYPE:
+                    ZonedDateTime capacityStart = periodStart.withDayOfYear(1);
+                    ZonedDateTime capacityEnd = capacityStart.plusYears(1);
+                    return downloadInstalledCapacity(capacityStart.toInstant(), capacityEnd.toInstant());
+                case WIND_SOLAR_FORECAST:
+                    periodEnd = periodStart.plus(Duration.ofDays(1));
+                    return downloadWindSolarForecast(periodStart.toInstant(), periodEnd.toInstant());
+                default:
+                    break;
             }
         } catch (IOException e) {
             LOG.warn("Caught IOException", e);
