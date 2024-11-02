@@ -22,7 +22,6 @@ import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
@@ -297,32 +296,7 @@ public final class ElectricityHandler {
     }
 
     // document/time combination, used in the dynamic cache
-    private static final class DocumentKey {
-        private final EDocumentType documentType;
-        private final ZonedDateTime dateTime;
-
-        private DocumentKey(EDocumentType documentType, ZonedDateTime dateTime) {
-            this.documentType = documentType;
-            this.dateTime = dateTime;
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(documentType, dateTime);
-        }
-
-        @Override
-        public boolean equals(Object object) {
-            if (object instanceof DocumentKey other) {
-                return documentType.equals(other.documentType) && dateTime.equals(other.dateTime);
-            }
-            return false;
-        }
-
-        @Override
-        public String toString() {
-            return String.format(Locale.ROOT, "%s for %s", documentType.getCode(), dateTime.toString());
-        }
+    private record DocumentKey(EDocumentType documentType, ZonedDateTime dateTime) {
     }
 
 }
