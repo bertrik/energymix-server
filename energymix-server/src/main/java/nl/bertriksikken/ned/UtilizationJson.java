@@ -23,7 +23,7 @@ public final class UtilizationJson {
     String classification = "";
 
     @JsonProperty("capacity")
-    long capacity;
+    public long capacity;
     @JsonProperty("volume")
     public long volume;
     @JsonProperty("percentage")

@@ -71,9 +71,8 @@ public final class NedHandler {
         if (utilization == null) {
             return Double.NaN;
         }
-        EGranularity granularity = EGranularity.fromDescriptor(utilization.granularity);
-        double multiplier = 3600.0 / granularity.getDuration().toSeconds();
-        return multiplier * utilization.volume / 1E3;
+        // generation power is called 'capacity' in NED terminology
+        return utilization.capacity / 1E3;
     }
 
     public EnergyMix getGeneration() {
