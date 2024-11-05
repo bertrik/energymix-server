@@ -39,7 +39,7 @@ public final class NedHandler {
 
     @SuppressWarnings("FutureReturnValueIgnored")
     public void start() {
-        executor.scheduleAtFixedRate(new CatchingRunnable(LOG, this::downloadGeneration), 0, config.getInterval().getSeconds(), TimeUnit.SECONDS);
+        executor.scheduleAtFixedRate(new CatchingRunnable(LOG, this::downloadGeneration), 0, config.getInterval().toSeconds(), TimeUnit.SECONDS);
     }
 
     public void stop() {
