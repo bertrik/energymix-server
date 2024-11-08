@@ -82,7 +82,7 @@ public final class EntsoeParserTest {
         DayAheadPrices prices = new DayAheadPrices(time, currentPrice);
         parser.parseDayAheadPrices().forEach(r -> prices.addPrice(r.timeBegin, r.value));
         ObjectMapper jsonMapper = new ObjectMapper();
-        String json = jsonMapper.writeValueAsString(prices);
+        String json = jsonMapper.writerWithDefaultPrettyPrinter().writeValueAsString(prices);
         System.out.println(json);
     }
 

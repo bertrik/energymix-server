@@ -23,7 +23,6 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
@@ -108,27 +107,13 @@ public final class NaturalGasResource implements Managed, IEnergyResource {
             monthAheadPrices.add(new PriceAtDate(price.price, price.period, price.time));
         }
 
-        private static final class PriceAtDate {
-
+        private record PriceAtDate(@JsonProperty("price") double price, @JsonProperty("date") String date,
+                                   @JsonProperty("timestamp") String timestamp) {
             private static final DateTimeFormatter TIMESTAMP_FORMAT = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
             private static final ZoneId ZONE = ZoneId.of("Europe/Amsterdam");
 
-            @JsonProperty("price")
-            private final double price;
-            @JsonProperty("date")
-            private final String date;
-            @JsonProperty("timestamp")
-            private final String timestamp;
-
-            private PriceAtDate(double price, String date, Instant timestamp) {
-                this.price = price;
-                this.date = date;
-                this.timestamp = TIMESTAMP_FORMAT.format(OffsetDateTime.ofInstant(timestamp, ZONE));
-            }
-
-            @Override
-            public String toString() {
-                return String.format(Locale.ROOT, "{%.3f@%s(%s)}", price, date,timestamp);
+            PriceAtDate(double price, String date, Instant timestamp) {
+                this(price, date, TIMESTAMP_FORMAT.format(OffsetDateTime.ofInstant(timestamp, ZONE)));
             }
         }
     }
