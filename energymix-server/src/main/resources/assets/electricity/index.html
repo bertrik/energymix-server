@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elektriciteitsopwek</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
+</head>
+<body>
+<div id="main" style="width: 800px; height: 800px;"></div>
+
+<script>
+    // Initialize the chart
+    var chartDom = document.getElementById('main');
+    var myChart = echarts.init(chartDom);
+    var option;
+
+    // Fetch data from the source
+    fetch('https://stofradar.nl/electricity/generation')
+        .then(response => response.json())
+        .then(data => {
+            // Process the mix data for ECharts
+            const chartData = data.mix.map(item => ({
+                name: item.id,
+                value: item.power,
+                itemStyle: { color: item.color } // Set custom color for each segment
+            }));
+
+            // Configure the pie chart
+            option = {
+                title: {
+                    text: 'Nederlandse electriciteitsopwek',
+                    subtext: 'Source: stofradar.nl',
+                    left: 'center'
+                },
+                tooltip: {
+                    trigger: 'item'
+                },
+                legend: {
+                    orient: 'vertical',
+                    left: 'left'
+                },
+                series: [
+                    {
+                        name: 'Generation',
+                        type: 'pie',
+                        radius: '50%',
+                        data: chartData,
+                        emphasis: {
+                            itemStyle: {
+                                shadowBlur: 30,
+                                shadowOffsetX: 10,
+                                shadowColor: 'rgba(0, 0, 0, 0.5)'
+                            }
+                        }
+                    }
+                ]
+            };
+
+            // Set the chart option
+            myChart.setOption(option);
+        })
+        .catch(error => {
+            console.error('Error fetching data:', error);
+        });
+</script>
+</body>
+</html>

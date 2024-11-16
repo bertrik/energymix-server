@@ -16,6 +16,7 @@ import nl.bertriksikken.energymix.server.ElectricityHandler;
 import nl.bertriksikken.energymix.server.EnergyMix;
 import nl.bertriksikken.energymix.server.GenerationCapacity;
 
+import java.io.InputStream;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
@@ -43,6 +44,13 @@ public class ElectricityResource implements Managed, IEnergyResource {
     public void stop() {
         handler.stop();
         nedHandler.stop();
+    }
+
+    @GET
+    @Path("/")
+    @Produces(MediaType.TEXT_HTML)
+    public InputStream getIndex() {
+        return getClass().getClassLoader().getResourceAsStream("assets/electricity/index.html");
     }
 
     @GET
