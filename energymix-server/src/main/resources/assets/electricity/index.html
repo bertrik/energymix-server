@@ -7,7 +7,7 @@
     <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
 </head>
 <body>
-<div id="main" style="width: 800px; height: 800px;"></div>
+<div id="main" style="width: 850px; height: 850px;"></div>
 
 <script>
     // Initialize the chart
@@ -23,14 +23,14 @@
             const chartData = data.mix.map(item => ({
                 name: item.id,
                 value: item.power,
-                itemStyle: { color: item.color } // Set custom color for each segment
+                itemStyle: { color: item.color + 'cc', borderColor: '#fff' }
             }));
 
             // Configure the pie chart
             option = {
                 title: {
-                    text: 'Nederlandse electriciteitsopwek',
-                    subtext: 'Source: stofradar.nl',
+                    text: 'Actuele Nederlandse elektriciteitsopwek',
+                    subtext: 'Source: ENTSO-E (' + data.datetime + ')',
                     left: 'center'
                 },
                 tooltip: {
@@ -40,11 +40,14 @@
                     orient: 'vertical',
                     left: 'left'
                 },
+                itemStyle: {
+                    borderRadius: 8,
+                },
                 series: [
                     {
                         name: 'Generation',
                         type: 'pie',
-                        radius: '50%',
+                        radius: '70%',
                         data: chartData,
                         emphasis: {
                             itemStyle: {
