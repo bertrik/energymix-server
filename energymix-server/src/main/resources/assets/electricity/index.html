@@ -4,65 +4,70 @@
     <meta http-equiv="refresh" content="300">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Elektriciteitsopwek</title>
-    <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
+    <title>NL Elektriciteit</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-<div id="main" style="width: 850px; height: 850px;"></div>
+
+<div style="width: 750px; height: 750px;">
+    <canvas id="chart"></canvas>
+</div>
 
 <script>
-    // Initialize the chart
-    var chartDom = document.getElementById('main');
-    var myChart = echarts.init(chartDom);
-    var option;
-
-    // Fetch data from the source
+    // Fetch data from the API
     fetch('https://stofradar.nl/electricity/generation')
         .then(response => response.json())
         .then(data => {
-            // Process the mix data for ECharts
-            const chartData = data.mix.map(item => ({
-                name: item.id,
-                value: item.power,
-                itemStyle: { color: item.color + 'cc', borderColor: '#fff' }
-            }));
+            // Process the mix data
+            const labels = data.mix.map(item => item.id); // Extract energy source names
+            const values = data.mix.map(item => item.power); // Extract power values
+            const colors = data.mix.map(item => item.color + "CC"); // Extract colors
 
-            // Configure the pie chart
-            option = {
-                title: {
-                    text: 'Actuele Nederlandse elektriciteitsopwek',
-                    subtext: 'Source: ENTSO-E (' + data.datetime + ')',
-                    left: 'center'
+            // Create the pie chart
+            const ctx = document.getElementById('chart').getContext('2d');
+            new Chart(ctx, {
+                type: 'pie', // Pie chart type
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Actuele Nederlandse elektriciteitsopwek (MW)',
+                        data: values,
+                        backgroundColor: colors, // Custom colors for each segment
+                        borderRadius: 10,
+                        hoverOffset: 20,
+                    }],
                 },
-                tooltip: {
-                    trigger: 'item'
-                },
-                legend: {
-                    orient: 'vertical',
-                    left: 'left'
-                },
-                itemStyle: {
-                    borderRadius: 8,
-                },
-                series: [
-                    {
-                        name: 'Generation',
-                        type: 'pie',
-                        radius: '70%',
-                        data: chartData,
-                        emphasis: {
-                            itemStyle: {
-                                shadowBlur: 30,
-                                shadowOffsetX: 10,
-                                shadowColor: 'rgba(0, 0, 0, 0.5)'
-                            }
+                options: {
+                    layout: {
+                        padding: 10
+                    },
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Actuele Nederlandse elektriciteitsopwek',
+                            font: { size: 18 }
+                        },
+                        subtitle: {
+                            display: true,
+                            text: `Source: ENTSO-E (${data.datetime})`
+                        },
+                        legend: {
+                            align: 'start',
+                            position: 'chartArea'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function (tooltipItem) {
+                                    const value = tooltipItem.raw; // Current value
+                                    const percentage = ((value / data.total) * 100).toFixed(1);
+                                    return `${value} MW (${percentage}%)`;
+                                }
+                            },
                         }
                     }
-                ]
-            };
-
-            // Set the chart option
-            myChart.setOption(option);
+                }
+            });
         })
         .catch(error => {
             console.error('Error fetching data:', error);
@@ -70,3 +75,4 @@
 </script>
 </body>
 </html>
+
