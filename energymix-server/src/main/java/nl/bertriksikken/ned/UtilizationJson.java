@@ -2,9 +2,12 @@ package nl.bertriksikken.ned;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import java.util.Locale;
 
+@JsonPropertyOrder({"id", "point", "type", "granularity", "granularitytimezone", "activity", "classification",
+        "capacity", "volume", "percentage", "emission", "emissionfactor", "validfrom", "validto", "lastupdate"})
 @JsonIgnoreProperties(ignoreUnknown = true)
 public final class UtilizationJson {
     @JsonProperty("id")
