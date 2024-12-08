@@ -3,9 +3,8 @@ package nl.bertriksikken.energymix.app;
 import java.io.File;
 import java.io.IOException;
 
-import org.junit.Test;
-
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
+import org.junit.jupiter.api.Test;
 
 public final class EnergyMixAppConfigTest {
 

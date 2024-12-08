@@ -6,14 +6,13 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Assert;
-import org.junit.Test;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 
 import nl.bertriksikken.energymix.server.DayAheadPrices;
 import nl.bertriksikken.entsoe.EntsoeParser.Result;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public final class EntsoeParserTest {
 
@@ -27,7 +26,7 @@ public final class EntsoeParserTest {
         // extract and verify
         EntsoeParser parser = new EntsoeParser(document);
         Map<EPsrType, Integer> capacities = parser.parseInstalledCapacity();
-        Assert.assertEquals(22590, (long) capacities.get(EPsrType.SOLAR));
+        Assertions.assertEquals(22590, (long) capacities.get(EPsrType.SOLAR));
     }
 
     @Test
@@ -39,7 +38,7 @@ public final class EntsoeParserTest {
         Instant now = Instant.parse("2022-07-17T12:34:00Z");
         EntsoeParser parser = new EntsoeParser(document);
         Result result = parser.findByTime(now, EPsrType.SOLAR);
-        Assert.assertEquals(6248.0, result.value, 0.1);
+        Assertions.assertEquals(6248.0, result.value, 0.1);
     }
 
     @Test
@@ -50,7 +49,7 @@ public final class EntsoeParserTest {
         // extract and verify
         EntsoeParser parser = new EntsoeParser(document);
         Map<EPsrType, Integer> capacities = parser.parseInstalledCapacity();
-        Assert.assertEquals(22590.0, capacities.get(EPsrType.SOLAR), 0.1);
+        Assertions.assertEquals(22590.0, capacities.get(EPsrType.SOLAR), 0.1);
     }
 
     @Test
@@ -61,7 +60,7 @@ public final class EntsoeParserTest {
         // extract and verify
         EntsoeParser parser = new EntsoeParser(document);
         Result result = parser.findMostRecentGeneration(EPsrType.FOSSIL_HARD_COAL);
-        Assert.assertEquals(3136, result.value, 0.1);
+        Assertions.assertEquals(3136, result.value, 0.1);
     }
 
     @Test
@@ -72,11 +71,11 @@ public final class EntsoeParserTest {
         // extract and verify
         EntsoeParser parser = new EntsoeParser(document);
         List<Result> results = parser.parseDayAheadPrices();
-        Assert.assertFalse(results.isEmpty());
+        Assertions.assertFalse(results.isEmpty());
 
         Instant time = Instant.parse("2022-07-30T22:05:00Z");
         Double currentPrice = parser.findDayAheadPrice(time);
-        Assert.assertEquals(382.79, currentPrice, 0.01);
+        Assertions.assertEquals(382.79, currentPrice, 0.01);
 
         // build our structure
         DayAheadPrices prices = new DayAheadPrices(time, currentPrice);

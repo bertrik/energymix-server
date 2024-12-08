@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,14 +26,14 @@ public final class CurrentPriceDocumentTest {
         FileResponse response = FileResponse.create(Resources.toString(url, StandardCharsets.UTF_8), date);
 
         NeutralGasPrices document = CurrentPriceDocument.parse(response);
-        Assert.assertNotNull(document);
+        Assertions.assertNotNull(document);
         LOG.info("Document: {}", document);
 
         NeutralGasDayPrice finalPrice = document.findFinalPrice();
-        Assert.assertEquals(ENgpStatus.FINAL, finalPrice.status);
-        Assert.assertEquals(29.937, finalPrice.indexValue, 0.001);
-        
-        Assert.assertEquals(2, document.getTemporaryPrices().size());
+        Assertions.assertEquals(ENgpStatus.FINAL, finalPrice.status);
+        Assertions.assertEquals(29.937, finalPrice.indexValue, 0.001);
+
+        Assertions.assertEquals(2, document.getTemporaryPrices().size());
     }
 
 }

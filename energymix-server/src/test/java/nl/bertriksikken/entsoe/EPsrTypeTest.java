@@ -1,10 +1,10 @@
 package nl.bertriksikken.entsoe;
 
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
 import java.util.HashMap;
 import java.util.Map;
-
-import org.junit.Assert;
-import org.junit.Test;
 
 public final class EPsrTypeTest {
 
@@ -15,7 +15,7 @@ public final class EPsrTypeTest {
     public void testUniqueCode() {
         Map<String, EPsrType> codes = new HashMap<>();
         for (EPsrType psrType : EPsrType.values()) {
-            Assert.assertNull(codes.put(psrType.getCode(), psrType));
+            Assertions.assertNull(codes.put(psrType.getCode(), psrType));
         }
     }
 

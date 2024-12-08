@@ -1,7 +1,7 @@
 package nl.bertriksikken.energymix.server;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public final class EnergyMixConfigTest {
 
@@ -9,10 +9,10 @@ public final class EnergyMixConfigTest {
     public void testDefaults() {
         EnergyMixConfig config = new EnergyMixConfig();
 
-        Assert.assertNotNull(config.getArea());
-        Assert.assertNotNull(config.getTimeZone());
-        Assert.assertNotNull(config.getForecastOffset());
-        Assert.assertNotNull(config.toString());
+        Assertions.assertNotNull(config.getArea());
+        Assertions.assertNotNull(config.getTimeZone());
+        Assertions.assertNotNull(config.getForecastOffset());
+        Assertions.assertNotNull(config.toString());
     }
 
 }

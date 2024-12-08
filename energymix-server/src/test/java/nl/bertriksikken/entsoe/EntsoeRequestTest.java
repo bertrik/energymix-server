@@ -1,10 +1,10 @@
 package nl.bertriksikken.entsoe;
 
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
 import java.time.Instant;
 import java.util.Map;
-
-import org.junit.Assert;
-import org.junit.Test;
 
 public final class EntsoeRequestTest {
 
@@ -19,10 +19,10 @@ public final class EntsoeRequestTest {
 
         Map<String, String> params = request.getParams();
 
-        Assert.assertEquals("indomain", params.get("in_Domain"));
-        Assert.assertEquals("outdomain", params.get("out_Domain"));
-        Assert.assertEquals("A01", params.get("processType"));
-        Assert.assertEquals("B04", params.get("psrType"));
+        Assertions.assertEquals("indomain", params.get("in_Domain"));
+        Assertions.assertEquals("outdomain", params.get("out_Domain"));
+        Assertions.assertEquals("A01", params.get("processType"));
+        Assertions.assertEquals("B04", params.get("psrType"));
     }
 
 }

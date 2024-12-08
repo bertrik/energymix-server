@@ -3,9 +3,8 @@ package nl.bertriksikken.entsoe;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.junit.Test;
-
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import org.junit.jupiter.api.Test;
 
 public final class EntsoeResponseTest {
 
