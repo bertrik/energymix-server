@@ -3,6 +3,7 @@ package nl.bertriksikken.energymix.resource;
 import io.dropwizard.jersey.caching.CacheControl;
 import io.dropwizard.lifecycle.Managed;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.inject.Singleton;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.GET;
@@ -24,6 +25,7 @@ import java.util.concurrent.TimeUnit;
  * Main REST endpoint for (dutch) electricity queries.
  */
 @Path("/electricity")
+@Singleton
 public class ElectricityResource implements Managed, IEnergyResource {
 
     private final ElectricityHandler handler;

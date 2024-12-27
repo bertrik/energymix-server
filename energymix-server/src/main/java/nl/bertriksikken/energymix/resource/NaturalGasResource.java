@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.dropwizard.jersey.caching.CacheControl;
 import io.dropwizard.lifecycle.Managed;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.inject.Singleton;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
@@ -27,6 +28,7 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 @Path("/naturalgas")
+@Singleton
 public final class NaturalGasResource implements Managed, IEnergyResource {
 
     private static final Logger LOG = LoggerFactory.getLogger(NaturalGasResource.class);
