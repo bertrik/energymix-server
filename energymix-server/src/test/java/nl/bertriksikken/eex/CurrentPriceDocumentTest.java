@@ -30,8 +30,8 @@ public final class CurrentPriceDocumentTest {
         LOG.info("Document: {}", document);
 
         NeutralGasDayPrice finalPrice = document.findFinalPrice();
-        Assertions.assertEquals(ENgpStatus.FINAL, finalPrice.status);
-        Assertions.assertEquals(29.937, finalPrice.indexValue, 0.001);
+        Assertions.assertEquals(ENgpStatus.FINAL, finalPrice.status());
+        Assertions.assertEquals(29.937, finalPrice.indexValue(), 0.001);
 
         Assertions.assertEquals(2, document.getTemporaryPrices().size());
     }

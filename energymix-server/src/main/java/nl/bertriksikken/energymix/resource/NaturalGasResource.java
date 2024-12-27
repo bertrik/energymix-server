@@ -100,7 +100,7 @@ public final class NaturalGasResource implements Managed, IEnergyResource {
         private final List<PriceAtDate> monthAheadPrices = new ArrayList<>();
 
         private void addDayAheadPrice(NeutralGasDayPrice price) {
-            dayAheadPrices.add(new PriceAtDate(price.indexValue, DATE_FORMAT.format(price.date), price.timestamp));
+            dayAheadPrices.add(new PriceAtDate(price.indexValue(), DATE_FORMAT.format(price.date()), price.timestamp()));
         }
 
         private void addFutureGasPrice(FutureGasPrice price) {
