@@ -1,23 +1,6 @@
 package nl.bertriksikken.energymix.server;
 
-import java.io.IOException;
-import java.time.Duration;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Stream;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.collect.Iterables;
-
 import nl.bertriksikken.eex.CurrentPriceDocument;
 import nl.bertriksikken.eex.EexClient;
 import nl.bertriksikken.eex.FileResponse;
@@ -35,6 +18,21 @@ import nl.bertriksikken.naturalgas.NeutralGasPrices;
 import nl.bertriksikken.naturalgas.NeutralGasPrices.NeutralGasDayPrice;
 import nl.bertriksikken.theice.Contract;
 import nl.bertriksikken.theice.IceClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 
 /**
  * Downloads the TTF neutral gas price (NGP) on a schedule.
@@ -166,9 +164,10 @@ public final class NaturalGasHandler {
         executor.schedule(new CatchingRunnable(LOG, this::downloadGasFlows), delay.toMillis(), TimeUnit.MILLISECONDS);
     }
 
-    private boolean isMonth(String month) {
-        return Stream.of("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
-                .anyMatch(month::startsWith);
+    boolean isMonth(String month) {
+        return (month.length() == 5) &&
+                Stream.of("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
+                        .anyMatch(month::startsWith);
     }
 
     // get a copy of the neutral gas price
