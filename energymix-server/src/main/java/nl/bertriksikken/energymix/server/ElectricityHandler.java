@@ -64,18 +64,21 @@ public final class ElectricityHandler {
             ZonedDateTime periodStart = key.dateTime.truncatedTo(ChronoUnit.DAYS);
             ZonedDateTime periodEnd;
             switch (key.documentType) {
-                case PRICE_DOCUMENT:
+                case PRICE_DOCUMENT -> {
                     periodEnd = periodStart.plus(Duration.ofDays(2));
                     return downloadPriceDocument(periodStart.toInstant(), periodEnd.toInstant());
-                case INSTALLED_CAPACITY_PER_TYPE:
+                }
+                case INSTALLED_CAPACITY_PER_TYPE -> {
                     ZonedDateTime capacityStart = periodStart.withDayOfYear(1);
                     ZonedDateTime capacityEnd = capacityStart.plusYears(1);
                     return downloadInstalledCapacity(capacityStart.toInstant(), capacityEnd.toInstant());
-                case WIND_SOLAR_FORECAST:
+                }
+                case WIND_SOLAR_FORECAST -> {
                     periodEnd = periodStart.plus(Duration.ofDays(1));
                     return downloadWindSolarForecast(periodStart.toInstant(), periodEnd.toInstant());
-                default:
-                    break;
+                }
+                default -> {
+                }
             }
         } catch (IOException e) {
             LOG.warn("Caught IOException", e);
