@@ -149,7 +149,8 @@ public final class ElectricityHandler {
             LOG.info("ENTSO-E mix: {}", energyMix);
 
             isHealthy.set(true);
-        } catch (IOException | ExecutionException e) {
+        } catch (Throwable e) {
+            // we catch *anything* so at least we re-schedule the next download
             LOG.warn("Caught Exception", e);
             isHealthy.set(false);
         }

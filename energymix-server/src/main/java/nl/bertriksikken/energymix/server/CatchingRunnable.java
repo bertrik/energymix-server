@@ -19,12 +19,12 @@ public final class CatchingRunnable implements Runnable {
         try {
             runnable.run();
         } catch (Throwable e) {
-            logger.warn("Caught throwable from runnable: {}", e.getMessage());
+            logger.warn("Caught throwable from runnable", e);
         }
     }
 
     public interface CheckedRunnable {
-        public void run() throws Throwable;
+        void run() throws Throwable;
     }
 
 }
