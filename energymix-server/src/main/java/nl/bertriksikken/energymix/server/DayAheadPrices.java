@@ -24,7 +24,7 @@ public final class DayAheadPrices {
     }
 
     private record PriceElement(@JsonProperty("time") long time, @JsonProperty("price") double price) {
-        public PriceElement(Instant time, double price) {
+        private PriceElement(Instant time, double price) {
             this(time.getEpochSecond(), price);
         }
     }
