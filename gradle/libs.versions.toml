@@ -1,8 +1,8 @@
 [versions]
-jackson = "2.19.2"
+jackson = "2.20.0"
 junit = "5.13.4"
 retrofit = "3.0.0"
-dropwizard = "4.0.15"
+dropwizard = "4.0.16"
 errorprone = "2.41.0"
 
 [libraries]
