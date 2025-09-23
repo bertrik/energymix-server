@@ -1,22 +1,24 @@
 package nl.bertriksikken.eex;
 
-import java.io.IOException;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.stream.Stream;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
-
 import nl.bertriksikken.naturalgas.NeutralGasPrices;
 import nl.bertriksikken.naturalgas.NeutralGasPrices.NeutralGasDayPrice;
 import nl.bertriksikken.naturalgas.NeutralGasPrices.NeutralGasDayPrice.ENgpStatus;
+
+import java.io.IOException;
+import java.text.NumberFormat;
+import java.text.ParseException;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Locale;
+import java.util.stream.Stream;
 
 /**
  * Representation of the EEX NGP current price document.
@@ -30,6 +32,7 @@ public final class CurrentPriceDocument {
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy").withZone(ZONE);
     private static final DateTimeFormatter TIMESTAMP_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
             .withZone(ZONE);
+    private static final NumberFormat NUMBER_FORMAT = NumberFormat.getInstance(Locale.GERMANY);
 
     // parses the CSV data into the domain model
     public static NeutralGasPrices parse(FileResponse fileResponse) throws IOException {
@@ -45,7 +48,7 @@ public final class CurrentPriceDocument {
             LocalDate date = DATE_FORMAT.parse(csvEntry.gasDay, LocalDate::from);
             EStatus status = EStatus.from(csvEntry.ngpStatus);
             Instant timestamp = TIMESTAMP_FORMAT.parse(csvEntry.timeStamp, Instant::from);
-            document.add(new NeutralGasDayPrice(date, csvEntry.indexValue, csvEntry.indexVolume, status.ngpStatus,
+            document.add(new NeutralGasDayPrice(date, csvEntry.indexValue(), csvEntry.indexVolume, status.ngpStatus,
                     timestamp));
         }
         return document;
@@ -57,7 +60,7 @@ public final class CurrentPriceDocument {
         private String gasDay = "";
 
         @JsonProperty("IndexValue (€/MWh)")
-        private double indexValue = Double.NaN;
+        private String indexValue = "";
 
         @JsonProperty("IndexVolume (MWh)")
         private int indexVolume = 0;
@@ -67,6 +70,14 @@ public final class CurrentPriceDocument {
 
         @JsonProperty("Timestamp Let")
         private String timeStamp = "";
+
+        public double indexValue() {
+            try {
+                return NUMBER_FORMAT.parse(indexValue).doubleValue();
+            } catch (ParseException e) {
+                return Double.NaN;
+            }
+        }
     }
 
     private enum EStatus {
