@@ -51,7 +51,7 @@ public record EntsoeResponse(@JsonProperty("mRID") String mrid,
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record Point(@JsonProperty("position") int position,
-                        @JsonProperty("quantity") int quantity,
+                        @JsonProperty("quantity") double quantity,
                         @JsonProperty("price.amount") double priceAmount) {
     }
 }

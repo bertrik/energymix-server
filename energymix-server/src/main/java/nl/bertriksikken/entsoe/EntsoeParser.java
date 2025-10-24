@@ -84,7 +84,7 @@ public final class EntsoeParser {
         for (TimeSeries timeSeries : document.timeSeries()) {
             for (Period period : timeSeries.period()) {
                 for (Point point : period.points()) {
-                    map.put(timeSeries.psrType().psrType(), point.quantity());
+                    map.put(timeSeries.psrType().psrType(), (int)point.quantity());
                 }
             }
         }
