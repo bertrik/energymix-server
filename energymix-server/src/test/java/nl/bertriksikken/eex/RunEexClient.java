@@ -2,6 +2,7 @@ package nl.bertriksikken.eex;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 public final class RunEexClient {
 
@@ -15,7 +16,7 @@ public final class RunEexClient {
         try (EexClient client = EexClient.create(config)) {
             FileResponse response = client.getCurrentPriceDocument();
             try (FileOutputStream fos = new FileOutputStream("eex_naturalgas_price.json")) {
-                fos.write(response.getContents().getBytes());
+                fos.write(response.getContents().getBytes(StandardCharsets.UTF_8));
             }
         }
     }
