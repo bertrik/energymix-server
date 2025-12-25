@@ -104,6 +104,7 @@ public final class ElectricityHandler {
             EntsoeParser actualGenerationParser = new EntsoeParser(actualGenerationResponse);
             Result fossilCoal = sumGeneration(actualGenerationParser, EPsrType.FOSSIL_HARD_COAL);
             Result fossilGas = sumGeneration(actualGenerationParser, EPsrType.FOSSIL_GAS);
+            Result biomass = sumGeneration(actualGenerationParser, EPsrType.BIOMASS);
             Result nuclear = sumGeneration(actualGenerationParser, EPsrType.NUCLEAR);
             Result windOffshoreReported = sumGeneration(actualGenerationParser, EPsrType.WIND_OFFSHORE);
             Result windOnshoreReported = sumGeneration(actualGenerationParser, EPsrType.WIND_ONSHORE);
@@ -143,6 +144,7 @@ public final class ElectricityHandler {
             energyMix.addComponent("wind offshore", windOffshore, "#0000FF");
             energyMix.addComponent("fossil gas", fossilGas.value, "#FF0000");
             energyMix.addComponent("fossil coal", fossilCoal.value, "#FF0000");
+            energyMix.addComponent("biomass", biomass.value, "#FF0000");
             energyMix.addComponent("nuclear", nuclear.value, "#00FF00");
             energyMix.addComponent("waste", waste.value, "#FF00FF");
             energyMix.addComponent("other", other.value, "#FF00FF");

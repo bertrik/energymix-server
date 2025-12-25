@@ -35,7 +35,8 @@ public final class RunNednlClient {
     private void run() throws IOException {
         NedConfig config = readConfig(new File(".nednl.yaml"));
         List<EEnergyType> types = List.of(EEnergyType.SOLAR, EEnergyType.WIND, EEnergyType.WIND_OFFSHORE_C,
-                EEnergyType.FOSSIL_GAS_POWER, EEnergyType.FOSSIL_HARD_COAL, EEnergyType.NUCLEAR, EEnergyType.WASTE_POWER, EEnergyType.OTHER_POWER);
+                EEnergyType.FOSSIL_GAS_POWER, EEnergyType.FOSSIL_HARD_COAL, EEnergyType.NUCLEAR,
+                EEnergyType.WASTE_POWER, EEnergyType.OTHER_POWER, EEnergyType.BIO_MASS);
         Instant now = Instant.now();
         Map<EEnergyType, UtilizationJson> map = new HashMap<>();
         try (NedClient client = NedClient.create(config)) {
@@ -65,6 +66,8 @@ public final class RunNednlClient {
         energyMix.addComponent("fossil gas", fossilGas, "#FF0000");
         double fossilCoal = getPower(map, EEnergyType.FOSSIL_HARD_COAL);
         energyMix.addComponent("fossil coal", fossilCoal, "#FF0000");
+        double biomass = getPower(map, EEnergyType.BIO_MASS);
+        energyMix.addComponent("biomass", biomass, "#FF0000");
         double nuclear = getPower(map, EEnergyType.NUCLEAR);
         energyMix.addComponent("nuclear", nuclear, "#00FF00");
         double waste = getPower(map, EEnergyType.WASTE_POWER);

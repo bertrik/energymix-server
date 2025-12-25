@@ -51,7 +51,8 @@ public final class NedHandler {
         Instant now = Instant.now();
         LOG.info("Downloading from ned.nl ...");
         List<EEnergyType> types = List.of(EEnergyType.SOLAR, EEnergyType.WIND, EEnergyType.WIND_OFFSHORE_C,
-                EEnergyType.FOSSIL_GAS_POWER, EEnergyType.FOSSIL_HARD_COAL, EEnergyType.NUCLEAR, EEnergyType.WASTE_POWER, EEnergyType.OTHER_POWER);
+                EEnergyType.FOSSIL_GAS_POWER, EEnergyType.FOSSIL_HARD_COAL, EEnergyType.BIO_MASS,
+                EEnergyType.NUCLEAR, EEnergyType.WASTE_POWER, EEnergyType.OTHER_POWER);
         for (EEnergyType type : types) {
             List<UtilizationJson> list = client.getUtilizations(now, type, EGranularity.FIFTEEN_MINUTES);
             if (!list.isEmpty()) {
@@ -86,6 +87,7 @@ public final class NedHandler {
         energyMix.addComponent("wind offshore", getPower(EEnergyType.WIND_OFFSHORE_C), "#0000FF");
         energyMix.addComponent("fossil gas", getPower(EEnergyType.FOSSIL_GAS_POWER), "#FF0000");
         energyMix.addComponent("fossil coal", getPower(EEnergyType.FOSSIL_HARD_COAL), "#FF0000");
+        energyMix.addComponent("biomass", getPower(EEnergyType.BIO_MASS), "#FF0000");
         energyMix.addComponent("nuclear", getPower(EEnergyType.NUCLEAR), "#00FF00");
         energyMix.addComponent("waste", getPower(EEnergyType.WASTE_POWER), "#FF00FF");
         energyMix.addComponent("other", getPower(EEnergyType.OTHER_POWER), "#FF00FF");
