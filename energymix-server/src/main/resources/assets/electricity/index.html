@@ -9,7 +9,7 @@
 </head>
 <body>
 
-<div style="width: 750px; height: 750px;">
+<div style="width: 750px; margin-left: auto; margin-right: auto">
     <canvas id="chart"></canvas>
 </div>
 
@@ -54,7 +54,7 @@
                         },
                         legend: {
                             align: 'start',
-                            position: 'chartArea'
+                            position: 'chartArea',
                         },
                         tooltip: {
                             callbacks: {
@@ -73,6 +73,77 @@
             console.error('Error fetching data:', error);
         });
 </script>
+
+<script>
+    async function drawPriceChart() {
+      const r = await fetch('https://stofradar.nl/electricity/price');
+      const d = await r.json();
+
+      const series = d['day-ahead'];
+      const values = series.map(p => p.price / 1000); // €/kWh
+      const times = series.map(p => new Date(p.datetime));
+
+      // thresholds at 20% and 80%
+      const sorted = [...values].sort((a, b) => a - b);
+      const tLow  = sorted[Math.floor(sorted.length * 0.20)];
+      const tHigh = sorted[Math.floor(sorted.length * 0.80)];
+
+      const labels = times.map(t =>
+        t.toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' })
+      );
+
+      const barColors = values.map(v => {
+        if (v <= tLow)  return 'green';
+        if (v >= tHigh) return 'red';
+        return 'yellow';
+      });
+
+      // derive current quarter-hour time from JSON
+      const nowJson = new Date(d.current.datetime);
+
+      // floor to 15-minute bucket
+      const roundedMinutes = Math.floor(nowJson.getMinutes() / 15) * 15;
+
+      const currentIndex = times.findIndex(t =>
+        t.getHours() === nowJson.getHours() &&
+        t.getMinutes() === roundedMinutes
+      );
+
+      // convert current price to €/kWh for display
+      const priceNow = (d.current.price / 1000).toFixed(5);
+      const timeNow = nowJson.toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' });
+
+      const chart = new Chart(document.getElementById('priceChart'), {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [{
+            data: values,
+            backgroundColor: barColors,
+            borderWidth: values.map((_, i) => i === currentIndex ? 4 : 1),
+            borderColor: values.map((_, i) => i === currentIndex ? 'blue' : 'rgba(100,100,100,0.3)'),
+          }]
+        },
+        options: {
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: c => `€ ${c.raw.toFixed(5)} / kWh`
+              }
+            }
+          },
+          scales: {
+            x: { title: { display: true, text: 'Time' } },
+            y: { title: { display: true, text: 'Price (€ / kWh)' } }
+          }
+        }
+      });
+    }
+
+    drawPriceChart();
+</script>
+
 </body>
 </html>
 
