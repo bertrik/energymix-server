@@ -15,7 +15,7 @@ public final class RunEexClient {
         EexConfig config = new EexConfig();
         try (EexClient client = EexClient.create(config)) {
             FileResponse response = client.getCurrentPriceDocument();
-            try (FileOutputStream fos = new FileOutputStream("eex_naturalgas_price.json")) {
+            try (FileOutputStream fos = new FileOutputStream(CurrentPriceDocument.NGP_CURRENT_PRICES)) {
                 fos.write(response.getContents().getBytes(StandardCharsets.UTF_8));
             }
         }

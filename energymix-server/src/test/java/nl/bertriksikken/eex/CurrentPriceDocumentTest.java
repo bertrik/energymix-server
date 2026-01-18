@@ -22,7 +22,7 @@ public final class CurrentPriceDocumentTest {
     @Test
     public void testPriceDocument() throws IOException {
         String date = "Fri, 28 Oct 2022 17:16:04 GMT";
-        URL url = Resources.getResource("NGP-Current-Prices.csv");
+        URL url = Resources.getResource(CurrentPriceDocument.NGP_CURRENT_PRICES);
         FileResponse response = FileResponse.create(Resources.toString(url, StandardCharsets.UTF_8), date);
 
         NeutralGasPrices document = CurrentPriceDocument.parse(response);
@@ -31,7 +31,7 @@ public final class CurrentPriceDocumentTest {
 
         NeutralGasDayPrice finalPrice = document.findFinalPrice();
         Assertions.assertEquals(ENgpStatus.FINAL, finalPrice.status());
-        Assertions.assertEquals(29.937, finalPrice.indexValue(), 0.001);
+        Assertions.assertEquals(42.809, finalPrice.indexValue(), 0.001);
 
         Assertions.assertEquals(2, document.getTemporaryPrices().size());
     }

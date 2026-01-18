@@ -6,8 +6,6 @@ import retrofit2.http.Path;
 
 public interface IEexApi {
 
-    public static final String NGP_CURRENT_PRICES = "TTF_NGP_15_Mins.csv";
-
     /**
      * Downloads a file from the EEX download center.
      */

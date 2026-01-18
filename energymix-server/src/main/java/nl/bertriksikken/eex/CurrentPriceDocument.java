@@ -25,6 +25,8 @@ import java.util.stream.Stream;
  */
 public final class CurrentPriceDocument {
 
+    static final String NGP_CURRENT_PRICES = "TTF_NGP_15_Mins.csv";
+
     private static final CsvMapper CSV_MAPPER = new CsvMapper();
     private static final CsvSchema SCHEMA = CsvSchema.emptySchema().withHeader().withColumnSeparator(';');
 
@@ -32,7 +34,7 @@ public final class CurrentPriceDocument {
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy").withZone(ZONE);
     private static final DateTimeFormatter TIMESTAMP_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
             .withZone(ZONE);
-    private static final NumberFormat NUMBER_FORMAT = NumberFormat.getInstance(Locale.GERMANY);
+    private static final NumberFormat NUMBER_FORMAT = NumberFormat.getInstance(Locale.UK);
 
     // parses the CSV data into the domain model
     public static NeutralGasPrices parse(FileResponse fileResponse) throws IOException {
