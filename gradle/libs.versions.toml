@@ -1,5 +1,5 @@
 [versions]
-jackson = "2.20.1"
+jackson = "2.21.0"
 junit = "6.0.2"
 retrofit = "3.0.0"
 dropwizard = "5.0.0"
