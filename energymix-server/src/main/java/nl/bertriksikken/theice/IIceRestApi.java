@@ -8,7 +8,7 @@ import retrofit2.http.QueryMap;
 
 public interface IIceRestApi {
 
-    @GET("/marketdata/DelayedMarkets.shtml")
+    @GET("/marketdata/api/productguide/charting/contract-data")
     Call<String> getMarketData(@QueryMap Map<String, String> queryMap);
 
 }

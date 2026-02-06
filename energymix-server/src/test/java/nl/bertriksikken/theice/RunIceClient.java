@@ -19,9 +19,6 @@ public final class RunIceClient {
         IceConfig config = new IceConfig();
         IceClient client = IceClient.create(config);
 
-        IntradayChartData intradayChartData = client.getIntradayChartData();
-        LOG.info("IntradayChartData: {}", intradayChartData);
-
         List<Contract> contracts = client.getContracts();
         LOG.info("Contracts: {}", contracts);
     }
