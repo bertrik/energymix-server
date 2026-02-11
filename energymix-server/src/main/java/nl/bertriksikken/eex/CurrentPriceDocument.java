@@ -73,7 +73,7 @@ public final class CurrentPriceDocument {
         @JsonProperty("Timestamp Let")
         private String timeStamp = "";
 
-        public double indexValue() {
+        double indexValue() {
             try {
                 return NUMBER_FORMAT.parse(indexValue).doubleValue();
             } catch (ParseException e) {
