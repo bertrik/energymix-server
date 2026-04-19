@@ -23,6 +23,10 @@ dropwizard-core = { module = "io.dropwizard:dropwizard-core", version.ref = "dro
 dropwizard-assets = { module = "io.dropwizard:dropwizard-assets", version.ref = "dropwizard" }
 dropwizard-swagger = { module = "com.smoketurner:dropwizard-swagger", version = "4.0.5-1" }
 
+# for https://nvd.nist.gov/vuln/detail/CVE-2026-1605
+jetty-server = "org.eclipse.jetty:jetty-server:12.1.6"
+jetty-http = "org.eclipse.jetty:jetty-http:12.1.7"
+
 junit-bom = { module = "org.junit:junit-bom", version.ref = "junit" }
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }
 junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
@@ -30,7 +34,7 @@ junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher
 [bundles]
 jackson = ["jackson-bind", "jackson-yaml", "jackson-csv", "jackson-xml", "jackson-jsr310"]
 retrofit = ["retrofit", "retrofit-jackson", "retrofit-scalars"]
-dropwizard = ["dropwizard-core", "dropwizard-assets"]
+dropwizard = ["dropwizard-core", "dropwizard-assets", "jetty-server", "jetty-http"]
 
 [plugins]
 dependencycheck = "org.owasp.dependencycheck:8.4.3"
