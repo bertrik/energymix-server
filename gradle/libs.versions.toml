@@ -3,7 +3,7 @@ jackson = "2.21.2"
 junit = "6.0.3"
 retrofit = "3.0.0"
 dropwizard = "5.0.1"
-errorprone = "2.48.0"
+errorprone = "2.49.0"
 
 [libraries]
 errorprone_annotations = { module = "com.google.errorprone:error_prone_annotations", version.ref = "errorprone" }
@@ -24,8 +24,8 @@ dropwizard-assets = { module = "io.dropwizard:dropwizard-assets", version.ref = 
 dropwizard-swagger = { module = "com.smoketurner:dropwizard-swagger", version = "4.0.5-1" }
 
 # for https://nvd.nist.gov/vuln/detail/CVE-2026-1605
-jetty-server = "org.eclipse.jetty:jetty-server:12.1.6"
-jetty-http = "org.eclipse.jetty:jetty-http:12.1.7"
+jetty-server = "org.eclipse.jetty:jetty-server:12.1.8"
+jetty-http = "org.eclipse.jetty:jetty-http:12.1.8"
 
 junit-bom = { module = "org.junit:junit-bom", version.ref = "junit" }
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }
@@ -39,4 +39,4 @@ dropwizard = ["dropwizard-core", "dropwizard-assets", "jetty-server", "jetty-htt
 [plugins]
 dependencycheck = "org.owasp.dependencycheck:8.4.3"
 errorprone = "net.ltgt.errorprone:5.1.0"
-versions = "com.github.ben-manes.versions:0.53.0"
+versions = "com.github.ben-manes.versions:0.54.0"
