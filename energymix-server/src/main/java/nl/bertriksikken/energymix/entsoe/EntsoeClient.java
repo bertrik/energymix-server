@@ -1,23 +1,29 @@
 package nl.bertriksikken.energymix.entsoe;
 
-import java.io.IOException;
-import java.time.Duration;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-
+import nl.bertriksikken.eex.EexClient;
 import nl.bertriksikken.entsoe.EntsoeRequest;
 import nl.bertriksikken.entsoe.EntsoeResponse;
 import nl.bertriksikken.entsoe.IEntsoeRestApi;
 import okhttp3.OkHttpClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.scalars.ScalarsConverterFactory;
+
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
+import javax.net.ssl.X509TrustManager;
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.GeneralSecurityException;
+import java.security.KeyStore;
+import java.time.Duration;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * See
@@ -26,7 +32,7 @@ import retrofit2.converter.scalars.ScalarsConverterFactory;
 public final class EntsoeClient implements AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(EntsoeClient.class);
-    
+
     private static final XmlMapper XML_MAPPER = new XmlMapper();
 
     private final OkHttpClient httpClient;
@@ -44,12 +50,38 @@ public final class EntsoeClient implements AutoCloseable {
     public static EntsoeClient create(EntsoeConfig config) {
         Duration timeout = config.getTimeout();
         LOG.info("Creating new REST client for URL '{}' with timeout {}", config.getUrl(), timeout);
-        OkHttpClient client = new OkHttpClient().newBuilder().connectTimeout(timeout).readTimeout(timeout)
-                .writeTimeout(timeout).build();
+        OkHttpClient client = createHttpClient(timeout);
         Retrofit retrofit = new Retrofit.Builder().baseUrl(config.getUrl())
                 .addConverterFactory(ScalarsConverterFactory.create()).client(client).build();
         IEntsoeRestApi restApi = retrofit.create(IEntsoeRestApi.class);
         return new EntsoeClient(client, restApi, config, XML_MAPPER);
+    }
+
+    // create client with specified timeouts and specific trust store for EEX
+    private static OkHttpClient createHttpClient(Duration timeout) {
+        try {
+            TrustManagerFactory tmf =
+                    TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+            tmf.init(loadTrustStore("entsoe-truststore.p12", "secret"));
+            X509TrustManager trustManager = (X509TrustManager) tmf.getTrustManagers()[0];
+            SSLContext sslContext = SSLContext.getInstance("TLS");
+            sslContext.init(null, new TrustManager[]{trustManager}, null);
+            return new OkHttpClient().newBuilder()
+                    .connectTimeout(timeout).readTimeout(timeout).writeTimeout(timeout)
+                    .sslSocketFactory(sslContext.getSocketFactory(), trustManager)
+                    .build();
+        } catch (GeneralSecurityException | IOException e) {
+            LOG.error("Caught security initialisation exception", e);
+            throw new IllegalStateException(e);
+        }
+    }
+
+    private static KeyStore loadTrustStore(String resource, String password) throws GeneralSecurityException, IOException {
+        try (InputStream is = EexClient.class.getClassLoader().getResourceAsStream(resource)) {
+            KeyStore trustStore = KeyStore.getInstance("PKCS12");
+            trustStore.load(is, password.toCharArray());
+            return trustStore;
+        }
     }
 
     @Override
