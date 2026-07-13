@@ -1,6 +1,6 @@
 [versions]
-jackson = "2.22.0"
-junit = "6.1.1"
+jackson = "2.22.1"
+junit = "6.1.2"
 retrofit = "3.0.0"
 dropwizard = "5.0.2"
 errorprone = "2.50.0"
