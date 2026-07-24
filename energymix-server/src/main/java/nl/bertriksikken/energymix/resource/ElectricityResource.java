@@ -2,7 +2,6 @@ package nl.bertriksikken.energymix.resource;
 
 import io.dropwizard.jersey.caching.CacheControl;
 import io.dropwizard.lifecycle.Managed;
-import io.swagger.v3.oas.annotations.Operation;
 import jakarta.inject.Singleton;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.DefaultValue;
@@ -26,7 +25,7 @@ import java.util.concurrent.TimeUnit;
  */
 @Path("/electricity")
 @Singleton
-public class ElectricityResource implements Managed, IEnergyResource {
+public class ElectricityResource implements Managed {
 
     private final ElectricityHandler handler;
     private final NedHandler nedHandler;
@@ -57,7 +56,6 @@ public class ElectricityResource implements Managed, IEnergyResource {
 
     @GET
     @Path("/ping")
-    @Operation(hidden = true)
     public String ping() {
         return "pong!";
     }
@@ -66,7 +64,6 @@ public class ElectricityResource implements Managed, IEnergyResource {
     @Path("/generation")
     @Produces(MediaType.APPLICATION_JSON)
     @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.MINUTES)
-    @Operation(description = "The electricity generation mix, by production type", tags = {"electricity"})
     public EnergyMix getGeneration(@DefaultValue("entsoe") @QueryParam("model") String model) {
         return switch (model) {
             case "entsoe" -> handler.getGeneration();
@@ -79,7 +76,6 @@ public class ElectricityResource implements Managed, IEnergyResource {
     @Path("/price")
     @Produces(MediaType.APPLICATION_JSON)
     @CacheControl(maxAge = 60, maxAgeUnit = TimeUnit.MINUTES)
-    @Operation(description = "Electricity price, per hour", tags = {"electricity"})
     public DayAheadPrices getPrices() {
         return handler.getPrices();
     }
@@ -88,7 +84,6 @@ public class ElectricityResource implements Managed, IEnergyResource {
     @Path("/capacity")
     @Produces(MediaType.APPLICATION_JSON)
     @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.DAYS)
-    @Operation(description = "Electricity generation capacity, by production type", tags = {"electricity"})
     public GenerationCapacity getCapacity() {
         return handler.getCapacity();
     }

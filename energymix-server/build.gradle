@@ -8,6 +8,5 @@ dependencies {
     implementation libs.bundles.retrofit
     implementation libs.bundles.jackson
     implementation libs.bundles.dropwizard
-    implementation libs.dropwizard.swagger
 }
 

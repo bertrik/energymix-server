@@ -34,7 +34,6 @@ public final class EnergyMixApp extends Application<EnergyMixAppConfig> {
     public void initialize(Bootstrap<EnergyMixAppConfig> bootstrap) {
         bootstrap.getObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
         bootstrap.addBundle(new AssetsBundle("/assets/energy.png", "/favicon.ico"));
-        bootstrap.addBundle(new SwaggerBundleWrapper(ElectricityResource.class, NaturalGasResource.class));
     }
 
     @Override

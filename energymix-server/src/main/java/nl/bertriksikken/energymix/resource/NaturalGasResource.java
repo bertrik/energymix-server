@@ -3,7 +3,6 @@ package nl.bertriksikken.energymix.resource;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.dropwizard.jersey.caching.CacheControl;
 import io.dropwizard.lifecycle.Managed;
-import io.swagger.v3.oas.annotations.Operation;
 import jakarta.inject.Singleton;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
@@ -29,7 +28,7 @@ import java.util.concurrent.TimeUnit;
 
 @Path("/naturalgas")
 @Singleton
-public final class NaturalGasResource implements Managed, IEnergyResource {
+public final class NaturalGasResource implements Managed {
 
     private static final Logger LOG = LoggerFactory.getLogger(NaturalGasResource.class);
 
@@ -51,7 +50,6 @@ public final class NaturalGasResource implements Managed, IEnergyResource {
 
     @GET
     @Path("/ping")
-    @Operation(hidden = true)
     public String ping() {
         return "pong!";
     }
@@ -60,7 +58,6 @@ public final class NaturalGasResource implements Managed, IEnergyResource {
     @Path("/flow")
     @Produces(MediaType.APPLICATION_JSON)
     @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.DAYS)
-    @Operation(description = "Natural gas flow, by entry/exit on the network", tags = {"naturalgas"})
     public GasFlows getFlows() {
         return handler.getGasFlows();
     }
@@ -69,7 +66,6 @@ public final class NaturalGasResource implements Managed, IEnergyResource {
     @Path("/price")
     @Produces(MediaType.APPLICATION_JSON)
     @CacheControl(maxAge = 15, maxAgeUnit = TimeUnit.MINUTES)
-    @Operation(description = "Natural gas prices, per day", tags = {"naturalgas"})
     public NaturalGasPrice getPrices() {
         NaturalGasPrice naturalGasPrice = new NaturalGasPrice();
 
