@@ -9,14 +9,15 @@ def isNonStable = { String version ->
     return !stableKeyword && !(version ==~ regex)
 }
 
-subprojects {
+allprojects {
     apply plugin: "java"
-    apply plugin: 'com.github.ben-manes.versions'
-    apply plugin: 'net.ltgt.errorprone'
+    apply plugin: "io.github.ben-manes.versions"
+    apply plugin: "net.ltgt.errorprone"
 
     java {
-        targetCompatibility = JavaVersion.VERSION_21
-        sourceCompatibility = JavaVersion.VERSION_21
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(21)
+        }
     }
 
     repositories {
