@@ -33,4 +33,4 @@ dropwizard = ["dropwizard-core", "dropwizard-assets"]
 
 [plugins]
 errorprone = "net.ltgt.errorprone:5.1.0"
-versions = "io.github.ben-manes.versions:0.56.0"
+versions = "io.github.ben-manes.versions:0.57.0"
