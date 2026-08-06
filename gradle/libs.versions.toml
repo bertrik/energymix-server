@@ -1,6 +1,6 @@
 [versions]
 jackson = "2.22.1"
-jetty = "12.1.11"
+jetty = "12.1.12"
 junit = "6.1.2"
 retrofit = "3.0.0"
 dropwizard = "5.0.2"
